@@ -1,0 +1,9 @@
+**/.ipynb_checkpoints
+**/*.bkp
+**/model_save*
+**/ProcessedData*
+.vscode
+HetGNN/data/**
+**/.DS_Store
+GraphData/*
+TraceLogData/alllog/*
