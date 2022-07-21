@@ -11,6 +11,7 @@ from sklearn.metrics import roc_curve, auc, precision_recall_curve
 import numpy as np
 import pandas as pd
 import random
+import pickle
 
 
 torch.set_num_threads(2)
@@ -23,22 +24,30 @@ class model_class(object):
         self.args = args
         self.gpu = args.cuda
 
-        input_data = data_generator.input_data(args=self.args)
+        if args.preprocess:
+            input_data = data_generator.input_data(args=self.args)
 
-        # # save a tmp pickle file for processed feature list
-        # print('Save Processed Feature List')
-        # with open(f'{args.data_path}/feature_list.pkl', 'wb') as fout:
-        #     pickle.dump(input_data.feature_list, fout, protocol=4)
-        # input_data.gen_het_rand_walk()
+            # # save a tmp pickle file for processed feature list
+            # print('Save Processed Feature List')
+            # with open(f'{args.data_path}/feature_list.pkl', 'wb') as fout:
+            #     pickle.dump(input_data.feature_list, fout, protocol=4)
+            # input_data.gen_het_rand_walk()
 
-        self.input_data = input_data
+            self.input_data = input_data
 
-        if self.args.train_test_label == 2:  # generate neighbor set of each node
-            # input_data.het_walk_restart()
-            print("Wrong Arguments. Exit.")
-            exit(0)
+            if self.args.train_test_label == 2:  # generate neighbor set of each node
+                # input_data.het_walk_restart()
+                print("Wrong Arguments. Exit.")
+                exit(0)
 
-        feature_list = input_data.feature_list
+            feature_list = input_data.feature_list
+        else:
+            # read feature lists from previous saved files
+            feature_list_root_dir = f"{args.data_path}/feature_list"
+            #
+            tmp_path = '/tmp/feature_list_0_0.pkl'
+            with open(tmp_path, 'rb') as fin:
+                feature_ = pickle.load(fin)
 
         for i, fl in enumerate(feature_list):
             feature_list[i] = torch.from_numpy(np.array(feature_list[i])).float()

@@ -42,6 +42,7 @@ def read_args():
                         help='number of iterations to save model')
     parser.add_argument("--cuda", default=0, type=int)
     parser.add_argument("--checkpoint", default='', type=str)
+    parser.add_argument("--preprocess", default=0, type=int, help='only preprocess and save the feature list')
 
     args, _ = parser.parse_known_args()
 
