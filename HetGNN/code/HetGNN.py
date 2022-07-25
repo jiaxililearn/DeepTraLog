@@ -88,6 +88,7 @@ class model_class(object):
 
         if self.gpu:
             for i, _ in enumerate(feature_list):
+                print(i)
                 feature_list[i] = feature_list[i].cuda()
 
 #         graph_feature_idx_list = [] # deprecated list: this would be all the graph ids
