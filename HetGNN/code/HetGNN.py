@@ -177,6 +177,9 @@ class model_class(object):
             pred_scores = self.model.predict_score(eval_list)
             label = trace_info_df[trace_info_df['trace_id'].isin(eval_list)]['trace_bool'].apply(lambda x: 0 if x else 1).values
 
+            if self.gpu:
+                pred_scores = pred_scores.cpu()
+
             fpr, tpr, roc_thresholds = roc_curve(label, pred_scores.numpy())
             roc_auc = auc(fpr, tpr)
 
