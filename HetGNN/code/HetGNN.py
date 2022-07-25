@@ -98,7 +98,7 @@ class model_class(object):
                                   feature_index)
 
         if self.gpu:
-            self.model.cuda()
+            self.model = self.model.cuda()
         self.parameters = filter(lambda p: p.requires_grad, self.model.parameters())
         self.optim = optim.Adam(self.parameters, lr=self.args.lr, weight_decay=0)
         self.model.init_weights()
