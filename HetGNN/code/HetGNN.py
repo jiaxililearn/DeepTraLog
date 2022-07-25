@@ -126,6 +126,8 @@ class model_class(object):
             avg_loss_list = []
             for batch_n, k in enumerate(batch_list):
                 _out = torch.zeros(int(batch_s / mini_batch_s), mini_batch_s, out_embed_d)
+                if self.gpu:
+                    _out = _out.cuda()
 
                 mini_batch_list = k.reshape(int(len(k) / mini_batch_s), mini_batch_s)
                 for mini_n, mini_k in enumerate(mini_batch_list):
@@ -135,11 +137,10 @@ class model_class(object):
                 # TODO: perhaps batch norm before fc layer
                 batch_loss = tools.svdd_batch_loss(self.model, _out)
                 avg_loss_list.append(batch_loss.tolist())
-                print(f'\tBatch Loss: {batch_loss}')
+                print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
+                print(f'\t Batch Loss: {batch_loss}')
                 self.optim.zero_grad()
-                print('Backward.')
                 batch_loss.backward(retain_graph=True)
-                print('Step.')
                 self.optim.step()
             print(f'Avg Loss: {np.mean(avg_loss_list)}')
             epoch_loss_list.append(np.mean(avg_loss_list))
