@@ -186,7 +186,7 @@ class model_class(object):
             precision, recall, pr_thresholds = precision_recall_curve(label, pred_scores.numpy())
             ap = auc(recall, precision)
 
-            print(f'\tAUC:{roc_auc}, Avg Precision:{ap}')
+            print(f'\tAUC:{roc_auc}; Avg Precision:{ap};')
 
         return roc_auc, ap
     # def eval_model(self, eval_list):
