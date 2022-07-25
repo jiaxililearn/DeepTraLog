@@ -1,4 +1,5 @@
 import os
+from collections import defaultdict
 import torch
 import torch.optim as optim
 import data_generator
@@ -12,6 +13,7 @@ import numpy as np
 import pandas as pd
 import random
 import pickle
+from config import relations
 
 
 torch.set_num_threads(2)
@@ -23,7 +25,9 @@ class model_class(object):
         super(model_class, self).__init__()
         self.args = args
         self.gpu = args.cuda
-
+        feature_list = []
+        feature_index = []
+        
         if args.preprocess:
             input_data = data_generator.input_data(args=self.args)
 
@@ -41,25 +45,48 @@ class model_class(object):
                 exit(0)
 
             feature_list = input_data.feature_list
+            # preprocess only then exit
+            exit(0)
         else:
             # read feature lists from previous saved files
-            feature_list_root_dir = f"{args.data_path}/feature_list"
+            # if sagemaker train env is set
+            if args.train:
+                self.feature_list_root_dir = f"{args.train}"
+            else:
+                self.feature_list_root_dir = f"{args.data_path}/feature_list"
             #
-            tmp_path = '/tmp/feature_list_0_0.pkl'
-            with open(tmp_path, 'rb') as fin:
-                feature_ = pickle.load(fin)
+            for r in relations:
+                f_path = f'{self.feature_list_root_dir}/feature_list_{r}.pt'
+                idx_path = f'{self.feature_list_root_dir}/feature_index_{r}.pt'
+                
+                print(f'Read relation feature list {f_path} ..')
+                
+                feature_ = torch.load(f_path)
+                index_ = torch.load(idx_path)
 
-        for i, fl in enumerate(feature_list):
-            feature_list[i] = torch.from_numpy(np.array(feature_list[i])).float()
+                graph_index = defaultdict(list)
+                for i, gid in enumerate(index_):
+                    graph_index[gid].append(i)
+        
+                
+#                 print(feature_)
+                print(feature_.size())
+#                 print(feature_[[0,2,3]])
+                
+                feature_list.append(feature_)
+                feature_index.append(graph_index)
+
+#         for i, fl in enumerate(feature_list):
+#             feature_list[i] = torch.from_numpy(np.array(feature_list[i])).float()
 
         if self.gpu:
             for i, _ in enumerate(feature_list):
                 feature_list[i] = feature_list[i].cuda()
 
-        graph_train_id_list = input_data.train_graph_id_list
+#         graph_feature_idx_list = [] # deprecated list: this would be all the graph ids
 
         self.model = tools.HetAgg(args, feature_list,
-                                  graph_train_id_list)
+                                  feature_index)
 
         if self.gpu:
             self.model.cuda()
@@ -77,7 +104,7 @@ class model_class(object):
         mini_batch_s = self.args.mini_batch_s
         embed_d = self.args.embed_d
         # output embed size
-        out_embed_d = 32
+        out_embed_d = self.args.out_embed_d
 
         epoch_loss_list = []
         eval_list = []
@@ -111,7 +138,7 @@ class model_class(object):
                 print("Evaluating Model ..")
                 roc_auc, ap = self.eval_model(eval_gid_list)
                 eval_list.append([roc_auc, ap])
-
+                
                 # Save Model
                 torch.save(self.model.state_dict(), self.args.model_path +
                            "HetGNN_" + str(iter_i) + ".pt")
@@ -128,7 +155,7 @@ class model_class(object):
 
     def eval_model(self, eval_list):
         self.model.eval()
-        trace_info_df = pd.read_csv(f'../ProcessedData/trace_info.csv', index_col=None)
+        trace_info_df = pd.read_csv(f'{self.feature_list_root_dir}/trace_info.csv', index_col=None)
         with torch.no_grad():
             pred_scores = self.model.predict_score(eval_list)
             label = trace_info_df[trace_info_df['trace_id'].isin(eval_list)]['trace_bool'].apply(lambda x: 0 if x else 1).values
@@ -167,7 +194,7 @@ class model_class(object):
         """
         splite data into train eval test
         """
-        trace_info_df = pd.read_csv(f'../ProcessedData/trace_info.csv', index_col=None)
+        trace_info_df = pd.read_csv(f'{self.feature_list_root_dir}/trace_info.csv', index_col=None)
 
         all_gid_list = trace_info_df['trace_id'].values
         benign_gid_list = trace_info_df[trace_info_df['trace_bool']==True]['trace_id'].values
@@ -200,15 +227,15 @@ class model_class(object):
         print(f'Model Test Data Size: {test_gid_list.shape}')
 
         # write out current train/eval/test gids
-        with open('../data/data_splits/rep_model_train_gid_list.txt', 'w') as fout:
+        with open(f'{self.args.model_path}/model_gid_list_train.txt', 'w') as fout:
             for i in rep_train_benign_gid_list:
                 fout.write(f'{i} ')
             fout.write('\n')
-        with open('../data/data_splits/clf_eval_gid_list.txt', 'w') as fout:
+        with open(f'{self.args.model_path}/model_gid_list_eval.txt', 'w') as fout:
             for i in eval_gid_list:
                 fout.write(f'{i} ')
             fout.write('\n')
-        with open('../data/data_splits/clf_test_gid_list.txt', 'w') as fout:
+        with open(f'{self.args.model_path}/model_gid_list_test.txt', 'w') as fout:
             for i in test_gid_list:
                 fout.write(f'{i} ')
             fout.write('\n')

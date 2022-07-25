@@ -10,6 +10,7 @@ import math
 from collections import Counter, defaultdict
 from itertools import *
 from sklearn.preprocessing import normalize
+import torch
 from scipy import sparse
 import pickle
 
@@ -175,8 +176,11 @@ class input_data(object):
             # self.feature_list.append(self.compute_edge_embeddings(v))
 
             # write each large sized feature list
-            with open(f'{args.data_path}/feature_list/feature_list_{k}.pkl', 'wb') as fout:
-                pickle.dump(self.compute_edge_embeddings(v), fout, protocol=4)
+            feature_, index_ = self.compute_edge_embeddings(v)
+#             with open(f'{args.data_path}/feature_list/feature_list_{k}.pt', 'wb') as fout:
+            torch.save(feature_, f'{args.data_path}/feature_list/feature_list_{k}.pt')
+#             with open(f'{args.data_path}/feature_list/feature_index_{k}.pt', 'wb') as fout:
+            torch.save(index_, f'{args.data_path}/feature_list/feature_index_{k}.pt')
             
         # Getting the list of graph ids in the training set
         self.train_graph_id_list = list(self.incoming_edge_embeddings.keys())
@@ -225,11 +229,11 @@ class input_data(object):
         print("Normalise processed node attributes ..")
         graph_encoding_list = np.array(graph_encoding_list)
         print(f'Encoding Shape: {graph_encoding_list.shape}')
-        graph_encoding_list = sparse.csr_matrix(
+        graph_encoding_list = torch.from_numpy(
             normalize(
                 graph_encoding_list,
                 axis=0)
-        )
+        ).float()
         # print(graph_edge_encoding[0])
         # print(graph_edge_encoding[0].shape)
         # print(graph_edge_encoding[0].sum())

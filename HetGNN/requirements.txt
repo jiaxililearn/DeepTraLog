@@ -1,4 +1,4 @@
-numpu
+numpy
 pandas
 sklearn
 tqdm
