@@ -96,6 +96,8 @@ class HetAgg(nn.Module):
             # if no neighbour type, default 0
             if len(output_list_idx[gid_]) == 0:
                 avg_embed = torch.zeros((1, self.out_embed_d))
+                if self.gpu:
+                    avg_embed = avg_embed.cuda()
             else:
                 output_gid = output[output_list_idx[gid_]]
     #             except Exception as e:
