@@ -15,6 +15,7 @@ import pandas as pd
 import random
 import pickle
 from config import relations
+import boto3
 
 
 # torch.set_num_threads(2)
@@ -168,9 +169,36 @@ class model_class(object):
                     for roc_auc, ap in eval_list:
                         fout.write(f'{roc_auc} {ap}\n')
 
+                # sync to s3 for intermediate save
+                self.sync_model_path_to_s3(s3_bucket='prod-tpgt-knowledge-lake-sandpit-v1', s3_prefix='application/anomaly_detection/deeptralog/HetGNN/model_save_top10/')
+
             print('iteration ' + str(iter_i) + ' finish.')
 
+    def sync_model_path_to_s3(self, s3_bucket, s3_prefix):
+        """
+        sync model path to S3 periodically
+        """
+        client = boto3.client('s3')
+
+        for root, dirs, files in os.walk(self.args.model_path):
+            for filename in files:
+                local_path = os.path.join(root, filename)
+
+                relative_path = os.path.relpath(local_path, self.args.model_path)
+
+                s3_path = os.path.join(s3_prefix, relative_path)
+
+                try:
+                    print(f"Uploading {s3_path}...")
+                    client.upload_file(local_path, s3_bucket, s3_path)
+
+                except Exception as e:
+                    print(f"Failed to upload {local_path} to {s3_path}.\n{e}")
+
     def eval_model(self, eval_list):
+        """
+        Eval Model
+        """
         self.model.eval()
         trace_info_df = pd.read_csv(f'{self.feature_list_root_dir}/trace_info.csv', index_col=None)
         with torch.no_grad():
