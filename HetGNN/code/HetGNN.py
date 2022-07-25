@@ -1,4 +1,5 @@
 import os
+import time
 from collections import defaultdict
 import torch
 import torch.optim as optim
@@ -124,7 +125,11 @@ class model_class(object):
             print('iteration ' + str(iter_i) + ' ...')
             batch_list = benign_gid_list.reshape(int(benign_gid_list.shape[0] / batch_s), batch_s)
             avg_loss_list = []
+
+            epoch_start_time = time.time()
             for batch_n, k in enumerate(batch_list):
+                batch_start_time = time.time()
+
                 _out = torch.zeros(int(batch_s / mini_batch_s), mini_batch_s, out_embed_d)
                 if self.gpu:
                     _out = _out.cuda()
@@ -137,13 +142,13 @@ class model_class(object):
                 # TODO: perhaps batch norm before fc layer
                 batch_loss = tools.svdd_batch_loss(self.model, _out)
                 avg_loss_list.append(batch_loss.tolist())
-                print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
-                print(f'\t Batch Loss: {batch_loss}')
+                # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
                 self.optim.zero_grad()
                 batch_loss.backward(retain_graph=True)
                 self.optim.step()
-            print(f'Avg Loss: {np.mean(avg_loss_list)}')
+                print(f'\t Batch Loss: {batch_loss}; Batch Time: {1000 * (time.time()-batch_start_time)}ms')
             epoch_loss_list.append(np.mean(avg_loss_list))
+            print(f'Epoch Loss: {np.mean(avg_loss_list)}; Epoch Time: {1000 * (time.time() - epoch_start_time)}ms')
 
             if iter_i % self.args.save_model_freq == 0:
                 # Evaluate the model

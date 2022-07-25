@@ -31,7 +31,7 @@ def read_args():
                         help='learning rate')
     parser.add_argument('--batch_s', type=int, default=6540,
                         help='batch size')
-    parser.add_argument('--mini_batch_s', type=int, default=6540,
+    parser.add_argument('--mini_batch_s', type=int, default=654,
                         help='mini batch size')
     parser.add_argument('--train_iter_n', type=int, default=1000,
                         help='max number of training iteration')
