@@ -16,15 +16,18 @@ import pickle
 from config import relations
 
 
-torch.set_num_threads(2)
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-
+# torch.set_num_threads(2)
+# os.environ['CUDA_VISIBLE_DEVICES'] = '0'
+print(f'cuda available: {torch.cuda.is_available()}')
+print(f'current cuda: {torch.cuda.current_device()}')
+print(f'current cuda: {torch.cuda.current_device()}')
+print(f'cuda device count: {torch.cuda.device_count()}')
 
 class model_class(object):
     def __init__(self, args):
         super(model_class, self).__init__()
         self.args = args
-        self.gpu = args.cuda
+        self.gpu = torch.cuda.device_count()
         feature_list = []
         feature_index = []
         
