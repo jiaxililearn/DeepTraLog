@@ -72,7 +72,7 @@ class HetAgg(nn.Module):
                 row_idx += 1
         
         # get all the node encoding in the gid batch
-        node_encoding = self.feature_list[relation_idx][feature_list_idx]
+        node_encoding = self.feature_list[relation_idx][feature_list_idx].cuda()
         
         fc_agg = self.fc_neigh_agg_layers[relation_idx]
 

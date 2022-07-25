@@ -86,10 +86,11 @@ class model_class(object):
 #         for i, fl in enumerate(feature_list):
 #             feature_list[i] = torch.from_numpy(np.array(feature_list[i])).float()
 
-        if self.gpu:
-            for i, _ in enumerate(feature_list):
-                print(i)
-                feature_list[i] = feature_list[i].cuda()
+        # avoid converting all data into GPU memory, will picking the necessary data to be cuda
+        # if self.gpu:
+        #     for i, _ in enumerate(feature_list):
+        #         print(i)
+        #         feature_list[i] = feature_list[i].cuda()
 
 #         graph_feature_idx_list = [] # deprecated list: this would be all the graph ids
 
