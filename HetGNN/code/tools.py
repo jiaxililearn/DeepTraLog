@@ -21,6 +21,7 @@ class HetAgg(nn.Module):
         self.out_embed_d = args.out_embed_d
         self.num_neigh_relations = 59
 #         self.max_num_edge_embeddings = 200
+        self.gpu = torch.cuda.is_available()
 
         self.args = args
 
@@ -72,7 +73,9 @@ class HetAgg(nn.Module):
                 row_idx += 1
         
         # get all the node encoding in the gid batch
-        node_encoding = self.feature_list[relation_idx][feature_list_idx].cuda()
+        node_encoding = self.feature_list[relation_idx][feature_list_idx]
+        if self.gpu:
+            node_encoding = node_encoding.cuda()
         
         fc_agg = self.fc_neigh_agg_layers[relation_idx]
 
