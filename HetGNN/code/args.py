@@ -9,7 +9,7 @@ def read_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', type=str, default='../ProcessedData_rw_top10',
                         help='path to data')
-#     parser.add_argument('--model_path', type=str, default='../model_save/',
+#     parser.add_argument('--model_path', type=str, default='../model_save',
 #                         help='path to save model')
     parser.add_argument('--model_path', type=str, default=os.environ['SM_MODEL_DIR'],
                         help='path to save model')

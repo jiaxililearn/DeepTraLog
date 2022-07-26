@@ -158,14 +158,13 @@ class model_class(object):
                 eval_list.append([roc_auc, ap])
                 
                 # Save Model
-                torch.save(self.model.state_dict(), self.args.model_path +
-                           "HetGNN_" + str(iter_i) + ".pt")
+                torch.save(self.model.state_dict(), f'{self.args.model_path}/HetGNN_{iter_i}.pt')
                 # save current all epoch losses
-                with open(f'{self.args.model_path}train_loss.txt', 'w') as fout:
+                with open(f'{self.args.model_path}/train_loss.txt', 'w') as fout:
                     for lo in epoch_loss_list:
                         fout.write(f'{lo}\n')
 
-                with open(f'{self.args.model_path}eval_metrics.txt', 'w') as fout:
+                with open(f'{self.args.model_path}/eval_metrics.txt', 'w') as fout:
                     for roc_auc, ap in eval_list:
                         fout.write(f'{roc_auc} {ap}\n')
 
