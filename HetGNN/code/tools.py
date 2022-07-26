@@ -4,6 +4,7 @@ import torch.nn as nn
 # import torch.nn.functional as F
 # from torch.autograd import Variable
 from args import read_args
+from config import relations, selected_relations
 # import numpy as np
 # import string
 # import re
@@ -19,7 +20,9 @@ class HetAgg(nn.Module):
         super(HetAgg, self).__init__()
         embed_d = args.embed_d
         self.out_embed_d = args.out_embed_d
-        self.num_neigh_relations = 59
+        
+        # SELECTED FEATURES
+        self.num_neigh_relations = len(selected_relations)
 #         self.max_num_edge_embeddings = 200
         self.gpu = torch.cuda.is_available()
 

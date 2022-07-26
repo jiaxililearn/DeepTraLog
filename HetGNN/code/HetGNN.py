@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 import random
 import pickle
-from config import relations
+from config import relations, selected_relations
 import boto3
 
 
@@ -63,8 +63,9 @@ class model_class(object):
                 self.feature_list_root_dir = f"{args.train}"
             else:
                 self.feature_list_root_dir = f"{args.data_path}/feature_list"
-            #
-            for r in relations:
+
+            # SELECTED FEATURES
+            for r in selected_relations:
                 f_path = f'{self.feature_list_root_dir}/feature_list_{r}.pt'
                 idx_path = f'{self.feature_list_root_dir}/feature_index_{r}.pt'
                 
@@ -169,7 +170,7 @@ class model_class(object):
                         fout.write(f'{roc_auc} {ap}\n')
 
                 # sync to s3 for intermediate save
-                self.sync_model_path_to_s3(s3_bucket='prod-tpgt-knowledge-lake-sandpit-v1', s3_prefix='application/anomaly_detection/deeptralog/HetGNN/model_save_top10/')
+                self.sync_model_path_to_s3(s3_bucket='prod-tpgt-knowledge-lake-sandpit-v1', s3_prefix='application/anomaly_detection/deeptralog/HetGNN/model_save_top10_w_selected_features/')
 
             print('iteration ' + str(iter_i) + ' finish.')
 
