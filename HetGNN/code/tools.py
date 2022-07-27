@@ -213,7 +213,7 @@ def svdd_batch_loss(model, embed_batch, l2_lambda=0.001):  # nu: {0.1, 0.01}
             print('Set initial center ..')
             hypersphere_center = torch.mean(_batch_out_resahpe, 0)
             model.set_svdd_center(hypersphere_center)
-            torch.save(hypersphere_center, args.model_path + 'HetGNN_SVDD_Center.pt')
+            torch.save(hypersphere_center, f'{args.model_path}/HetGNN_SVDD_Center.pt')
         # with open(model.args.model_path + "HetGNN_SVDD_Center.pt", 'w') as fout:
         #     fout.write()
     else:
