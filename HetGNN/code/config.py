@@ -61,4 +61,4 @@ relations = [
         ]
 
 selected_idx = [6,7,14,15,22,23,30,31,38,39,46,47,50,51,52,53,54,55,56,57,58]
-selected_relations = [relations[i] for i in selected_idx]
+selected_relations = relations #[relations[i] for i in selected_idx]

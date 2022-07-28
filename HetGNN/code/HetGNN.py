@@ -170,7 +170,7 @@ class model_class(object):
                         fout.write(f'{roc_auc} {ap}\n')
 
                 # sync to s3 for intermediate save
-                self.sync_model_path_to_s3(s3_bucket='prod-tpgt-knowledge-lake-sandpit-v1', s3_prefix='application/anomaly_detection/deeptralog/HetGNN/model_save_top10_w_selected_features/')
+                self.sync_model_path_to_s3(s3_bucket='prod-tpgt-knowledge-lake-sandpit-v1', s3_prefix='application/anomaly_detection/deeptralog/HetGNN/model_save_top10/')
 
             print('iteration ' + str(iter_i) + ' finish.')
 
