@@ -28,7 +28,6 @@ class EventGraphDataset(Dataset):
             with open(het_file_path, 'r') as fin:
                 _het_neigh_list = json.load(fin)
             self.het_neigh_dict.update(_het_neigh_list)
-            break
 
         self.transform = transform
         print('done')

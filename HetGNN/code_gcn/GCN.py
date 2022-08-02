@@ -62,10 +62,10 @@ class HetGCN(nn.Module):
         # h = h.tanh()
 
         graph_node_het_embedding = self.node_het_embedding(x_node_feature, x_het_neighbour_list)
-        print(f'Node Het Embedding: {graph_node_het_embedding}')
+        # print(f'Node Het Embedding: {graph_node_het_embedding}')
 
         graph_embedding = self.graph_node_pooling(graph_node_het_embedding)
-        print(f'Graph Embedding: {graph_embedding}')
+        # print(f'Graph Embedding: {graph_embedding}')
         return graph_embedding
 
     def node_het_embedding(self, h_embed, het_neighbour_list, x_edge_index=None):

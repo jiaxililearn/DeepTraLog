@@ -79,8 +79,8 @@ class Train(object):
                 mini_batch_list = k.reshape(int(len(k) / self.mini_batch_s), self.mini_batch_s)
                 for mini_n, mini_k in enumerate(mini_batch_list):
                     for i, gid in enumerate(mini_k):
-                        print(f'forward 1 graph {gid}')
-                        graph_node_feature, het_neigh_dict = self.dataset[0]  # TODO: change it back to gid
+                        print(f'forward graph {gid}')
+                        graph_node_feature, het_neigh_dict = self.dataset[gid]
                         _out[mini_n][i] = self.model(graph_node_feature, het_neigh_dict)
 
                 batch_loss = HetGCN.svdd_batch_loss(self.model, _out)
