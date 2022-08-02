@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from torch_geometric.nn import GCNConv
+# from torch_geometric.nn import GCNConv
 
 from config import relations, node_types
 
