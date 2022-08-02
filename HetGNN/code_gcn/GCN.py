@@ -1,3 +1,4 @@
+from tqdm import tqdm
 import torch
 from torch import nn
 # from torch_geometric.nn import GCNConv
@@ -61,9 +62,10 @@ class HetGCN(nn.Module):
         # h = h.tanh()
 
         graph_node_het_embedding = self.node_het_embedding(x_node_feature, x_het_neighbour_list)
+        print(f'Node Het Embedding: {graph_node_het_embedding}')
 
         graph_embedding = self.graph_node_pooling(graph_node_het_embedding)
-
+        print(f'Graph Embedding: {graph_embedding}')
         return graph_embedding
 
     def node_het_embedding(self, h_embed, het_neighbour_list, x_edge_index=None):
@@ -72,7 +74,7 @@ class HetGCN(nn.Module):
         """
         graph_het_node_embedding = torch.zeros(h_embed.shape).to(self.device)
 
-        for node, node_het_neigh in het_neighbour_list.items():
+        for node, node_het_neigh in tqdm(het_neighbour_list.items()):
             node_type = self.node_type_to_id[node[0]]
             node_id = int(node[1:])
             het_neigh_embedding = torch.zeros(self.num_node_types + 1, self.out_embed_d).to(self.device)
@@ -96,7 +98,7 @@ class HetGCN(nn.Module):
                 het_neigh_embedding[neigh_type] = neigh_aggregated
 
             # adding self at the end of the neighbourhood
-            het_neigh_embedding[-1] = self.encode_node_content(h_embed[node_id], node_type)
+            het_neigh_embedding[-1] = self.relu(self.encode_node_content(h_embed[node_id], node_type))
 
             het_node_embedding = self.aggregate_het_neigh_types(het_neigh_embedding)
             het_node_embedding = self.sigmoid(het_node_embedding)
