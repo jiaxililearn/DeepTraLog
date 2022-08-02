@@ -71,15 +71,15 @@ class Train(object):
 
             epoch_start_time = time.time()
 
-            for batch_n, k in enumerate(batch_list):
+            for batch_n, k in tqdm(enumerate(batch_list)):
                 batch_start_time = time.time()
 
                 _out = torch.zeros(
                     int(self.batch_s / self.mini_batch_s), self.mini_batch_s, self.out_embed_d).to(self.device)
 
                 mini_batch_list = k.reshape(int(len(k) / self.mini_batch_s), self.mini_batch_s)
-                for mini_n, mini_k in tqdm(enumerate(mini_batch_list)):
-                    for i, gid in tqdm(enumerate(mini_k)):
+                for mini_n, mini_k in enumerate(mini_batch_list):
+                    for i, gid in enumerate(mini_k):
                         # print(f'forward graph {gid}')
                         graph_node_feature, het_neigh_dict = self.dataset[gid]
                         _out[mini_n][i] = self.model(graph_node_feature, het_neigh_dict)
