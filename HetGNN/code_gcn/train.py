@@ -26,7 +26,7 @@ class Train(object):
         self.data_root_dir = data_path
         self.model_path = model_path
         
-        self.num_train_benign = 65400
+        self.num_train_benign = 65000
         
         self.embed_d = kwargs['feature_size']
         self.out_embed_d = kwargs['feature_size']
