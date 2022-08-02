@@ -15,22 +15,32 @@ class EventGraphDataset(Dataset):
 
         print('reading node features..')
         self.node_feature_df = pd.read_csv(node_feature_csv).sort_values(['trace_id', 'node_id'])
+        self.het_neigh_root = het_neigh_root
 
         self.num_features = len(self.node_feature_df.columns) - 2
         self.num_node_type = 8
         self.topk = 10
         # self.node_type_to_id = {chr(97 + i): i for i in range(self.num_node_type)}
 
-        self.het_neigh_dict = {}
-        print('reading het neighbour lists..')
-        for i in tqdm(range(9)):  # 9 files under the folder
-            het_file_path = f'{het_neigh_root}/het_neigh_list_{i}.json'
-            with open(het_file_path, 'r') as fin:
-                _het_neigh_list = json.load(fin)
-            self.het_neigh_dict.update(_het_neigh_list)
+        # self.het_neigh_dict = {}
+        # print('reading het neighbour lists..')
+        # for i in tqdm(range(9)):  # 9 files under the folder
+        #     het_file_path = f'{het_neigh_root}/het_neigh_list_{i}.json'
+        #     with open(het_file_path, 'r') as fin:
+        #         _het_neigh_list = json.load(fin)
+        #     self.het_neigh_dict.update(_het_neigh_list)
 
         self.transform = transform
         print('done')
+    
+    def read_graph(self, gid):
+        """
+        read a graph from disk
+        """
+        f_path = f'{self.het_neigh_root}/g{gid}.json'
+        with open(f_path, 'r') as fin:
+            g_het = json.load(fin)
+        return g_het
 
     def __getitem__(self, gid):
         """
@@ -39,7 +49,7 @@ class EventGraphDataset(Dataset):
         """
         graph_node_feature = torch.from_numpy(
             self.node_feature_df[self.node_feature_df.trace_id == gid].iloc[:, 2:].values).float().to(self.device)
-        het_neigh_dict = self.het_neigh_dict[str(gid)]
+        het_neigh_dict = self.read_graph(gid)
         # graph_data = {}
         # print(self.het_neigh_list.keys())
         # for node, neigh_dict in self.het_neigh_list[str(gid)].items():
@@ -58,7 +68,7 @@ class EventGraphDataset(Dataset):
 if __name__ == '__main__':
     dataset = EventGraphDataset(
         '../ProcessedData_clean/node_feature_norm.csv',
-        '../ProcessedData_clean/het_neigh_list'
+        '../ProcessedData_clean/graph_het_neigh_list'
     )
 
     print(dataset[0])

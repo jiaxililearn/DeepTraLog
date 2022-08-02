@@ -21,6 +21,7 @@ class Train(object):
         super(Train, self).__init__()
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        print(f'Device: {self.device}')
 
         self.data_root_dir = data_path
         self.model_path = model_path
@@ -42,7 +43,7 @@ class Train(object):
 
         self.dataset = EventGraphDataset(
             f'{self.data_root_dir}/node_feature_norm.csv',
-            f'{self.data_root_dir}/het_neigh_list'
+            f'{self.data_root_dir}/graph_het_neigh_list'
         )
 
         self.model = HetGCN(model_path=self.model_path, **kwargs).to(self.device)
@@ -77,17 +78,16 @@ class Train(object):
                     int(self.batch_s / self.mini_batch_s), self.mini_batch_s, self.out_embed_d).to(self.device)
 
                 mini_batch_list = k.reshape(int(len(k) / self.mini_batch_s), self.mini_batch_s)
-                for mini_n, mini_k in enumerate(mini_batch_list):
-                    for i, gid in enumerate(mini_k):
-                        print(f'forward graph {gid}')
+                for mini_n, mini_k in tqdm(enumerate(mini_batch_list)):
+                    for i, gid in tqdm(enumerate(mini_k)):
+                        # print(f'forward graph {gid}')
                         graph_node_feature, het_neigh_dict = self.dataset[gid]
                         _out[mini_n][i] = self.model(graph_node_feature, het_neigh_dict)
 
                 batch_loss = HetGCN.svdd_batch_loss(self.model, _out)
                 avg_loss_list.append(batch_loss.tolist())
                 # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
-                print(f'Model Output: {_out}')
-                print(f'Batch Loss: {batch_loss}')
+                # print(f'Model Output: {_out}')
                 self.optim.zero_grad()
                 batch_loss.backward(retain_graph=True)
                 self.optim.step()

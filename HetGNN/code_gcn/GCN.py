@@ -1,4 +1,4 @@
-from tqdm import tqdm
+# from tqdm import tqdm
 import torch
 from torch import nn
 # from torch_geometric.nn import GCNConv
@@ -74,7 +74,7 @@ class HetGCN(nn.Module):
         """
         graph_het_node_embedding = torch.zeros(h_embed.shape).to(self.device)
 
-        for node, node_het_neigh in tqdm(het_neighbour_list.items()):
+        for node, node_het_neigh in het_neighbour_list.items():
             node_type = self.node_type_to_id[node[0]]
             node_id = int(node[1:])
             het_neigh_embedding = torch.zeros(self.num_node_types + 1, self.out_embed_d).to(self.device)
@@ -170,19 +170,19 @@ class HetGCN(nn.Module):
         _batch_out = embed_batch
         _batch_out_resahpe = _batch_out.view(_batch_out.size()[0] * _batch_out.size()[1], out_embed_d)
 
-        if model.model.svdd_center is None:
+        if model.svdd_center is None:
             with torch.no_grad():
                 print('Set initial center ..')
                 hypersphere_center = torch.mean(_batch_out_resahpe, 0)
-                model.model.set_svdd_center(hypersphere_center)
+                model.set_svdd_center(hypersphere_center)
                 torch.save(hypersphere_center, f'{model.model_path}/HetGNN_SVDD_Center.pt')
         else:
-            hypersphere_center = model.model.svdd_center
+            hypersphere_center = model.svdd_center
 
         dist = torch.square(_batch_out_resahpe - hypersphere_center)
         loss_ = torch.mean(torch.sum(dist, 1))
 
-        l2_norm = sum(p.pow(2.0).sum() for p in model.model.parameters())
+        l2_norm = sum(p.pow(2.0).sum() for p in model.parameters())
 
         loss = loss_ + l2_lambda * l2_norm
         return loss
