@@ -186,8 +186,18 @@ class HetGCN(nn.Module):
         self.svdd_center = center
 
     def load_svdd_center(self):
+        """
+        load existing svdd center
+        """
         self.set_svdd_center(torch.load(f'{self.model_path}/HetGNN_SVDD_Center.pt', map_location=self.device))
-    
+
+    def load_checkpoint(self, checkpoint):
+        """
+        load model checkpoint
+        """
+        checkpoint_model_path = f'{self.model_path}/HetGNN_{checkpoint}.pt'
+        self.load_state_dict(torch.load(checkpoint_model_path, map_location=self.device))
+
     def predict_score(self, graph_node_feature, graph_het_feature, graph_node_types):
         """
         calc dist given graph features
