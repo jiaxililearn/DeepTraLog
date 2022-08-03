@@ -17,7 +17,7 @@ import boto3
 
 class Train(object):
     def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
-                 save_model_freq, s3_bucket, s3_prefix, num_eval=None, unzip=False, **kwargs):
+                 save_model_freq, s3_stage, s3_bucket, s3_prefix, num_eval=None, unzip=False, **kwargs):
         super(Train, self).__init__()
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -41,6 +41,7 @@ class Train(object):
         self.save_model_freq = save_model_freq
         self.s3_bucket = s3_bucket
         self.s3_prefix = s3_prefix
+        self.s3_stage = s3_stage
 
         self.dataset = EventGraphDataset(
             f'{self.data_root_dir}/node_feature_norm.csv',
@@ -117,7 +118,8 @@ class Train(object):
                         fout.write(f'{roc_auc} {ap}\n')
 
                 # sync to s3 for intermediate save
-                self.sync_model_path_to_s3(s3_bucket=self.s3_bucket, s3_prefix=self.s3_prefix)
+                if self.s3_stage:
+                    self.sync_model_path_to_s3(s3_bucket=self.s3_bucket, s3_prefix=self.s3_prefix)
             print('iteration ' + str(iter_i) + ' finish.')
 
     def train_eval_test_split(self):
