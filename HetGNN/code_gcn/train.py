@@ -12,12 +12,11 @@ import random
 import pickle
 
 from data_loader import EventGraphDataset
-from GCN import HetGCN
 import boto3
 
 class Train(object):
     def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
-                 save_model_freq, s3_stage, s3_bucket, s3_prefix, num_eval=None, unzip=False, **kwargs):
+                 save_model_freq, s3_stage, s3_bucket, s3_prefix, model_version, num_eval=None, unzip=False, **kwargs):
         super(Train, self).__init__()
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -25,12 +24,18 @@ class Train(object):
 
         self.data_root_dir = data_path
         self.model_path = model_path
+        self.model_version = model_version
+        
+        if self.model_version == 1:
+            from GCN_1 import HetGCN_1 as HetGCN
+        else:
+            from GCN import HetGCN
         
         self.num_train_benign = num_train
         self.num_eval = num_eval
         
         self.embed_d = kwargs['feature_size']
-        self.out_embed_d = kwargs['feature_size']
+        self.out_embed_d = kwargs['out_embed_s']
 
         self.train_iter_n = train_iter_n
         self.lr = lr
@@ -88,7 +93,7 @@ class Train(object):
                         graph_node_feature, graph_het_feature, graph_node_types = self.dataset[gid]
                         _out[mini_n][i] = self.model(graph_node_feature, graph_het_feature, graph_node_types)
 
-                batch_loss = HetGCN.svdd_batch_loss(self.model, _out)
+                batch_loss = self.model.svdd_batch_loss(self.model, _out)
                 avg_loss_list.append(batch_loss.tolist())
                 # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
                 # print(f'Model Output: {_out}')
