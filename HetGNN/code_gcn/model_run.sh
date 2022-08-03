@@ -1,0 +1,13 @@
+python main.py \
+--sagemaker False \
+--num_train 200 \
+--batch_s 200 \
+--mini_batch_s 100 \
+--num_eval 100 \
+--unzip False \
+--s3_stage False \
+--save_model_freq 2 \
+--lr 0.0001 \
+--train_iter_n 250 \
+--model_version 1 \
+--model_path ../model_save_clean_type_based
