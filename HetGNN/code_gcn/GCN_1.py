@@ -12,6 +12,8 @@ class HetGCN_1(nn.Module):
         self.svdd_center = None
         self.model_path = model_path
 
+        self.k = 10
+
         self.embed_d = feature_size
         self.out_embed_d = out_embed_s
 
@@ -29,11 +31,10 @@ class HetGCN_1(nn.Module):
         self.fc_node_content_layers = nn.ModuleList(fc_node_content_layers)
 
         # type-based Neighbour Aggregation
-        # TODO: Currently Not Used
-        # fc_neigh_agg_layers = []
-        # for i in range(self.num_node_types):
-        #     fc_neigh_agg_layers.append(nn.Linear(self.embed_d, self.embed_d))
-        # self.fc_neigh_agg_layers = nn.ModuleList(fc_neigh_agg_layers)
+        fc_neigh_agg_layers = []
+        for i in range(self.num_node_types):
+            fc_neigh_agg_layers.append(nn.Linear(self.embed_d * self.k, self.embed_d))
+        self.fc_neigh_agg_layers = nn.ModuleList(fc_neigh_agg_layers)
 
         # Heterogeneous Aggregation
         self.fc_het_neigh_agg = nn.Linear(self.embed_d * (1 + self.num_node_types), self.out_embed_d)
@@ -83,9 +84,12 @@ class HetGCN_1(nn.Module):
             ).view(node_het_features.shape[0], node_het_features.shape[1], node_het_features.shape[2])
 
             # compute aggregation on top K neigh for each node. size: (num_node, num_feature)
-            node_het_neigh_aggregated = self.aggregate_neighbour(node_het_neigh_embed, dim=1)
+            node_het_neigh_aggregated = self.aggregate_neighbour(
+                node_het_neigh_embed.view(
+                    node_het_neigh_embed.shape[0], node_het_neigh_embed.shape[1] * node_het_neigh_embed.shape[2]),
+                neigh_type)
             all_het_neigh_aggregated.append(node_het_neigh_aggregated)
-        
+
         # adding self to the end of the neigh aggregation
         node_self_embed = torch.zeros(h_embed.shape[0], h_embed.shape[1]).to(self.device)
         for i, (node_feature, node_type) in enumerate(zip(h_embed, graph_node_types)):
@@ -99,44 +103,14 @@ class HetGCN_1(nn.Module):
         graph_node_het_embeddings = self.aggregate_het_neigh_types(concat_het_embedding)  # size: (num_node, num_feature)
         graph_node_het_embeddings = self.sigmoid(graph_node_het_embeddings)
 
-        # for node, node_het_neigh in het_neighbour_list.items():
-        #     node_type = self.node_type_to_id[node[0]]
-        #     node_id = int(node[1:])
-        #     het_neigh_embedding = torch.zeros(self.num_node_types + 1, self.out_embed_d).to(self.device)
-        #     # print(node_het_neigh.keys())
-        #     for neigh_type in range(self.num_node_types):
-        #         if self.node_id_to_type[neigh_type] in node_het_neigh.keys():
-        #             neigh_list = [int(i[1:]) for i in node_het_neigh[self.node_id_to_type[neigh_type]]]
-        #         else:
-        #             neigh_list = []
-
-        #         if len(neigh_list) == 0:
-        #             continue
-
-        #         neigh_features = h_embed[neigh_list]
-
-        #         neigh_ = self.encode_node_content(neigh_features, neigh_type)
-        #         neigh_ = self.relu(neigh_)
-
-        #         neigh_aggregated = self.aggregate_neighbour(neigh_)
-
-        #         het_neigh_embedding[neigh_type] = neigh_aggregated
-
-        #     # adding self at the end of the neighbourhood
-        #     het_neigh_embedding[-1] = self.relu(self.encode_node_content(h_embed[node_id], node_type))
-
-        #     het_node_embedding = self.aggregate_het_neigh_types(het_neigh_embedding)
-        #     het_node_embedding = self.sigmoid(het_node_embedding)
-
-        #     graph_het_node_embedding[node_id] = het_node_embedding
-
         return graph_node_het_embeddings
 
-    def aggregate_neighbour(self, neigh_embedding, dim):
+    def aggregate_neighbour(self, neigh_embedding, neigh_type):
         """
         Mean of neighbours in same neigh type
         """
-        return torch.mean(neigh_embedding, dim)
+        return self.relu(
+            self.fc_neigh_agg_layers[neigh_type](neigh_embedding))
 
     def encode_node_content(self, node_feature, node_type):
         """
