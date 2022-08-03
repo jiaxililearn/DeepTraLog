@@ -184,6 +184,9 @@ class HetGCN(nn.Module):
         set svdd center
         """
         self.svdd_center = center
+
+    def load_svdd_center(self):
+        self.set_svdd_center(torch.load(f'{self.model_path}/HetGNN_SVDD_Center.pt', map_location=self.device))
     
     def predict_score(self, graph_node_feature, graph_het_feature, graph_node_types):
         """
