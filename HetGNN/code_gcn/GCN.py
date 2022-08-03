@@ -6,7 +6,7 @@ from torch import nn
 from config import relations, node_types
 
 class HetGCN(nn.Module):
-    def __init__(self, model_path=None, feature_size=7, **kwargs):
+    def __init__(self, model_path=None, feature_size=7, out_embed_s=32, **kwargs):
         super(HetGCN, self).__init__()
         torch.manual_seed(42)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -14,7 +14,7 @@ class HetGCN(nn.Module):
         self.model_path = model_path
 
         self.embed_d = feature_size
-        self.out_embed_d = feature_size
+        self.out_embed_d = out_embed_s
 
         # self.num_neigh_relations = len(relations)
         self.num_node_types = len(node_types)
