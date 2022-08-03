@@ -4,7 +4,7 @@ import click
 from train import Train
 
 @click.command()
-@click.option('--lr', default=0.0001, help='learning rate')
+@click.option('--lr', default=0.001, help='learning rate')
 @click.option('--save_model_freq', default=2, help='data_path')
 @click.option('--model_path', default='../model_save_clean', help='model path dir')
 @click.option('--data_path', default='../ProcessedData_clean', help='data path dir')
