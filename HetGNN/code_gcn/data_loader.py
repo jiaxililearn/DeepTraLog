@@ -1,12 +1,16 @@
+import os
 import json
 from re import L
+from zipfile import ZipFile
 from tqdm import tqdm
 import pandas as pd
 import torch
 from torch.utils.data import Dataset
 
+
 class EventGraphDataset(Dataset):
-    def __init__(self, node_feature_csv, het_neigh_root, node_type_csv, num_node_types=8, transform=None):
+    def __init__(self, node_feature_csv, het_neigh_root, node_type_csv,
+                 unzip=False, zip_fname='graph_het_neigh_list.zip', num_node_types=8, transform=None):
         """
         node_feature_csv: path to the node feature csv file
         het_neigh_root: path to the het neighbour list root dir
@@ -22,6 +26,12 @@ class EventGraphDataset(Dataset):
         print('reading node features..')
         self.node_feature_df = pd.read_csv(node_feature_csv).sort_values(['trace_id', 'node_id'])
         self.node_type_df = pd.read_csv(node_type_csv)
+
+        if unzip:
+            data_dir = os.path.dirname(het_neigh_root)
+            print(f'unzipping {data_dir}/{zip_fname} ..')
+            with ZipFile(f'{data_dir}/{zip_fname}', 'r') as zipObj:
+                zipObj.extractall(path=data_dir)
 
         self.het_neigh_root = het_neigh_root
 

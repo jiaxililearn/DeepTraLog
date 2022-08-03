@@ -16,6 +16,7 @@ from train import Train
 @click.option('--num_node_type', default=8, help='num of node types in data')
 @click.option('--feature_size', default=7, help='input node feature size')
 @click.option('--sagemaker', default=True, help='is it running in SageMaker')
+@click.option('--unzip', default=True, help='if unzip feature lists first')
 @click.option('--s3_bucket', default='prod-tpgt-knowledge-lake-sandpit-v1',
               help='S3 bucket to upload intermediate artifacts')
 @click.option('--s3_prefix', default='application/anomaly_detection/deeptralog/HetGNN/model_save_clean/',

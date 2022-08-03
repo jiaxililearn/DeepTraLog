@@ -17,7 +17,7 @@ import boto3
 
 class Train(object):
     def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
-                 save_model_freq, s3_bucket, s3_prefix, num_eval=None, **kwargs):
+                 save_model_freq, s3_bucket, s3_prefix, num_eval=None, unzip=False, **kwargs):
         super(Train, self).__init__()
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -46,6 +46,7 @@ class Train(object):
             f'{self.data_root_dir}/node_feature_norm.csv',
             f'{self.data_root_dir}/graph_het_neigh_list',
             f'{self.data_root_dir}/node_types.csv',
+            unzip=unzip
         )
 
         self.model = HetGCN(model_path=self.model_path, **kwargs).to(self.device)
@@ -93,10 +94,10 @@ class Train(object):
                 self.optim.zero_grad()
                 batch_loss.backward(retain_graph=True)
                 self.optim.step()
-                print(f'\t Batch Loss: {batch_loss}; Batch Time: {time.time()-batch_start_time}s')
+                print(f'\t Batch Loss: {batch_loss}; Batch Time: {time.time()-batch_start_time}s;')
 
             epoch_loss_list.append(np.mean(avg_loss_list))
-            print(f'Epoch Loss: {np.mean(avg_loss_list)}; Epoch Time: {time.time() - epoch_start_time}s')
+            print(f'Epoch Loss: {np.mean(avg_loss_list)}; Epoch Time: {time.time() - epoch_start_time}s;')
 
             if iter_i % self.save_model_freq == 0:
                 # Evaluate the model
