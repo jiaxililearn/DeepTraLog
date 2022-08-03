@@ -81,8 +81,8 @@ class Train(object):
                 for mini_n, mini_k in enumerate(mini_batch_list):
                     for i, gid in enumerate(mini_k):
                         # print(f'forward graph {gid}')
-                        graph_node_feature, het_neigh_dict = self.dataset[gid]
-                        _out[mini_n][i] = self.model(graph_node_feature, het_neigh_dict)
+                        graph_node_feature, graph_het_feature = self.dataset[gid]
+                        _out[mini_n][i] = self.model(graph_node_feature, graph_het_feature)
 
                 batch_loss = HetGCN.svdd_batch_loss(self.model, _out)
                 avg_loss_list.append(batch_loss.tolist())
@@ -196,7 +196,7 @@ class Train(object):
         """
         # TODO
         self.model.eval()
-        trace_info_df = pd.read_csv(f'{self.feature_list_root_dir}/trace_info.csv', index_col=None)
+        trace_info_df = pd.read_csv(f'{self.data_root_dir}/trace_info.csv', index_col=None)
         with torch.no_grad():
             pred_scores = []
             for gid in eval_list:
