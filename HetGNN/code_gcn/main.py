@@ -8,6 +8,8 @@ from train import Train
 @click.option('--save_model_freq', default=2, help='data_path')
 @click.option('--model_path', default='../model_save_clean', help='model path dir')
 @click.option('--data_path', default='../ProcessedData_clean', help='data path dir')
+@click.option('--num_train', default=65000, help='number of training graphs')
+@click.option('--num_eval', default=None, type=int, help='number of eval graphs')
 @click.option('--batch_s', default=500, help='batch size')
 @click.option('--mini_batch_s', default=50, help='mini batch size')
 @click.option('--train_iter_n', default=100, help='max train iter')

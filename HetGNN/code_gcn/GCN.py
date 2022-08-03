@@ -26,18 +26,18 @@ class HetGCN(nn.Module):
         # self.conv2 = GCNConv(16, 7)
         fc_node_content_layers = []
         for i in range(self.num_node_types):
-            fc_node_content_layers.append(nn.Linear(self.embed_d, self.out_embed_d))
+            fc_node_content_layers.append(nn.Linear(self.embed_d, self.embed_d))
         self.fc_node_content_layers = nn.ModuleList(fc_node_content_layers)
 
         # type-based Neighbour Aggregation
         # TODO: Currently Not Used
         # fc_neigh_agg_layers = []
         # for i in range(self.num_node_types):
-        #     fc_neigh_agg_layers.append(nn.Linear(self.embed_d, self.out_embed_d))
+        #     fc_neigh_agg_layers.append(nn.Linear(self.embed_d, self.embed_d))
         # self.fc_neigh_agg_layers = nn.ModuleList(fc_neigh_agg_layers)
 
         # Heterogeneous Aggregation
-        self.fc_het_neigh_agg = nn.Linear(self.out_embed_d * (1 + self.num_node_types), self.out_embed_d)
+        self.fc_het_neigh_agg = nn.Linear(self.embed_d * (1 + self.num_node_types), self.out_embed_d)
 
         # Others
         self.relu = nn.LeakyReLU()
@@ -53,7 +53,7 @@ class HetGCN(nn.Module):
                 # nn.init.normal_(m.weight.data)
                 m.bias.data.fill_(0.1)
 
-    def forward(self, x_node_feature, x_het_neighbour_list, x_edge_index=None):
+    def forward(self, x_node_feature, x_graph_het_feature, graph_node_types, x_edge_index=None):
         """
         forward propagate based on graph and its node features, edges, and het neighbourhood
         """
@@ -61,71 +61,98 @@ class HetGCN(nn.Module):
         # h = self.fc_node(x_node_feature)
         # h = h.tanh()
 
-        graph_node_het_embedding = self.node_het_embedding(x_node_feature, x_het_neighbour_list)
+        graph_node_het_embedding = self.node_het_embedding(x_node_feature, x_graph_het_feature, graph_node_types)
         # print(f'Node Het Embedding: {graph_node_het_embedding}')
 
         graph_embedding = self.graph_node_pooling(graph_node_het_embedding)
         # print(f'Graph Embedding: {graph_embedding}')
         return graph_embedding
 
-    def node_het_embedding(self, h_embed, het_neighbour_list, x_edge_index=None):
+    def node_het_embedding(self, h_embed, x_graph_het_feature, graph_node_types, x_edge_index=None):
         """
         compute graph embedding
         """
-        graph_het_node_embedding = torch.zeros(h_embed.shape).to(self.device)
+        # graph_het_node_embedding = torch.zeros(h_embed.shape).to(self.device)
+        all_het_neigh_aggregated = []
+        for neigh_type in range(self.num_node_types):
+            node_het_features = x_graph_het_feature[neigh_type]
 
-        for node, node_het_neigh in het_neighbour_list.items():
-            node_type = self.node_type_to_id[node[0]]
-            node_id = int(node[1:])
-            het_neigh_embedding = torch.zeros(self.num_node_types + 1, self.out_embed_d).to(self.device)
-            # print(node_het_neigh.keys())
-            for neigh_type in range(self.num_node_types):
-                if self.node_id_to_type[neigh_type] in node_het_neigh.keys():
-                    neigh_list = [int(i[1:]) for i in node_het_neigh[self.node_id_to_type[neigh_type]]]
-                else:
-                    neigh_list = []
+            # compute individual neighbour feature encode for every node in graph. size: (num_node, k, num_feature)
+            node_het_neigh_embed = self.encode_node_content(node_het_features.view(
+                node_het_features.shape[0] * node_het_features.shape[1],
+                node_het_features.shape[2]), neigh_type
+            ).view(node_het_features.shape[0], node_het_features.shape[1], node_het_features.shape[2])
 
-                if len(neigh_list) == 0:
-                    continue
+            # compute aggregation on top K neigh for each node. size: (num_node, num_feature)
+            node_het_neigh_aggregated = self.aggregate_neighbour(node_het_neigh_embed, dim=1)
+            all_het_neigh_aggregated.append(node_het_neigh_aggregated)
+        
+        # adding self to the end of the neigh aggregation
+        node_self_embed = torch.zeros(h_embed.shape[0], h_embed.shape[1])
+        for i, (node_feature, node_type) in enumerate(zip(h_embed, graph_node_types)):
+            node_self_embed[i] = self.encode_node_content(node_feature, node_type)
+        
+        all_het_neigh_aggregated.append(node_self_embed)
 
-                neigh_features = h_embed[neigh_list]
+        # combine all het neigh embeddings. size: (num_node, num_neigh_type * num_feature)
+        concat_het_embedding = torch.cat(all_het_neigh_aggregated, 1)
 
-                neigh_ = self.encode_node_content(neigh_features, neigh_type)
-                neigh_ = self.relu(neigh_)
+        graph_node_het_embeddings = self.aggregate_het_neigh_types(concat_het_embedding)  # size: (num_node, num_feature)
+        graph_node_het_embeddings = self.sigmoid(graph_node_het_embeddings)
 
-                neigh_aggregated = self.aggregate_neighbour(neigh_)
+        # for node, node_het_neigh in het_neighbour_list.items():
+        #     node_type = self.node_type_to_id[node[0]]
+        #     node_id = int(node[1:])
+        #     het_neigh_embedding = torch.zeros(self.num_node_types + 1, self.out_embed_d).to(self.device)
+        #     # print(node_het_neigh.keys())
+        #     for neigh_type in range(self.num_node_types):
+        #         if self.node_id_to_type[neigh_type] in node_het_neigh.keys():
+        #             neigh_list = [int(i[1:]) for i in node_het_neigh[self.node_id_to_type[neigh_type]]]
+        #         else:
+        #             neigh_list = []
 
-                het_neigh_embedding[neigh_type] = neigh_aggregated
+        #         if len(neigh_list) == 0:
+        #             continue
 
-            # adding self at the end of the neighbourhood
-            het_neigh_embedding[-1] = self.relu(self.encode_node_content(h_embed[node_id], node_type))
+        #         neigh_features = h_embed[neigh_list]
 
-            het_node_embedding = self.aggregate_het_neigh_types(het_neigh_embedding)
-            het_node_embedding = self.sigmoid(het_node_embedding)
+        #         neigh_ = self.encode_node_content(neigh_features, neigh_type)
+        #         neigh_ = self.relu(neigh_)
 
-            graph_het_node_embedding[node_id] = het_node_embedding
+        #         neigh_aggregated = self.aggregate_neighbour(neigh_)
 
-        return graph_het_node_embedding
+        #         het_neigh_embedding[neigh_type] = neigh_aggregated
 
-    def aggregate_neighbour(self, neigh_embedding):
+        #     # adding self at the end of the neighbourhood
+        #     het_neigh_embedding[-1] = self.relu(self.encode_node_content(h_embed[node_id], node_type))
+
+        #     het_node_embedding = self.aggregate_het_neigh_types(het_neigh_embedding)
+        #     het_node_embedding = self.sigmoid(het_node_embedding)
+
+        #     graph_het_node_embedding[node_id] = het_node_embedding
+
+        return graph_node_het_embeddings
+
+    def aggregate_neighbour(self, neigh_embedding, dim):
         """
         Mean of neighbours in same neigh type
         """
-        return torch.mean(neigh_embedding, 0)
+        return torch.mean(neigh_embedding, dim)
 
     def encode_node_content(self, node_feature, node_type):
         """
         Aggregate the content of the node (input node features)
         """
         content_embedding = self.fc_node_content_layers[node_type](node_feature)
-        return content_embedding
+        return self.relu(content_embedding)
 
     def aggregate_het_neigh_types(self, het_neigh_embedding):
         """
         aggregate all the het types
         """
         node_het_embedding = self.fc_het_neigh_agg(
-            het_neigh_embedding.view(1, (self.num_node_types + 1) * self.out_embed_d)
+            het_neigh_embedding
+            # het_neigh_embedding.view(1, (self.num_node_types + 1) * self.out_embed_d)
         )
         return node_het_embedding
 
@@ -157,6 +184,15 @@ class HetGCN(nn.Module):
         set svdd center
         """
         self.svdd_center = center
+    
+    def predict_score(self, graph_node_feature, graph_het_feature, graph_node_types):
+        """
+        calc dist given graph features
+        """
+        with torch.no_grad():
+            _out = self(graph_node_feature, graph_het_feature, graph_node_types)
+            score = torch.mean(torch.square(_out - self.svdd_center))
+        return score
 
     @staticmethod
     def svdd_batch_loss(model, embed_batch, l2_lambda=0.001):

@@ -16,8 +16,8 @@ from GCN import HetGCN
 import boto3
 
 class Train(object):
-    def __init__(self, data_path, model_path, train_iter_n, batch_s, mini_batch_s, lr,
-                 save_model_freq, s3_bucket, s3_prefix, **kwargs):
+    def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
+                 save_model_freq, s3_bucket, s3_prefix, num_eval=None, **kwargs):
         super(Train, self).__init__()
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -26,7 +26,8 @@ class Train(object):
         self.data_root_dir = data_path
         self.model_path = model_path
         
-        self.num_train_benign = 65000
+        self.num_train_benign = num_train
+        self.num_eval = num_eval
         
         self.embed_d = kwargs['feature_size']
         self.out_embed_d = kwargs['feature_size']
@@ -43,7 +44,8 @@ class Train(object):
 
         self.dataset = EventGraphDataset(
             f'{self.data_root_dir}/node_feature_norm.csv',
-            f'{self.data_root_dir}/graph_het_neigh_list'
+            f'{self.data_root_dir}/graph_het_neigh_list',
+            f'{self.data_root_dir}/node_types.csv',
         )
 
         self.model = HetGCN(model_path=self.model_path, **kwargs).to(self.device)
@@ -81,8 +83,8 @@ class Train(object):
                 for mini_n, mini_k in enumerate(mini_batch_list):
                     for i, gid in enumerate(mini_k):
                         # print(f'forward graph {gid}')
-                        graph_node_feature, graph_het_feature = self.dataset[gid]
-                        _out[mini_n][i] = self.model(graph_node_feature, graph_het_feature)
+                        graph_node_feature, graph_het_feature, graph_node_types = self.dataset[gid]
+                        _out[mini_n][i] = self.model(graph_node_feature, graph_het_feature, graph_node_types)
 
                 batch_loss = HetGCN.svdd_batch_loss(self.model, _out)
                 avg_loss_list.append(batch_loss.tolist())
@@ -194,23 +196,25 @@ class Train(object):
         """
         Eval Model
         """
-        # TODO
+        if self.num_eval:
+            eval_list = eval_list[:self.num_eval]
+
         self.model.eval()
         trace_info_df = pd.read_csv(f'{self.data_root_dir}/trace_info.csv', index_col=None)
         with torch.no_grad():
             pred_scores = []
             for gid in eval_list:
-                pred_scores = self.model.predict_score(eval_list)
+                graph_node_feature, graph_het_feature, graph_node_types = self.dataset[gid]
+                _score = self.model.predict_score(graph_node_feature, graph_het_feature, graph_node_types)
+                pred_scores.append(_score)
+
             label = trace_info_df[trace_info_df['trace_id'].isin(eval_list)]['trace_bool'] \
                 .apply(lambda x: 0 if x else 1).values
 
-            if self.gpu:
-                pred_scores = pred_scores.cpu()
-
-            fpr, tpr, roc_thresholds = roc_curve(label, pred_scores.numpy())
+            fpr, tpr, roc_thresholds = roc_curve(label, pred_scores)
             roc_auc = auc(fpr, tpr)
 
-            precision, recall, pr_thresholds = precision_recall_curve(label, pred_scores.numpy())
+            precision, recall, pr_thresholds = precision_recall_curve(label, pred_scores)
             ap = auc(recall, precision)
 
             print(f'\tAUC:{roc_auc}; Avg Precision:{ap};')
