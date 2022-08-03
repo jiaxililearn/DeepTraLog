@@ -88,7 +88,7 @@ class HetGCN(nn.Module):
             all_het_neigh_aggregated.append(node_het_neigh_aggregated)
         
         # adding self to the end of the neigh aggregation
-        node_self_embed = torch.zeros(h_embed.shape[0], h_embed.shape[1])
+        node_self_embed = torch.zeros(h_embed.shape[0], h_embed.shape[1]).to(self.device)
         for i, (node_feature, node_type) in enumerate(zip(h_embed, graph_node_types)):
             node_self_embed[i] = self.encode_node_content(node_feature, node_type)
         
