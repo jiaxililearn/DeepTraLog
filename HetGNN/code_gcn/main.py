@@ -4,15 +4,15 @@ import click
 from train import Train
 
 @click.command()
-@click.option('--lr', default=0.001, help='learning rate')
+@click.option('--lr', default=0.0001, help='learning rate')
 @click.option('--save_model_freq', default=2, help='data_path')
 @click.option('--model_path', default='../model_save_clean', help='model path dir')
 @click.option('--data_path', default='../ProcessedData_clean', help='data path dir')
 @click.option('--num_train', default=65000, help='number of training graphs')
 @click.option('--num_eval', default=None, type=int, help='limit number of eval graphs, None for do not limit')
-@click.option('--batch_s', default=1000, help='batch size')
+@click.option('--batch_s', default=2000, help='batch size')
 @click.option('--mini_batch_s', default=500, help='mini batch size')
-@click.option('--train_iter_n', default=100, help='max train iter')
+@click.option('--train_iter_n', default=250, help='max train iter')
 @click.option('--num_node_type', default=8, help='num of node types in data')
 @click.option('--feature_size', default=7, help='input node feature size')
 @click.option('--out_embed_s', default=32, help='output feature size')
