@@ -137,7 +137,12 @@ class HetGCN(nn.Module):
         """
         Mean of neighbours in same neigh type
         """
-        return torch.mean(neigh_embedding, dim)
+        _mean = torch.zeros(neigh_embedding.shape[0], neigh_embedding.shape[2])
+        for n in range(neigh_embedding.shape[0]):
+            node_top_neigh = neigh_embedding[n]
+            node_neigh_mean = torch.mean(node_top_neigh[(node_top_neigh != 0).sum(1) != 0], 0)
+            _mean[n] = node_neigh_mean
+        return _mean
 
     def encode_node_content(self, node_feature, node_type):
         """
