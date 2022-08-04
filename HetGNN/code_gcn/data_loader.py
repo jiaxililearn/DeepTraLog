@@ -98,7 +98,7 @@ class EventGraphDataset(Dataset):
             return graph_node_feature, graph_het_feature, graph_node_types
         else:
             edge_index = torch.from_numpy(
-                self.edge_inedx_df[self.edge_inedx_df.trace_id == gid][['src_id', 'dst_id']].values.reshape(2,-1)
+                self.edge_inedx_df[self.edge_inedx_df.trace_id == gid][['src_id', 'dst_id']].values.reshape(2, -1)
             ).long().to(self.device)
             return graph_node_feature, edge_index
 

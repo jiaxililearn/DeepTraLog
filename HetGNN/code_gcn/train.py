@@ -28,8 +28,31 @@ class Train(object):
         
         if self.model_version == 1:
             from GCN_1 import HetGCN_1 as HetGCN
+
+            self.dataset = EventGraphDataset(
+                f'{self.data_root_dir}/node_feature_norm.csv',
+                f'{self.data_root_dir}/graph_het_neigh_list',
+                f'{self.data_root_dir}/node_types.csv',
+                unzip=unzip
+            )
+        elif self.model_version == 2:
+            from GCN_2 import HetGCN_2 as HetGCN
+
+            self.dataset = EventGraphDataset(
+                node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
+                edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
+                het_types=False,
+                unzip=unzip
+            )
         else:
             from GCN import HetGCN
+
+            self.dataset = EventGraphDataset(
+                f'{self.data_root_dir}/node_feature_norm.csv',
+                f'{self.data_root_dir}/graph_het_neigh_list',
+                f'{self.data_root_dir}/node_types.csv',
+                unzip=unzip
+            )
         
         self.num_train_benign = num_train
         self.num_eval = num_eval
@@ -47,13 +70,6 @@ class Train(object):
         self.s3_bucket = s3_bucket
         self.s3_prefix = s3_prefix
         self.s3_stage = s3_stage
-
-        self.dataset = EventGraphDataset(
-            f'{self.data_root_dir}/node_feature_norm.csv',
-            f'{self.data_root_dir}/graph_het_neigh_list',
-            f'{self.data_root_dir}/node_types.csv',
-            unzip=unzip
-        )
 
         self.model = HetGCN(model_path=self.model_path, **kwargs).to(self.device)
 
@@ -90,8 +106,8 @@ class Train(object):
                 for mini_n, mini_k in enumerate(mini_batch_list):
                     for i, gid in enumerate(mini_k):
                         # print(f'forward graph {gid}')
-                        graph_node_feature, graph_het_feature, graph_node_types = self.dataset[gid]
-                        _out[mini_n][i] = self.model(graph_node_feature, graph_het_feature, graph_node_types)
+                        
+                        _out[mini_n][i] = self.model(self.dataset[gid])
 
                 batch_loss = self.model.svdd_batch_loss(self.model, _out)
                 avg_loss_list.append(batch_loss.tolist())

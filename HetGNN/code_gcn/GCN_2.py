@@ -38,10 +38,11 @@ class HetGCN_2(nn.Module):
                 # nn.init.normal_(m.weight.data)
                 m.bias.data.fill_(0.1)
 
-    def forward(self, x_node_feature, x_edge_index):
+    def forward(self, data):
         """
         forward propagate based on node features and edge index
         """
+        x_node_feature, x_edge_index = data
         h = self.conv1(x_node_feature, x_edge_index)
         # h = h.tanh()
 

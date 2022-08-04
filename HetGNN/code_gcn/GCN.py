@@ -53,10 +53,11 @@ class HetGCN(nn.Module):
                 # nn.init.normal_(m.weight.data)
                 m.bias.data.fill_(0.1)
 
-    def forward(self, x_node_feature, x_graph_het_feature, graph_node_types, x_edge_index=None):
+    def forward(self, data, x_edge_index=None):
         """
         forward propagate based on graph and its node features, edges, and het neighbourhood
         """
+        x_node_feature, x_graph_het_feature, graph_node_types = data
         # TODO: Need to normalise on the input node features
         # h = self.fc_node(x_node_feature)
         # h = h.tanh()
