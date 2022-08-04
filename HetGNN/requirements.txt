@@ -2,6 +2,6 @@ numpy
 pandas
 sklearn
 tqdm
-torch==1.10
+torch==1.9
 kaleido
 
