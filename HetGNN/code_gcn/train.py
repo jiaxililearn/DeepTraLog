@@ -166,17 +166,17 @@ class Train(object):
         
         if test_set:
             num_eval_benign = int((benign_gid_list.shape[0] - num_train_benign) / 2)
-            num_eval_attach = int(attack_gid_list.shape[0] / 2)
+            num_eval_attack = int(attack_gid_list.shape[0] / 2)
         else:
             num_eval_benign = int((benign_gid_list.shape[0] - num_train_benign))
-            num_eval_attach = int(attack_gid_list.shape[0])
+            num_eval_attack = int(attack_gid_list.shape[0])
 
         eval_benign_gid_list = np.random.choice(left_benign_gid_list,
                                                 num_eval_benign, replace=False)
         test_benign_gid_list = left_benign_gid_list[np.in1d(
             left_benign_gid_list, eval_benign_gid_list, invert=True)]
 
-        eval_attack_gid_list = np.random.choice(attack_gid_list, num_eval_attach, replace=False)
+        eval_attack_gid_list = np.random.choice(attack_gid_list, num_eval_attack, replace=False)
         test_attack_gid_list = attack_gid_list[np.in1d(
             attack_gid_list, eval_attack_gid_list, invert=True)]
 
