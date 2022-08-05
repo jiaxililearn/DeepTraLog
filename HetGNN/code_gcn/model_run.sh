@@ -1,16 +1,17 @@
 python main.py \
 --sagemaker False \
---num_train 200 \
---batch_s 50 \
---mini_batch_s 50 \
---num_eval 100 \
+--num_train 10 \
+--batch_s 10 \
+--mini_batch_s 10 \
+--num_eval 10 \
 --unzip False \
 --s3_stage False \
 --save_model_freq 2 \
---lr 0.0001 \
---train_iter_n 200 \
+--lr 0.001 \
+--train_iter_n 50 \
 --model_version 2 \
---model_path ../model_save_clean_gcnconv2
+--test_set False \
+--model_path ../model_save_clean_synth
 
 
 sudo update-alternatives --config gcc

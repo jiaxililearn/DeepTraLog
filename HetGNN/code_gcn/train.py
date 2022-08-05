@@ -16,7 +16,8 @@ import boto3
 
 class Train(object):
     def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
-                 save_model_freq, s3_stage, s3_bucket, s3_prefix, model_version, fix_center=True, num_eval=None, unzip=False, **kwargs):
+                 save_model_freq, s3_stage, s3_bucket, s3_prefix, model_version,
+                 test_set=True, fix_center=True, num_eval=None, unzip=False, **kwargs):
         super(Train, self).__init__()
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -25,6 +26,8 @@ class Train(object):
         self.data_root_dir = data_path
         self.model_path = model_path
         self.model_version = model_version
+        self.test_set = test_set
+
         self.fix_center = fix_center
         
         if self.model_version == 1:
@@ -87,7 +90,7 @@ class Train(object):
 
         epoch_loss_list = []
         eval_list = []
-        benign_gid_list, eval_gid_list, test_gid_list = self.train_eval_test_split()
+        benign_gid_list, eval_gid_list, test_gid_list = self.train_eval_test_split(test_set=self.test_set)
 
         for iter_i in range(self.train_iter_n):
             self.model.train()
@@ -145,7 +148,7 @@ class Train(object):
                     self.sync_model_path_to_s3(s3_bucket=self.s3_bucket, s3_prefix=self.s3_prefix)
             print('iteration ' + str(iter_i) + ' finish.')
 
-    def train_eval_test_split(self):
+    def train_eval_test_split(self, test_set=True):
         """
         splite data into train eval test
         """
@@ -160,13 +163,20 @@ class Train(object):
         rep_train_benign_gid_list = np.random.choice(benign_gid_list, num_train_benign, replace=False)
         left_benign_gid_list = benign_gid_list[np.in1d(
             benign_gid_list, rep_train_benign_gid_list, invert=True)]
+        
+        if test_set:
+            num_eval_benign = int((benign_gid_list.shape[0] - num_train_benign) / 2)
+            num_eval_attach = int(attack_gid_list.shape[0] / 2)
+        else:
+            num_eval_benign = int((benign_gid_list.shape[0] - num_train_benign))
+            num_eval_attach = int(attack_gid_list.shape[0])
 
         eval_benign_gid_list = np.random.choice(left_benign_gid_list,
-                                                int((benign_gid_list.shape[0] - num_train_benign) / 2), replace=False)
+                                                num_eval_benign, replace=False)
         test_benign_gid_list = left_benign_gid_list[np.in1d(
             left_benign_gid_list, eval_benign_gid_list, invert=True)]
 
-        eval_attack_gid_list = np.random.choice(attack_gid_list, int(attack_gid_list.shape[0] / 2), replace=False)
+        eval_attack_gid_list = np.random.choice(attack_gid_list, num_eval_attach, replace=False)
         test_attack_gid_list = attack_gid_list[np.in1d(
             attack_gid_list, eval_attack_gid_list, invert=True)]
 
