@@ -47,7 +47,7 @@ class HetGCN_2(nn.Module):
         # h = h.tanh()
 
         graph_embedding = self.graph_node_pooling(h)
-        return h
+        return graph_embedding
 
     def graph_node_pooling(self, graph_node_het_embedding):
         """

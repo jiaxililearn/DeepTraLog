@@ -9,5 +9,11 @@ python main.py \
 --save_model_freq 2 \
 --lr 0.0001 \
 --train_iter_n 250 \
---model_version 0 \
+--model_version 2 \
 --model_path ../model_save_clean_gcnconv
+
+
+sudo update-alternatives --config gcc
+sudo ln -sfT /usr/local/cuda-10.2/ /usr/local/cuda
+
+pip install torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geometric -f https://data.pyg.org/whl/torch-1.9.0+cu102.html
