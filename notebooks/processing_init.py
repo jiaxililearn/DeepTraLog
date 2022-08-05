@@ -82,7 +82,7 @@ def get_graph_results(data_root_dir, model, dataset, gid_list, name='train', num
     resultdf = resultdf.merge(trace_info_df, on='trace_id', how='inner')
     resultdf = add_tsne_embedding(resultdf, name=name)
 
-    fig = px.scatter(resultdf, x='tsne_x', y='tsne_y', color='error_trace_type', title='{name} Graph Embeddings - by error trace type')
+    fig = px.scatter(resultdf, x='tsne_x', y='tsne_y', color='error_trace_type', title=f'{name} Graph Embeddings - by error trace type')
     fig.show()
 
     px.histogram(resultdf, x='scores', color='error_trace_type', title=f'{name} Scores').show()
