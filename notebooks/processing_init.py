@@ -60,7 +60,6 @@ def get_train_eval_test_gids(model_result_root_dir):
 
 
 def model_output(model, data):
-    graph_node_feature, graph_het_feature, graph_node_types = data
     _out = model(data).detach().numpy()
     _score = model.predict_score(data).cpu().detach().numpy()
     return _out, _score
