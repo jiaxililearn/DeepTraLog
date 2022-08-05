@@ -106,8 +106,8 @@ class Train(object):
                 for mini_n, mini_k in enumerate(mini_batch_list):
                     for i, gid in enumerate(mini_k):
                         # print(f'forward graph {gid}')
-                        
                         _out[mini_n][i] = self.model(self.dataset[gid])
+                        torch.cuda.empty_cache()
 
                 batch_loss = self.model.svdd_batch_loss(self.model, _out)
                 avg_loss_list.append(batch_loss.tolist())

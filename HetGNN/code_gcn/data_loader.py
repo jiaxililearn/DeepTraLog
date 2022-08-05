@@ -77,7 +77,8 @@ class EventGraphDataset(Dataset):
                 graph_het_feature: (n_neigh, n_node, topk, n_feature)
         """
         graph_node_feature = torch.from_numpy(
-                self.node_feature_df[self.node_feature_df.trace_id == gid].iloc[:, 2:].values).float().to(self.device)
+            self.node_feature_df[self.node_feature_df.trace_id == gid].iloc[:, 2:].values).float().to(self.device)
+
         if self.het_types:
             graph_node_types = self.node_type_df[self.node_type_df.trace_id == gid]['node_type'].values
             
