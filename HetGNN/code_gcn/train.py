@@ -228,8 +228,7 @@ class Train(object):
         with torch.no_grad():
             pred_scores = []
             for gid in eval_list:
-                graph_node_feature, graph_het_feature, graph_node_types = self.dataset[gid]
-                _score = self.model.predict_score(graph_node_feature, graph_het_feature, graph_node_types).cpu().detach().numpy()
+                _score = self.model.predict_score(self.dataset[gid]).cpu().detach().numpy()
                 pred_scores.append(_score)
 
             label = trace_info_df[trace_info_df['trace_id'].isin(eval_list)]['trace_bool'] \

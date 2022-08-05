@@ -172,10 +172,11 @@ class HetGCN_1(nn.Module):
         checkpoint_model_path = f'{self.model_path}/HetGNN_{checkpoint}.pt'
         self.load_state_dict(torch.load(checkpoint_model_path, map_location=self.device))
 
-    def predict_score(self, graph_node_feature, graph_het_feature, graph_node_types):
+    def predict_score(self, g_data):
         """
         calc dist given graph features
         """
+        graph_node_feature, graph_het_feature, graph_node_types = g_data
         with torch.no_grad():
             _out = self(graph_node_feature, graph_het_feature, graph_node_types)
             score = torch.mean(torch.square(_out - self.svdd_center))
