@@ -82,7 +82,7 @@ def get_graph_results(data_root_dir, model, dataset, gid_list, name='train', num
     resultdf = resultdf.merge(trace_info_df, on='trace_id', how='inner')
     resultdf = add_tsne_embedding(resultdf, name=name)
 
-    fig = px.scatter(resultdf, x='tsne_x', y='tsne_y', color='error_trace_type', hover_name='trace_id', custom_data='scores',
+    fig = px.scatter(resultdf, x='tsne_x', y='tsne_y', color='error_trace_type', hover_name='trace_id', hover_data=['scores'],
                      title=f'{name} Graph Embeddings - by error trace type')
     fig.show()
 
@@ -99,7 +99,7 @@ def add_tsne_embedding(resultdf, name='train', num_feature=7):
     resultdf['tsne_x'] = tsne_embeddings[:,0]
     resultdf['tsne_y'] = tsne_embeddings[:,1]
 
-    fig = px.scatter(resultdf, x='tsne_x', y='tsne_y', color='trace_bool', hover_name='trace_id', custom_data='scores',
+    fig = px.scatter(resultdf, x='tsne_x', y='tsne_y', color='trace_bool', hover_name='trace_id', hover_data=['scores'],
                      title=f'{name} Graph Embeddings')
     fig.show()
 
