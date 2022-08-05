@@ -17,6 +17,7 @@ from train import Train
 @click.option('--feature_size', default=7, help='input node feature size')
 @click.option('--out_embed_s', default=32, help='output feature size')
 @click.option('--model_version', default=0, help='train with model version')
+@click.option('--fix_center', default=True, help='if fix the svdd center on first batch pass')
 @click.option('--sagemaker', default=True, type=bool, help='is it running in SageMaker')
 @click.option('--unzip', default=True, type=bool, help='if unzip feature lists first')
 @click.option('--s3_stage', default=True, type=bool, help='if stage results to s3')
