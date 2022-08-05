@@ -8,7 +8,7 @@ python main.py \
 --s3_stage False \
 --save_model_freq 2 \
 --lr 0.0001 \
---train_iter_n 250 \
+--train_iter_n 200 \
 --model_version 2 \
 --model_path ../model_save_clean_gcnconv
 
