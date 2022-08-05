@@ -208,9 +208,8 @@ class HetGCN(nn.Module):
         """
         calc dist given graph features
         """
-        graph_node_feature, graph_het_feature, graph_node_types = g_data
         with torch.no_grad():
-            _out = self(graph_node_feature, graph_het_feature, graph_node_types)
+            _out = self(g_data)
             score = torch.mean(torch.square(_out - self.svdd_center))
         return score
 
