@@ -1,21 +1,21 @@
 python main.py \
 --sagemaker False \
---num_train 10 \
---batch_s 10 \
---mini_batch_s 10 \
---num_eval 10 \
+--num_train 200 \
+--batch_s 100 \
+--mini_batch_s 100 \
+--num_eval 100 \
 --unzip False \
 --s3_stage False \
+--split_data True
 --save_model_freq 2 \
 --lr 0.005 \
 --train_iter_n 200 \
 --model_version 3 \
---test_set False \
---feature_size 10 \
---out_embed_s 16 \
---model_path ../model_save_clean_synth_3_het \
---data_path ../ProcessedData_synth \
---split_data False
+--test_set True \
+--feature_size 7 \
+--out_embed_s 32 \
+--model_path ../model_save_HetGCN \
+--data_path ../ProcessedData_HetGCN \
 
 
 sudo update-alternatives --config gcc
