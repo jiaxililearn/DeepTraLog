@@ -43,10 +43,7 @@ class HetGCN_3(nn.Module):
         forward propagate based on node features and edge index
         """
         x_node_feature, x_edge_index = data
-        if x_edge_index.dtype != torch.long:
-            x_edge_index = x_edge_index.type(torch.long)
-
-        print(x_edge_index.dtype)
+        print(f'is instance of tensor: {isinstance(x_edge_index, torch.Tensor)}')
         print(f'dtype_long: {x_edge_index.dtype == torch.long}')
         print(f'is_tensor: {torch.is_tensor(x_edge_index)}')
         print(f'dim_2: {x_edge_index.dim() == 2}; {x_edge_index.dim()}')
