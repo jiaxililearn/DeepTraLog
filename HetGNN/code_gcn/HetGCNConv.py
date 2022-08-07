@@ -13,7 +13,7 @@ class HetGCNConv(MessagePassing):
         # edge_index has shape [2, E]
 
         # Step 1: Add self-loops to the adjacency matrix.
-        edge_index = add_self_loops(edge_index, num_nodes=x.size(0))
+        edge_index, edge_weight = add_self_loops(edge_index, num_nodes=x.size(0))
 
         print(f'is instance of tensor: {isinstance(edge_index, torch.Tensor)}')
         print(f'dtype_long: {edge_index.dtype == torch.long}')
