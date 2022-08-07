@@ -30,6 +30,7 @@ class HetGCNEventGraphDataset(Dataset):
             for line in fin.readlines():
                 _node_types = json.loads(line)
                 self.node_types.append(_node_types)
+        print(f'node types txt: {self.node_types}')
 
 
         # self.node_type_to_id = {chr(97 + i): i for i in range(self.num_node_type)}
