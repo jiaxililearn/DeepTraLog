@@ -9,11 +9,11 @@ python main.py \
 --save_model_freq 2 \
 --lr 0.005 \
 --train_iter_n 200 \
---model_version 2 \
+--model_version 3 \
 --test_set False \
 --feature_size 10 \
 --out_embed_s 16 \
---model_path ../model_save_clean_synth \
+--model_path ../model_save_clean_synth_3 \
 --data_path ../ProcessedData_synth
 
 
