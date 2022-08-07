@@ -47,6 +47,7 @@ class HetGCNConv(MessagePassing):
         # Step 2: Linearly transform node feature matrix.
 
         x = self.lin1(x)
+        x = x.tanh()
 
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []
