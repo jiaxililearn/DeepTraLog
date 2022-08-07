@@ -7,14 +7,15 @@ python main.py \
 --unzip False \
 --s3_stage False \
 --save_model_freq 2 \
---lr 0.005 \
+--lr 0.01 \
 --train_iter_n 200 \
 --model_version 3 \
 --test_set False \
 --feature_size 10 \
 --out_embed_s 16 \
 --model_path ../model_save_clean_synth_3 \
---data_path ../ProcessedData_synth
+--data_path ../ProcessedData_synth \
+--split_data False
 
 
 sudo update-alternatives --config gcc
