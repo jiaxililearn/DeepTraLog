@@ -43,7 +43,7 @@ class HetGCN_3(nn.Module):
         forward propagate based on node features and edge index
         """
         x_node_feature, x_edge_index = data
-        # print(x_edge_index.dtype)
+        print(x_edge_index.dtype)
         h = self.conv1(x_node_feature, x_edge_index)
         h = h.tanh()
 
