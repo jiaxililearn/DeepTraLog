@@ -9,11 +9,11 @@ from torch_geometric.utils import add_self_loops, degree
 class HetGCNConv(MessagePassing):
     def __init__(self, in_channels, out_channels):
         super(HetGCNConv, self).__init__(aggr='add')  # "Add" aggregation.
-        self.node_types = 3
+        self.num_node_types = 3
         self.hidden_channels = 16
 
         self.lin1 = torch.nn.Linear(in_channels, self.hidden_channels, bias=False)
-        self.lin2 = torch.nn.Linear(self.hidden_channels * self.node_types, out_channels, bias=False)
+        self.lin2 = torch.nn.Linear(self.hidden_channels * self.num_node_types, out_channels, bias=False)
         # self.lin = Linear(in_channels, out_channels, bias=False, weight_initializer='glorot')
 
         self.bias1 = Parameter(torch.Tensor(self.hidden_channels))
