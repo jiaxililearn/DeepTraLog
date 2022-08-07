@@ -74,13 +74,15 @@ class HetGCNConv(MessagePassing):
         for ntype, n_list in enumerate(node_types):
             print(f'col: {col}')
             print(f'n_list: {n_list}')
-            print(f'mask: {[col == i for i in n_list]}')
+            
             masks = [col == i for i in n_list]
-
+            print(f'masks: {masks}')
             if len(masks) == 0:
                 yield None, None
 
             het_mask = sum(masks).bool()
+            print(f'mask: {het_mask}')
+
             yield torch.stack([row[het_mask], col[het_mask]]), edge_weight[het_mask]
 
     def _norm(self, edge_index, size, edge_weight=None):
