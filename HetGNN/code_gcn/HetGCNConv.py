@@ -2,6 +2,7 @@ from tqdm import tqdm
 import torch
 from torch.nn import Parameter
 from torch_geometric.nn import MessagePassing
+from torch_scatter import scatter_add
 from torch_geometric.utils import add_self_loops, degree
 
 class HetGCNConv(MessagePassing):
@@ -15,8 +16,8 @@ class HetGCNConv(MessagePassing):
         # x has shape [num_nodes, in_channels]
         # edge_index has shape [2, E]
 
-        # Step 1: Add self-loops to the adjacency matrix.
-        edge_index, edge_weight = add_self_loops(edge_index, num_nodes=x.size(0))
+        # Step 1: Norm and add self loop
+        edge_index, edge_weight = self._norm(edge_index, size=x.size(0))
 
         # print(f'is instance of tensor: {isinstance(edge_index, torch.Tensor)}')
         # print(f'dtype_long: {edge_index.dtype == torch.long}')
@@ -28,27 +29,30 @@ class HetGCNConv(MessagePassing):
         x = self.lin(x)
 
         # Step 3-5: Start propagating messages.
-        out = self.propagate(edge_index, size=(x.size(0), x.size(0)), x=x)
+        out = self.propagate(edge_index, edge_weight=edge_weight, size=(x.size(0), x.size(0)), x=x)
         out += self.bias
         return out
 
-    # def _norm(self, edge_index, size, edge_weight=None):
+    def _norm(self, edge_index, size, edge_weight=None):
+        if edge_weight is None:
+            edge_weight = torch.ones((edge_index.size(1), ), device=edge_index.device)
 
-    def message(self, x_j, edge_index, size):
-        # x_j has shape [num_edges, out_channels]
+        edge_index, tmp_edge_weight = add_self_loops(edge_index, edge_attr=edge_weight, num_nodes=size)
 
-        # Step 3: Normalize node features.
+        assert tmp_edge_weight is not None
+        edge_weight = tmp_edge_weight
+
         row, col = edge_index
-        deg = degree(row, size[0], dtype=x_j.dtype)
-        deg_inv_sqrt = deg.pow(-0.5)
-        norm = deg_inv_sqrt[row] * deg_inv_sqrt[col]
+        deg = scatter_add(edge_weight, col, dim=0, dim_size=size)
+        deg_inv_sqrt = deg.pow_(-0.5)
+        deg_inv_sqrt.masked_fill_(deg_inv_sqrt == float('inf'), 0)
 
-        return norm.view(-1, 1) * x_j
+        edge_weight = deg_inv_sqrt[row] * edge_weight * deg_inv_sqrt[col]
+        return edge_index, edge_weight
 
-    # def aggregate(self, inputs, index, ptr=None, dim_size=None):
-    #     """
-    #     Step 4
-    #     """
+    def message(self, x_j, edge_weight, size):
+        # x_j has shape [num_edges, out_channels]
+        return edge_weight.view(-1, 1) * x_j
 
     def update(self, aggr_out):
         # aggr_out has shape [num_nodes, out_channels]
