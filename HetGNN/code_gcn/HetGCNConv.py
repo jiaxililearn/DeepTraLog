@@ -75,7 +75,6 @@ class HetGCNConv(MessagePassing):
             print(f'col: {col}')
             print(f'n_list: {n_list}')
 
-            print(f'masks: {masks}')
             if len(n_list) == 0:
                 yield None, None
                 continue
