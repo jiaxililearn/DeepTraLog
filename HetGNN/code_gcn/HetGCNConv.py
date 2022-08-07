@@ -1,6 +1,7 @@
 from tqdm import tqdm
 import torch
 from torch.nn import Parameter
+from torch_geometric.nn.dense.linear import Linear
 from torch_geometric.nn import MessagePassing
 from torch_scatter import scatter_add
 from torch_geometric.utils import add_self_loops, degree
@@ -8,7 +9,8 @@ from torch_geometric.utils import add_self_loops, degree
 class HetGCNConv(MessagePassing):
     def __init__(self, in_channels, out_channels):
         super(HetGCNConv, self).__init__(aggr='add')  # "Add" aggregation.
-        self.lin = torch.nn.Linear(in_channels, out_channels, bias=False, weight_initializer='glorot')
+        # self.lin = torch.nn.Linear(in_channels, out_channels, bias=False, weight_initializer='glorot')
+        self.lin = Linear(in_channels, out_channels, bias=False, weight_initializer='glorot')
 
         self.bias = Parameter(torch.Tensor(out_channels))
 
