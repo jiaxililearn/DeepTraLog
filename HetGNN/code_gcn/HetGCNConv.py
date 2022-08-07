@@ -27,8 +27,8 @@ class HetGCNConv(MessagePassing):
         """
         self.lin1.reset_parameters()
         self.lin2.reset_parameters()
-        torch.nn.init.zeros_(self.bia1)
-        torch.nn.init.zeros_(self.bia2)
+        torch.nn.init.zeros_(self.bias1)
+        torch.nn.init.zeros_(self.bias2)
 
     def forward(self, x, edge_index, node_types=None):
         # x has shape [num_nodes, in_channels]

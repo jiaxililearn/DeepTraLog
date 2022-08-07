@@ -13,7 +13,7 @@ python main.py \
 --test_set False \
 --feature_size 10 \
 --out_embed_s 16 \
---model_path ../model_save_clean_synth_3 \
+--model_path ../model_save_clean_synth_3_het \
 --data_path ../ProcessedData_synth \
 --split_data False
 
