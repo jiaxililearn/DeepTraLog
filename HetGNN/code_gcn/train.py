@@ -41,7 +41,14 @@ class Train(object):
             )
         elif self.model_version == 2:
             from GCN_2 import HetGCN_2 as HetGCN
-
+            self.dataset = EventGraphDataset(
+                node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
+                edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
+                het_types=False,
+                unzip=unzip
+            )
+        elif self.model_version == 3:
+            from GCN_3 import HetGCN_3 as HetGCN
             self.dataset = EventGraphDataset(
                 node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
                 edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
@@ -50,7 +57,6 @@ class Train(object):
             )
         else:
             from GCN import HetGCN
-
             self.dataset = EventGraphDataset(
                 f'{self.data_root_dir}/node_feature_norm.csv',
                 f'{self.data_root_dir}/graph_het_neigh_list',
