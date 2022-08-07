@@ -47,7 +47,10 @@ class HetGCN_3(nn.Module):
             x_edge_index = x_edge_index.type(torch.long)
 
         print(x_edge_index.dtype)
-        print(x_edge_index.dtype == torch.long)
+        print(f'dtype_long: {x_edge_index.dtype == torch.long}')
+        print(f'is_tensor: {torch.is_tensor(x_edge_index)}')
+        print(f'dim_2: {x_edge_index.dim() == 2}; {x_edge_index.dim()}')
+        print(f'size(0): {x_edge_index.size(0)}')
 
         h = self.conv1(x_node_feature, x_edge_index)
         h = h.tanh()
