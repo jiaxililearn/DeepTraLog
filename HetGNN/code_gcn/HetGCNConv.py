@@ -2,7 +2,6 @@ from tqdm import tqdm
 import torch
 from torch.nn import Parameter
 from torch_geometric.nn.dense.linear import Linear
-from torch_geometric.nn.inits import zeros
 from torch_geometric.nn import MessagePassing
 from torch_scatter import scatter_add
 from torch_geometric.utils import add_self_loops, degree
@@ -19,7 +18,7 @@ class HetGCNConv(MessagePassing):
 
     def reset_parameters(self):
         self.lin.reset_parameters()
-        zeros(self.bias)
+        torch.nn.init.zeros_(self.bias)
 
     def forward(self, x, edge_index):
         # x has shape [num_nodes, in_channels]
