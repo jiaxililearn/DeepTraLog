@@ -227,11 +227,11 @@ class Train(object):
         """
         print('Read Existing Split Train/Eval/Test.')
         with open(f'{self.model_path}/model_gid_list_train.txt', 'r') as fin:
-            train_list = np.array([int(i) for i in fin.read().strip().split()])
+            train_list = np.array([int(i) for i in fin.read().strip().split()]).astype(int)
         with open(f'{self.model_path}/model_gid_list_eval.txt', 'r') as fin:
-            eval_list = np.array([int(i) for i in fin.read().strip().split()])
+            eval_list = np.array([int(i) for i in fin.read().strip().split()]).astype(int)
         with open(f'{self.model_path}/model_gid_list_test.txt', 'r') as fin:
-            test_list = np.array([int(i) for i in fin.read().strip().split()])
+            test_list = np.array([int(i) for i in fin.read().strip().split()]).astype(int)
         return train_list, eval_list, test_list
 
     def sync_model_path_to_s3(self, s3_bucket, s3_prefix):
