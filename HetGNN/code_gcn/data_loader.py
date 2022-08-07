@@ -30,7 +30,7 @@ class HetGCNEventGraphDataset(Dataset):
             for line in fin.readlines():
                 _node_types = json.loads(line)
                 self.node_types.append(_node_types)
-        print(f'node types txt: {self.node_types}')
+        print(f'node types txt: {len(self.node_types)}')
 
 
         # self.node_type_to_id = {chr(97 + i): i for i in range(self.num_node_type)}
@@ -68,6 +68,12 @@ class HetGCNEventGraphDataset(Dataset):
         edge_index = torch.from_numpy(
             self.edge_inedx_df[self.edge_inedx_df.trace_id == gid][['src_id', 'dst_id']].values.reshape(2, -1)
         ).type(torch.LongTensor).to(self.device)
+
+        try:
+            self.node_types[gid]
+        except Exception as e:
+            print(f'Graph id: {gid}')
+            raise Exception(e)
         return graph_node_feature, edge_index, self.node_types[gid]
 
 
