@@ -51,13 +51,14 @@ class HetGCNConv(MessagePassing):
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []
         for het_edge_index, het_edge_weight in self.het_edge_index(edge_index, edge_weight, node_types):
+
             if het_edge_index is None:
                 het_out = torch.zeros(x.shape[0], self.hidden_channels, device=edge_index.device)
             else:
                 # Step 3.1: propagate het message
                 het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=x)
-            het_out += self.bias1
 
+            het_out += self.bias1
             het_h_embeddings.append(het_out)
 
         combined_het_embedding = torch.cat(het_h_embeddings, 1)
