@@ -7,7 +7,7 @@ python main.py \
 --unzip False \
 --s3_stage False \
 --save_model_freq 2 \
---lr 0.01 \
+--lr 0.005 \
 --train_iter_n 200 \
 --model_version 3 \
 --test_set False \
