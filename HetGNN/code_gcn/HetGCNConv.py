@@ -15,6 +15,12 @@ class HetGCNConv(MessagePassing):
         # Step 1: Add self-loops to the adjacency matrix.
         edge_index = add_self_loops(edge_index, num_nodes=x.size(0))
 
+        print(f'is instance of tensor: {isinstance(edge_index, torch.Tensor)}')
+        print(f'dtype_long: {edge_index.dtype == torch.long}')
+        print(f'is_tensor: {torch.is_tensor(edge_index)}')
+        print(f'dim_2: {edge_index.dim() == 2}; {edge_index.dim()}')
+        print(f'size(0): {edge_index.size(0)}')
+
         # Step 2: Linearly transform node feature matrix.
         x = self.lin(x)
 

@@ -43,11 +43,6 @@ class HetGCN_3(nn.Module):
         forward propagate based on node features and edge index
         """
         x_node_feature, x_edge_index = data
-        print(f'is instance of tensor: {isinstance(x_edge_index, torch.Tensor)}')
-        print(f'dtype_long: {x_edge_index.dtype == torch.long}')
-        print(f'is_tensor: {torch.is_tensor(x_edge_index)}')
-        print(f'dim_2: {x_edge_index.dim() == 2}; {x_edge_index.dim()}')
-        print(f'size(0): {x_edge_index.size(0)}')
 
         h = self.conv1(x_node_feature, x_edge_index)
         h = h.tanh()
