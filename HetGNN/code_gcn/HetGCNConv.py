@@ -51,7 +51,7 @@ class HetGCNConv(MessagePassing):
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []
         for het_edge_index, het_edge_weight in self.het_edge_index(edge_index, edge_weight, node_types):
-
+            
             # Step 3.1: propagate het message
             het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=x)
             het_out += self.bias1
@@ -72,7 +72,12 @@ class HetGCNConv(MessagePassing):
             print(f'col: {col}')
             print(f'n_list: {n_list}')
             print(f'mask: {[col == i for i in n_list]}')
-            het_mask = sum(col == i for i in n_list).bool()
+            masks = [col == i for i in n_list]
+
+            if len(masks) == 0:
+                yield None, None
+
+            het_mask = sum(masks).bool()
             yield torch.stack([row[het_mask], col[het_mask]]), edge_weight[het_mask]
 
     def _norm(self, edge_index, size, edge_weight=None):
