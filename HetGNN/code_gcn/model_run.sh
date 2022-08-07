@@ -6,15 +6,15 @@ python main.py \
 --num_eval 100 \
 --unzip False \
 --s3_stage False \
---split_data True \
+--split_data False \
 --save_model_freq 2 \
 --lr 0.005 \
 --train_iter_n 200 \
 --model_version 3 \
---test_set True \
+--test_set False \
 --feature_size 7 \
 --out_embed_s 32 \
---model_path ../model_save_HetGCN \
+--model_path ../model_save_HetGCN_act \
 --data_path ../ProcessedData_HetGCN
 
 
