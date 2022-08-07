@@ -6,7 +6,7 @@ python main.py \
 --num_eval 100 \
 --unzip False \
 --s3_stage False \
---split_data True
+--split_data True \
 --save_model_freq 2 \
 --lr 0.005 \
 --train_iter_n 200 \
@@ -15,7 +15,7 @@ python main.py \
 --feature_size 7 \
 --out_embed_s 32 \
 --model_path ../model_save_HetGCN \
---data_path ../ProcessedData_HetGCN \
+--data_path ../ProcessedData_HetGCN
 
 
 sudo update-alternatives --config gcc
