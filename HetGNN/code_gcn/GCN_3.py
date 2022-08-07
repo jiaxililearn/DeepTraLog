@@ -21,8 +21,8 @@ class HetGCN_3(nn.Module):
         self.num_node_types = len(node_types)
 
         # node feature content encoder
-        self.conv1 = HetGCNConv(self.embed_d, 64)
-        self.conv2 = HetGCNConv(64, self.out_embed_d)
+        self.conv1 = HetGCNConv(self.embed_d, 32)
+        self.conv2 = HetGCNConv(32, self.out_embed_d)
 
         # Others
         self.relu = nn.LeakyReLU()
