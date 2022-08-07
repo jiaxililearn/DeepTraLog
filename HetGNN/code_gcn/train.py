@@ -11,7 +11,8 @@ from tqdm import tqdm
 import random
 import pickle
 
-from data_loader import EventGraphDataset
+from data_loader_origin import EventGraphDataset
+from data_loader import HetGCNEventGraphDataset
 import boto3
 
 class Train(object):
@@ -51,11 +52,10 @@ class Train(object):
             )
         elif self.model_version == 3:
             from GCN_3 import HetGCN_3 as HetGCN
-            self.dataset = EventGraphDataset(
+            self.dataset = HetGCNEventGraphDataset(
                 node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
                 edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
-                het_types=False,
-                unzip=unzip
+                node_type_txt=f'{self.data_root_dir}/node_types.txt'
             )
         else:
             from GCN import HetGCN

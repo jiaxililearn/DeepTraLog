@@ -8,43 +8,28 @@ import torch
 from torch.utils.data import Dataset
 
 
-class EventGraphDataset(Dataset):
-    def __init__(self, node_feature_csv, het_neigh_root=None, node_type_csv=None, edge_index_csv=None,
-                 unzip=False, zip_fname='graph_het_neigh_list.zip', num_node_types=8, het_types=True, transform=None):
+class HetGCNEventGraphDataset(Dataset):
+    def __init__(self, node_feature_csv, edge_index_csv=None, node_type_txt=None, transform=None, **kwargs):
         """
         node_feature_csv: path to the node feature csv file
         het_neigh_root: path to the het neighbour list root dir
         """
+        super(HetGCNEventGraphDataset, self).__init__()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.het_types = het_types
+
         print('reading node features..')
         self.node_feature_df = pd.read_csv(node_feature_csv).sort_values(['trace_id', 'node_id'])
 
-        if het_types:
-            self.num_node_type = num_node_types
-            self.topk = 10
+        print('reading edge index..')
+        self.edge_inedx_df = pd.read_csv(edge_index_csv)
 
-            self.node_type_to_id = {chr(97 + i): i for i in range(num_node_types)}
-            self.node_id_to_type = {i: chr(97 + i) for i in range(num_node_types)}
+        print('read node types ..')
+        self.node_types = []
 
-            # print('reading node features..')
-            # self.node_feature_df = pd.read_csv(node_feature_csv).sort_values(['trace_id', 'node_id'])
-            self.node_type_df = pd.read_csv(node_type_csv)
-
-            if unzip:
-                data_dir = os.path.dirname(het_neigh_root)
-                print(f'unzipping {data_dir}/{zip_fname} ..')
-                with ZipFile(f'{data_dir}/{zip_fname}', 'r') as zipObj:
-                    zipObj.extractall(path=data_dir)
-
-            self.het_neigh_root = het_neigh_root
-
-            self.num_features = len(self.node_feature_df.columns) - 2
-        
-        else:
-            # if do not consider heterogeneous types
-            print('reading edge index..')
-            self.edge_inedx_df = pd.read_csv(edge_index_csv)
+        with open(node_type_txt, 'r') as fin:
+            for line in fin.readlines():
+                _node_types = json.loads(line)
+                self.node_types.append(_node_types)
 
 
         # self.node_type_to_id = {chr(97 + i): i for i in range(self.num_node_type)}
@@ -79,33 +64,14 @@ class EventGraphDataset(Dataset):
         graph_node_feature = torch.from_numpy(
             self.node_feature_df[self.node_feature_df.trace_id == gid].iloc[:, 2:].values).float().to(self.device)
 
-        if self.het_types:
-            graph_node_types = self.node_type_df[self.node_type_df.trace_id == gid]['node_type'].values
-            
-            het_neigh_dict = self.read_graph(gid)
-
-            num_node = graph_node_feature.shape[0]
-            graph_het_feature = torch.zeros(self.num_node_type, num_node, self.topk, self.num_features).to(self.device)
-
-            for node, neigh_dict in het_neigh_dict.items():
-                node_id = int(node[1:])
-
-                for neigh_type, neigh_list in neigh_dict.items():
-                    neigh_type_id = self.node_type_to_id[neigh_type]
-                    for i, n in enumerate(neigh_list):
-                        nid = int(n[1:])
-
-                        graph_het_feature[neigh_type_id][node_id][i] = graph_node_feature[nid]
-            return graph_node_feature, graph_het_feature, graph_node_types
-        else:
-            edge_index = torch.from_numpy(
-                self.edge_inedx_df[self.edge_inedx_df.trace_id == gid][['src_id', 'dst_id']].values.reshape(2, -1)
-            ).type(torch.LongTensor).to(self.device)
-            return graph_node_feature, edge_index
+        edge_index = torch.from_numpy(
+            self.edge_inedx_df[self.edge_inedx_df.trace_id == gid][['src_id', 'dst_id']].values.reshape(2, -1)
+        ).type(torch.LongTensor).to(self.device)
+        return graph_node_feature, edge_index, self.node_types[gid]
 
 
 if __name__ == '__main__':
-    dataset = EventGraphDataset(
+    dataset = HetGCNEventGraphDataset(
         '../ProcessedData_clean/node_feature_norm.csv',
         '../ProcessedData_clean/graph_het_neigh_list'
     )
