@@ -45,7 +45,10 @@ class HetGCN_3(nn.Module):
         x_node_feature, x_edge_index = data
         if x_edge_index.dtype != torch.long:
             x_edge_index = x_edge_index.type(torch.long)
+
         print(x_edge_index.dtype)
+        print(x_edge_index.dtype == torch.long)
+
         h = self.conv1(x_node_feature, x_edge_index)
         h = h.tanh()
 

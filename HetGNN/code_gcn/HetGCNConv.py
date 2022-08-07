@@ -32,6 +32,11 @@ class HetGCNConv(MessagePassing):
 
         return norm.view(-1, 1) * x_j
 
+    # def aggregate(self, inputs, index, ptr=None, dim_size=None):
+    #     """
+    #     Step 4
+    #     """
+
     def update(self, aggr_out):
         # aggr_out has shape [num_nodes, out_channels]
 
