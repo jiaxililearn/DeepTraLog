@@ -9,37 +9,67 @@ from torch_geometric.utils import add_self_loops, degree
 class HetGCNConv(MessagePassing):
     def __init__(self, in_channels, out_channels):
         super(HetGCNConv, self).__init__(aggr='add')  # "Add" aggregation.
-        self.lin = torch.nn.Linear(in_channels, out_channels, bias=False)
+        self.node_types = 1
+        self.hidden_channels = 16
+
+        self.lin1 = torch.nn.Linear(in_channels, self.hidden_channels, bias=False)
+        self.lin2 = torch.nn.Linear(self.hidden_channels * self.node_types, out_channels, bias=False)
         # self.lin = Linear(in_channels, out_channels, bias=False, weight_initializer='glorot')
 
-        self.bias = Parameter(torch.Tensor(out_channels))
+        self.bias1 = Parameter(torch.Tensor(self.hidden_channels))
+        self.bias2 = Parameter(torch.Tensor(out_channels))
     
         self.reset_parameters()
 
     def reset_parameters(self):
-        self.lin.reset_parameters()
-        torch.nn.init.zeros_(self.bias)
+        """
+        reset parameters from Layers and Parameters
+        """
+        self.lin1.reset_parameters()
+        self.lin2.reset_parameters()
+        torch.nn.init.zeros_(self.bia1)
+        torch.nn.init.zeros_(self.bia2)
 
-    def forward(self, x, edge_index):
+    def forward(self, x, edge_index, node_types=None):
         # x has shape [num_nodes, in_channels]
         # edge_index has shape [2, E]
 
         # Step 1: Norm and add self loop
         edge_index, edge_weight = self._norm(edge_index, size=x.size(0))
 
-        # print(f'is instance of tensor: {isinstance(edge_index, torch.Tensor)}')
-        # print(f'dtype_long: {edge_index.dtype == torch.long}')
-        # print(f'is_tensor: {torch.is_tensor(edge_index)}')
-        # print(f'dim_2: {edge_index.dim() == 2}; {edge_index.dim()}')
-        # print(f'size(0): {edge_index.size(0)}')
+        # node_types = [
+        #   type0:[0,2,3,5]
+        #   type1:[6,7,8]
+        #   type2:[9]
+        #   type3[10,11]
+        # ]
 
         # Step 2: Linearly transform node feature matrix.
+
         x = self.lin(x)
 
-        # Step 3-5: Start propagating messages.
-        out = self.propagate(edge_index, edge_weight=edge_weight, size=(x.size(0), x.size(0)), x=x)
-        out += self.bias
+        # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
+        het_h_embeddings = []
+        for het_edge_index, het_edge_weight in self.het_edge_index(edge_index, edge_weight, node_types):
+
+            # Step 3.1: propagate het message
+            het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=x)
+            het_out += self.bias
+
+            het_h_embeddings.append(het_out)
+
+        combined_het_embedding = torch.cat(het_h_embeddings, 1)
+        out = self.lin2(combined_het_embedding)
         return out
+
+    def het_edge_index(self, edge_index, edge_weight, node_types):
+        """
+        return a generator of het neighbour edge indices
+        """
+        row, col = edge_index
+        for ntype, n_list in enumerate(node_types):
+            het_mask = sum(col == i for i in n_list).bool()
+            yield torch.stack([row[het_mask], col[het_mask]]), edge_weight[het_mask]
 
     def _norm(self, edge_index, size, edge_weight=None):
         if edge_weight is None:
