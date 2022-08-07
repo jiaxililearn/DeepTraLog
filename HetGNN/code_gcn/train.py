@@ -17,7 +17,8 @@ import boto3
 class Train(object):
     def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
                  save_model_freq, s3_stage, s3_bucket, s3_prefix, model_version,
-                 test_set=True, fix_center=True, num_eval=None, unzip=False, **kwargs):
+                 test_set=True, fix_center=True, num_eval=None, unzip=False, 
+                 split_data=True, **kwargs):
         super(Train, self).__init__()
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -27,9 +28,10 @@ class Train(object):
         self.model_path = model_path
         self.model_version = model_version
         self.test_set = test_set
+        self.split_data = split_data
 
         self.fix_center = fix_center
-        
+
         if self.model_version == 1:
             from GCN_1 import HetGCN_1 as HetGCN
 
@@ -96,7 +98,12 @@ class Train(object):
 
         epoch_loss_list = []
         eval_list = []
-        benign_gid_list, eval_gid_list, test_gid_list = self.train_eval_test_split(test_set=self.test_set)
+
+        # random split train eval test data or read from existing files
+        if self.split_data:
+            benign_gid_list, eval_gid_list, test_gid_list = self.train_eval_test_split(test_set=self.test_set)
+        else:
+            benign_gid_list, eval_gid_list, test_gid_list = self.read_train_eval_test_sets()
 
         for iter_i in range(self.train_iter_n):
             self.model.train()
@@ -158,6 +165,7 @@ class Train(object):
         """
         splite data into train eval test
         """
+        print('Random Split Train/Eval/Test.')
         trace_info_df = pd.read_csv(f'{self.data_root_dir}/trace_info.csv', index_col=None)
 
         benign_gid_list = trace_info_df[trace_info_df['trace_bool'] == True]['trace_id'].values
@@ -212,6 +220,19 @@ class Train(object):
             fout.write('\n')
 
         return rep_train_benign_gid_list, eval_gid_list, test_gid_list
+
+    def read_train_eval_test_sets(self):
+        """
+        Read existing train eval test datasets graph ids
+        """
+        print('Read Existing Split Train/Eval/Test.')
+        with open(f'{self.model_path}/model_gid_list_train.txt', 'r') as fin:
+            train_list = [int(i) for i in fin.read().strip().split()]
+        with open(f'{self.model_path}/model_gid_list_eval.txt', 'r') as fin:
+            eval_list = [int(i) for i in fin.read().strip().split()]
+        with open(f'{self.model_path}/model_gid_list_test.txt', 'r') as fin:
+            test_list = [int(i) for i in fin.read().strip().split()]
+        return train_list, eval_list, test_list
 
     def sync_model_path_to_s3(self, s3_bucket, s3_prefix):
         """

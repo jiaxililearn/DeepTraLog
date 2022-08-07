@@ -32,6 +32,8 @@ class HetGCNConv(MessagePassing):
         out += self.bias
         return out
 
+    # def _norm(self, edge_index, size, edge_weight=None):
+
     def message(self, x_j, edge_index, size):
         # x_j has shape [num_edges, out_channels]
 
