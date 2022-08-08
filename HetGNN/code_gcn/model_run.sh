@@ -9,8 +9,8 @@ python main.py \
 --split_data False \
 --test_set False \
 --save_model_freq 2 \
---lr 0.005 \
---train_iter_n 200 \
+--lr 0.001 \
+--train_iter_n 500 \
 --model_version 3 \
 --feature_size 7 \
 --out_embed_s 32 \
