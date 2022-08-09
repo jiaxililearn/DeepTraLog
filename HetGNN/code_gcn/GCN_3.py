@@ -45,9 +45,9 @@ class HetGCN_3(nn.Module):
         x_node_feature, x_edge_index, x_node_types = data
 
         h = self.conv1(x_node_feature, x_edge_index, x_node_types)
-        h = h.tanh()
+        # h = h.tanh()
 
-        h = self.conv2(h, x_edge_index, x_node_types)
+        # h = self.conv2(h, x_edge_index, x_node_types)
         h = h.sigmoid()
 
         graph_embedding = self.graph_node_pooling(h)

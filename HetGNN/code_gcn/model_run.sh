@@ -16,7 +16,7 @@ python main.py \
 --train_iter_n 200 \
 --model_version 3 \
 --feature_size 26 \
---out_embed_s 32 \
+--out_embed_s 16 \
 --model_path ../model_save_HetGCN_streamspot \
 --data_path ../ProcessedData_streamspot
 
