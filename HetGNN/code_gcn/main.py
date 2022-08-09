@@ -13,7 +13,7 @@ from train import Train
 @click.option('--batch_s', default=2000, help='batch size')
 @click.option('--mini_batch_s', default=500, help='mini batch size')
 @click.option('--train_iter_n', default=250, help='max train iter')
-@click.option('--num_node_type', default=8, help='num of node types in data')
+@click.option('--num_node_types', default=8, help='num of node types in data')
 @click.option('--feature_size', default=7, help='input node feature size')
 @click.option('--out_embed_s', default=32, help='output feature size')
 @click.option('--model_version', default=3, help='train with model version')
