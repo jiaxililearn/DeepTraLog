@@ -1,6 +1,7 @@
 python main.py \
 --sagemaker False \
 --dataset_id 1 \
+--num_node_type 8 \
 --num_train 300 \
 --batch_s 100 \
 --mini_batch_s 100 \

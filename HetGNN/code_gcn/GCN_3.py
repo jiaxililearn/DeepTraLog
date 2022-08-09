@@ -4,7 +4,7 @@ from torch import nn
 from HetGCNConv import HetGCNConv
 
 class HetGCN_3(nn.Module):
-    def __init__(self, model_path=None, feature_size=7, out_embed_s=32, num_node_types, **kwargs):
+    def __init__(self, model_path=None, feature_size=7, out_embed_s=32, num_node_types=7, **kwargs):
         """
         test model with homegeneoug GCNConv
         """
