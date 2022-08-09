@@ -4,7 +4,7 @@ from torch import nn
 from HetGCNConv import HetGCNConv
 
 class HetGCN_3(nn.Module):
-    def __init__(self, model_path=None, feature_size=7, out_embed_s=32, num_node_types=7, **kwargs):
+    def __init__(self, model_path=None, feature_size=7, out_embed_s=32, num_node_types=7, hidden_channels=16, **kwargs):
         """
         test model with homegeneoug GCNConv
         """
@@ -20,8 +20,8 @@ class HetGCN_3(nn.Module):
         self.num_node_types = num_node_types
 
         # node feature content encoder
-        self.conv1 = HetGCNConv(self.embed_d, 32, self.num_node_types)
-        self.conv2 = HetGCNConv(32, self.out_embed_d, self.num_node_types)
+        self.conv1 = HetGCNConv(self.embed_d, 32, self.num_node_types, hidden_channels=hidden_channels)
+        self.conv2 = HetGCNConv(32, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
 
         # Others
         self.relu = nn.LeakyReLU()
