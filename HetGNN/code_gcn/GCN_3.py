@@ -45,6 +45,8 @@ class HetGCN_3(nn.Module):
         """
         x_node_feature, x_edge_index, x_node_types = data
 
+        print(f'x_node_feature shape: {x_node_feature.shape}')
+        print(f'x_edge_index shape: {x_edge_index.shape}')
         h = self.conv1(x_node_feature, x_edge_index, x_node_types)
         # h = h.tanh()
         print('done')
