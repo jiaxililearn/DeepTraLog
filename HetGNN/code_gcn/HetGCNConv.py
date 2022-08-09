@@ -63,7 +63,7 @@ class HetGCNConv(MessagePassing):
             het_h_embeddings.append(het_out)
 
         combined_het_embedding = torch.cat(het_h_embeddings, 1)
-        print(f'combined_het_embedding shape: {combined_het_embedding}')
+        print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
         out = self.lin2(combined_het_embedding)
         out += self.bias2
         return out
