@@ -1,21 +1,22 @@
 python main.py \
 --sagemaker False \
---num_train 200 \
+--dataset_id 1 \
+--num_train 300 \
 --batch_s 100 \
 --mini_batch_s 100 \
---num_eval 100 \
+--num_eval 200 \
 --unzip False \
 --s3_stage False \
---split_data False \
---test_set False \
+--split_data True \
+--test_set True \
 --save_model_freq 2 \
 --lr 0.001 \
---train_iter_n 500 \
+--train_iter_n 200 \
 --model_version 3 \
---feature_size 7 \
+--feature_size 26 \
 --out_embed_s 32 \
---model_path ../model_save_HetGCN_act \
---data_path ../ProcessedData_HetGCN
+--model_path ../model_save_HetGCN_streamspot \
+--data_path ../ProcessedData_streamspot
 
 
 sudo update-alternatives --config gcc

@@ -7,9 +7,9 @@ from torch_scatter import scatter_add
 from torch_geometric.utils import add_self_loops, degree
 
 class HetGCNConv(MessagePassing):
-    def __init__(self, in_channels, out_channels):
+    def __init__(self, in_channels, out_channels, num_node_types):
         super(HetGCNConv, self).__init__(aggr='add')  # "Add" aggregation.
-        self.num_node_types = 8
+        self.num_node_types = num_node_types
         self.hidden_channels = 16
 
         self.lin1 = torch.nn.Linear(in_channels, self.hidden_channels, bias=False)

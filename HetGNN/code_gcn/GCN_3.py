@@ -2,10 +2,9 @@
 import torch
 from torch import nn
 from HetGCNConv import HetGCNConv
-from config import relations, node_types
 
 class HetGCN_3(nn.Module):
-    def __init__(self, model_path=None, feature_size=7, out_embed_s=32, **kwargs):
+    def __init__(self, model_path=None, feature_size=7, out_embed_s=32, num_node_types, **kwargs):
         """
         test model with homegeneoug GCNConv
         """
@@ -18,11 +17,11 @@ class HetGCN_3(nn.Module):
         self.embed_d = feature_size
         self.out_embed_d = out_embed_s
 
-        self.num_node_types = len(node_types)
+        self.num_node_types = num_node_types
 
         # node feature content encoder
-        self.conv1 = HetGCNConv(self.embed_d, 32)
-        self.conv2 = HetGCNConv(32, self.out_embed_d)
+        self.conv1 = HetGCNConv(self.embed_d, 32, self.num_node_types)
+        self.conv2 = HetGCNConv(32, self.out_embed_d, self.num_node_types)
 
         # Others
         self.relu = nn.LeakyReLU()
