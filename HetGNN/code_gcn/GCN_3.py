@@ -46,7 +46,7 @@ class HetGCN_3(nn.Module):
 
         h = self.conv1(x_node_feature, x_edge_index, x_node_types)
         # h = h.tanh()
-
+        print('done')
         # h = self.conv2(h, x_edge_index, x_node_types)
         h = h.sigmoid()
 
