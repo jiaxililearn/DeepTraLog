@@ -143,11 +143,6 @@ class CMUDataset(Dataset):
             self.edge_inedx_df[self.edge_inedx_df.trace_id == gid][['src_id', 'dst_id']].values.reshape(2, -1)
         ).type(torch.LongTensor).to(self.device)
 
-        try:
-            self.node_types[gid]
-        except Exception as e:
-            print(f'Graph id: {gid}')
-            raise Exception(e)
         return graph_node_feature, edge_index, self.node_types[gid]
 
 if __name__ == '__main__':
