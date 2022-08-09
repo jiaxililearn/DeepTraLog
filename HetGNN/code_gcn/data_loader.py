@@ -86,7 +86,7 @@ class CMUDataset(Dataset):
         node_feature_csv: path to the node feature csv file
         het_neigh_root: path to the het neighbour list root dir
         """
-        super(HetGCNEventGraphDataset, self).__init__()
+        super(CMUDataset, self).__init__()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
         print('reading node features..')
