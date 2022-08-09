@@ -20,9 +20,9 @@ class HetGCN_3(nn.Module):
         self.num_node_types = num_node_types
 
         # node feature content encoder
-        self.conv1 = HetGCNConv(self.embed_d, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
-        # self.conv1 = HetGCNConv(self.embed_d, 32, self.num_node_types, hidden_channels=hidden_channels)
-        # self.conv2 = HetGCNConv(32, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
+        # self.conv1 = HetGCNConv(self.embed_d, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
+        self.conv1 = HetGCNConv(self.embed_d, 32, self.num_node_types, hidden_channels=hidden_channels)
+        self.conv2 = HetGCNConv(32, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
 
         # Others
         self.relu = nn.LeakyReLU()
@@ -48,9 +48,8 @@ class HetGCN_3(nn.Module):
         print(f'x_node_feature shape: {x_node_feature.shape}')
         print(f'x_edge_index shape: {x_edge_index.shape}')
         h = self.conv1(x_node_feature, x_edge_index, x_node_types)
-        # h = h.tanh()
-        print('done')
-        # h = self.conv2(h, x_edge_index, x_node_types)
+        h = self.relu(h)
+        h = self.conv2(h, x_edge_index, x_node_types)
         h = h.sigmoid()
 
         graph_embedding = self.graph_node_pooling(h)
