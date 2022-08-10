@@ -3,6 +3,7 @@ import torch
 from torch import nn
 from HetGCNConv import HetGCNConv
 
+
 class HetGCN_3(nn.Module):
     def __init__(self, model_path=None, feature_size=7, out_embed_s=32, num_node_types=7, hidden_channels=16, **kwargs):
         """
@@ -45,11 +46,11 @@ class HetGCN_3(nn.Module):
         """
         x_node_feature, x_edge_index, x_node_types = data
 
-        print(f'x_node_feature shape: {x_node_feature.shape}')
-        print(f'x_edge_index shape: {x_edge_index.shape}')
+        # print(f'x_node_feature shape: {x_node_feature.shape}')
+        # print(f'x_edge_index shape: {x_edge_index.shape}')
         h = self.conv1(x_node_feature, x_edge_index, x_node_types)
-        h = self.relu(h)
-        h = self.conv2(h, x_edge_index, x_node_types)
+        # h = self.relu(h)
+        # h = self.conv2(h, x_edge_index, x_node_types)
         h = h.sigmoid()
 
         graph_embedding = self.graph_node_pooling(h)
