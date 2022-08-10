@@ -1,10 +1,9 @@
 python main.py \
 --sagemaker False \
---dataset_id 1 \
 --num_node_types 8 \
 --num_train 300 \
---batch_s 5 \
---mini_batch_s 5 \
+--batch_s 50 \
+--mini_batch_s 50 \
 --num_eval 200 \
 --hidden_channels 8 \
 --unzip False \
@@ -16,7 +15,7 @@ python main.py \
 --train_iter_n 200 \
 --model_version 3 \
 --feature_size 26 \
---out_embed_s 16 \
+--out_embed_s 32 \
 --model_path ../model_save_HetGCN_streamspot \
 --data_path ../ProcessedData_streamspot
 

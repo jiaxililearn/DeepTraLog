@@ -61,12 +61,12 @@ class Train(object):
                     edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
                     node_type_txt=f'{self.data_root_dir}/node_types.txt'
                 )
-            elif self.dataset_id == 1:
-                self.dataset = CMUDataset(
-                    node_feature_path=f'{self.data_root_dir}',
-                    edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
-                    node_type_txt=f'{self.data_root_dir}/node_types.txt'
-                )
+            # elif self.dataset_id == 1:
+            #     self.dataset = CMUDataset(
+            #         node_feature_path=f'{self.data_root_dir}',
+            #         edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
+            #         node_type_txt=f'{self.data_root_dir}/node_types.txt'
+            #     )
         else:
             from GCN import HetGCN
             self.dataset = EventGraphDataset(
