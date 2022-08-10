@@ -11,7 +11,7 @@ python main.py \
 --split_data True \
 --test_set True \
 --save_model_freq 2 \
---lr 0.001 \
+--lr 0.005 \
 --train_iter_n 200 \
 --model_version 3 \
 --feature_size 26 \
