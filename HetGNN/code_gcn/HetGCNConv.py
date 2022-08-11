@@ -52,6 +52,8 @@ class HetGCNConv(MessagePassing):
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []
         for het_edge_index, het_edge_weight in self.het_edge_index(edge_index, edge_weight, node_types):
+            print(f'het_edge_index shape: {het_edge_index}')
+            print(f'het_edge_weight shape: {het_edge_weight}')
 
             if het_edge_index is None:
                 het_out = torch.zeros(x.shape[0], self.hidden_channels, device=edge_index.device)
@@ -82,7 +84,7 @@ class HetGCNConv(MessagePassing):
             if len(n_list) == 0:
                 yield None, None
                 continue
-
+            # TODO: look into the masking shape of the results
             het_mask = sum(col == i for i in n_list).bool()
             # print(f'het mask: {het_mask}')
 
