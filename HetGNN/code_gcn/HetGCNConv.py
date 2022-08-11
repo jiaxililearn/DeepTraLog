@@ -18,6 +18,7 @@ class HetGCNConv(MessagePassing):
         for _ in range(self.num_node_types):
             fc_node_content_layers.append(torch.nn.Linear(in_channels, hidden_channels))
             fc_node_content_bias.append(Parameter(torch.Tensor(self.hidden_channels)))
+
         self.fc_node_content_layers = torch.nn.ModuleList(fc_node_content_layers)
         self.fc_node_content_bias = torch.nn.ModuleList(fc_node_content_bias)
 
@@ -75,7 +76,7 @@ class HetGCNConv(MessagePassing):
                 het_edge_index, het_edge_weight = self._norm(het_edge_index, size=x.size(0), edge_weight=het_edge_weight)
                 het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=h)
 
-            het_out += self.bias1
+            het_out += self.fc_node_content_bias[ntype]
             het_out = het_out.relu()
             het_h_embeddings.append(het_out)
 
