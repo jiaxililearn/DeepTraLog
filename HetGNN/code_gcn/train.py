@@ -59,8 +59,7 @@ class Train(object):
                 self.dataset = HetGCNEventGraphDataset(
                     node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
                     edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
-                    node_type_txt=f'{self.data_root_dir}/node_types.txt',
-                    include_edge_weight=True
+                    node_type_txt=f'{self.data_root_dir}/node_types.txt'
                 )
             # elif self.dataset_id == 1:
             #     self.dataset = CMUDataset(
