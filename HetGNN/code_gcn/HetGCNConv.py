@@ -13,7 +13,12 @@ class HetGCNConv(MessagePassing):
         self.num_node_types = num_node_types
         self.hidden_channels = hidden_channels
 
-        self.lin1 = torch.nn.Linear(in_channels, self.hidden_channels, bias=False)
+        fc_node_content_layers = []
+        for _ in range(self.num_node_types):
+            fc_node_content_layers.append(torch.nn.Linear(self.embed_d, self.embed_d))
+        self.fc_node_content_layers = torch.nn.ModuleList(fc_node_content_layers)
+
+        # self.lin1 = torch.nn.Linear(in_channels, self.hidden_channels, bias=False)
         self.lin2 = torch.nn.Linear(self.hidden_channels * self.num_node_types, out_channels, bias=False)
         # self.lin = Linear(in_channels, out_channels, bias=False, weight_initializer='glorot')
 
@@ -26,12 +31,16 @@ class HetGCNConv(MessagePassing):
         """
         reset parameters from Layers and Parameters
         """
-        self.lin1.reset_parameters()
+        for lin in self.fc_node_content_layers:
+            lin.reset_parameters()
         self.lin2.reset_parameters()
         torch.nn.init.zeros_(self.bias1)
         torch.nn.init.zeros_(self.bias2)
 
     def forward(self, x, edge_index, node_types=None, edge_weight=None): #TODO: add edge weight
+        """
+        forward method
+        """
         # x has shape [num_nodes, in_channels]
         # edge_index has shape [2, E]
 
@@ -45,22 +54,22 @@ class HetGCNConv(MessagePassing):
         #   type3[10,11]
         # ]
 
-        # Step 2: Linearly transform node feature matrix.
+        # Step 2: Linearly transform node feature matrix. Deprecated. Neighbour type specific node feature hidden embedding
 
-        x = self.lin1(x)
 
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []
-        for het_edge_index, het_edge_weight in self.het_edge_index(edge_index, edge_weight, node_types):
-            print(f'het_edge_index shape: {het_edge_index}')
-            print(f'het_edge_weight shape: {het_edge_weight}')
+        for ntype, het_edge_index, het_edge_weight in self.het_edge_index(edge_index, edge_weight, node_types):
+            # print(f'het_edge_index shape: {het_edge_index.shape}')
+            # print(f'het_edge_weight shape: {het_edge_weight.shape}')
 
             if het_edge_index is None:
                 het_out = torch.zeros(x.shape[0], self.hidden_channels, device=edge_index.device)
             else:
                 # Step 3.1: propagate het message
+                h = self.fc_node_content_layers[ntype](x)
                 het_edge_index, het_edge_weight = self._norm(het_edge_index, size=x.size(0), edge_weight=het_edge_weight)
-                het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=x)
+                het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=h)
 
             het_out += self.bias1
             het_out = het_out.relu()
@@ -82,13 +91,13 @@ class HetGCNConv(MessagePassing):
             # print(f'n_list: {n_list}')
 
             if len(n_list) == 0:
-                yield None, None
+                yield ntype, None, None
                 continue
             # TODO: look into the masking shape of the results
             het_mask = sum(col == i for i in n_list).bool()
             # print(f'het mask: {het_mask}')
 
-            yield torch.stack([row[het_mask], col[het_mask]]), edge_weight[het_mask]
+            yield ntype, torch.stack([row[het_mask], col[het_mask]]), edge_weight[het_mask]
 
     def _norm(self, edge_index, size, edge_weight=None):
         if edge_weight is None:
