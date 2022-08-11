@@ -143,7 +143,11 @@ class CMUDataset(Dataset):
             self.edge_inedx_df[self.edge_inedx_df.trace_id == gid][['src_id', 'dst_id']].values.reshape(2, -1)
         ).type(torch.LongTensor).to(self.device)
 
-        return graph_node_feature, edge_index, self.node_types[gid]
+        edge_weight = torch.from_numpy(
+            self.edge_inedx_df[self.edge_inedx_df.trace_id == gid]['weight'].values.reshape(1,)
+        ).float().to(self.device)
+
+        return graph_node_feature, edge_index, edge_weight, self.node_types[gid]
 
 if __name__ == '__main__':
     dataset = HetGCNEventGraphDataset(

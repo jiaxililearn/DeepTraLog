@@ -6,6 +6,7 @@ from torch_geometric.nn import MessagePassing
 from torch_scatter import scatter_add
 from torch_geometric.utils import add_self_loops, degree
 
+
 class HetGCNConv(MessagePassing):
     def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16):
         super(HetGCNConv, self).__init__(aggr='add')  # "Add" aggregation.
@@ -30,12 +31,12 @@ class HetGCNConv(MessagePassing):
         torch.nn.init.zeros_(self.bias1)
         torch.nn.init.zeros_(self.bias2)
 
-    def forward(self, x, edge_index, node_types=None):
+    def forward(self, x, edge_index, node_types=None, edge_weight=None): #TODO: add edge weight
         # x has shape [num_nodes, in_channels]
         # edge_index has shape [2, E]
 
         # Step 1: Norm and add self loop
-        edge_index, edge_weight = self._norm(edge_index, size=x.size(0))
+        edge_index, edge_weight = self._norm(edge_index, size=x.size(0), edge_weight=edge_weight)
 
         # node_types = [
         #   type0:[0,2,3,5]
