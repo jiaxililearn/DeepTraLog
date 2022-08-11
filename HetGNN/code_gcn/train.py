@@ -133,7 +133,7 @@ class Train(object):
                     mini_batch_list = k.reshape(int(len(k) / self.mini_batch_s), self.mini_batch_s)
                     for mini_n, mini_k in enumerate(mini_batch_list):
                         for i, gid in enumerate(mini_k):
-                            # print(f'forward graph {gid}')
+                            print(f'forward graph: {i} -- {gid}')
                             _out[mini_n][i] = self.model(self.dataset[gid])
 
                     batch_loss = self.model.svdd_batch_loss(self.model, _out, fix_center=self.fix_center)
