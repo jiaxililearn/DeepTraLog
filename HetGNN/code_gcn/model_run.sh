@@ -9,7 +9,7 @@ python main.py \
 --unzip False \
 --s3_stage False \
 --split_data False \
---ignore_weight True \
+--ignore_weight False \
 --test_set True \
 --save_model_freq 2 \
 --lr 0.005 \
