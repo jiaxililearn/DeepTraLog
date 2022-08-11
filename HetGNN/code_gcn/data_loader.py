@@ -16,12 +16,17 @@ class HetGCNEventGraphDataset(Dataset):
         """
         super(HetGCNEventGraphDataset, self).__init__()
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.include_edge_weight = False
 
         print('reading node features..')
         self.node_feature_df = pd.read_csv(node_feature_csv).sort_values(['trace_id', 'node_id'])
 
         print('reading edge index..')
         self.edge_inedx_df = pd.read_csv(edge_index_csv)
+
+        if 'weight' in self.edge_inedx_df.columns:
+            self.include_edge_weight = True
+            print('Found Edge Weights.')
 
         print('read node types ..')
         self.node_types = []
@@ -69,7 +74,7 @@ class HetGCNEventGraphDataset(Dataset):
             self.edge_inedx_df[self.edge_inedx_df.trace_id == gid][['src_id', 'dst_id']].values.reshape(2, -1)
         ).type(torch.LongTensor).to(self.device)
 
-        if 'weight' in self.edge_inedx_df.columns:
+        if self.include_edge_weight:
             edge_weight = torch.from_numpy(
                 self.edge_inedx_df[self.edge_inedx_df.trace_id == gid]['weight'].values.reshape(-1,)
             ).float().to(self.device)
