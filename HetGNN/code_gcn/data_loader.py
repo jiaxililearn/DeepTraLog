@@ -70,7 +70,7 @@ class HetGCNEventGraphDataset(Dataset):
         ).type(torch.LongTensor).to(self.device)
 
         edge_weight = torch.from_numpy(
-            self.edge_inedx_df[self.edge_inedx_df.trace_id == gid]['weight'].values.reshape(1,)
+            self.edge_inedx_df[self.edge_inedx_df.trace_id == gid]['weight'].values.reshape(-1,)
         ).float().to(self.device)
 
         return graph_node_feature, edge_index, edge_weight, self.node_types[gid]
