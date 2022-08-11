@@ -12,7 +12,7 @@ import random
 import pickle
 
 from data_loader_origin import EventGraphDataset
-from data_loader import HetGCNEventGraphDataset, CMUDataset
+from data_loader import HetGCNEventGraphDataset
 
 import boto3
 
