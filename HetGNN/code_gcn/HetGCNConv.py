@@ -88,6 +88,7 @@ class HetGCNConv(MessagePassing):
             yield torch.stack([row[het_mask], col[het_mask]]), edge_weight[het_mask]
 
     def _norm(self, edge_index, size, edge_weight=None):
+        print(f'edge_weight: {edge_weight.shape}')
         if edge_weight is None:
             edge_weight = torch.ones((edge_index.size(1), ), device=edge_index.device)
 
