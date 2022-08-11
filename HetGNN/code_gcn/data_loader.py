@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 
 
 class HetGCNEventGraphDataset(Dataset):
-    def __init__(self, node_feature_csv, edge_index_csv=None, node_type_txt=None, transform=None, **kwargs):
+    def __init__(self, node_feature_csv, edge_index_csv=None, node_type_txt=None, transform=None, ignore_weight=False, **kwargs):
         """
         node_feature_csv: path to the node feature csv file
         het_neigh_root: path to the het neighbour list root dir
@@ -23,10 +23,14 @@ class HetGCNEventGraphDataset(Dataset):
 
         print('reading edge index..')
         self.edge_inedx_df = pd.read_csv(edge_index_csv)
-
-        if 'weight' in self.edge_inedx_df.columns:
-            self.include_edge_weight = True
-            print('Found Edge Weights.')
+     
+        if ignore_weight:
+            self.include_edge_weight = False
+            print('Ignore Edge Weights.')
+        else:
+            if 'weight' in self.edge_inedx_df.columns:
+                self.include_edge_weight = True
+                print('Found Edge Weights.')
 
         print('read node types ..')
         self.node_types = []
