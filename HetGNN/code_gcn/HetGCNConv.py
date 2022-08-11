@@ -36,7 +36,7 @@ class HetGCNConv(MessagePassing):
         # edge_index has shape [2, E]
 
         # Step 1: Norm and add self loop
-        edge_index, edge_weight = self._norm(edge_index, size=x.size(0), edge_weight=edge_weight)
+        # edge_index, edge_weight = self._norm(edge_index, size=x.size(0), edge_weight=edge_weight)
 
         # node_types = [
         #   type0:[0,2,3,5]
@@ -57,6 +57,7 @@ class HetGCNConv(MessagePassing):
                 het_out = torch.zeros(x.shape[0], self.hidden_channels, device=edge_index.device)
             else:
                 # Step 3.1: propagate het message
+                het_edge_index, het_edge_weight = self._norm(het_edge_index, size=x.size(0), edge_weight=het_edge_weight)
                 het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=x)
 
             het_out += self.bias1

@@ -122,7 +122,7 @@ class HetGCN_3(nn.Module):
         dist = torch.square(_batch_out_resahpe - hypersphere_center)
         loss_ = torch.mean(torch.sum(dist, 1))
 
-        l2_norm = sum(p.pow(2.0).sum() for p in model.parameters())
+        l2_norm = sum(p.pow(2.0).sum() for p in model.parameters()) / 2
 
         loss = loss_ + l2_lambda * l2_norm
         return loss

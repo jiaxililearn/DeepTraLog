@@ -1,10 +1,10 @@
 python main.py \
 --sagemaker False \
 --num_node_types 8 \
---num_train 300 \
---batch_s 100 \
---mini_batch_s 50 \
---num_eval 200 \
+--num_train 375 \
+--batch_s 125 \
+--mini_batch_s 125 \
+--num_eval 225 \
 --hidden_channels 16 \
 --unzip False \
 --s3_stage False \
