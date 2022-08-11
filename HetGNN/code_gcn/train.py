@@ -60,7 +60,7 @@ class Train(object):
                     node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
                     edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
                     node_type_txt=f'{self.data_root_dir}/node_types.txt',
-                    include_edge_weight=False
+                    include_edge_weight=True
                 )
             # elif self.dataset_id == 1:
             #     self.dataset = CMUDataset(
@@ -123,27 +123,27 @@ class Train(object):
             avg_loss_list = []
 
             epoch_start_time = time.time()
-            with torch.autograd.set_detect_anomaly(True):
-                for batch_n, k in tqdm(enumerate(batch_list)):
-                    batch_start_time = time.time()
+            # with torch.autograd.set_detect_anomaly(True):
+            for batch_n, k in tqdm(enumerate(batch_list)):
+                batch_start_time = time.time()
 
-                    _out = torch.zeros(
-                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s, self.out_embed_d).to(self.device)
+                _out = torch.zeros(
+                    int(self.batch_s / self.mini_batch_s), self.mini_batch_s, self.out_embed_d).to(self.device)
 
-                    mini_batch_list = k.reshape(int(len(k) / self.mini_batch_s), self.mini_batch_s)
-                    for mini_n, mini_k in enumerate(mini_batch_list):
-                        for i, gid in enumerate(mini_k):
-                            print(f'forward graph: batch_{batch_n}/mini_{mini_n} - {i} -- {gid}')
-                            _out[mini_n][i] = self.model(self.dataset[gid])
+                mini_batch_list = k.reshape(int(len(k) / self.mini_batch_s), self.mini_batch_s)
+                for mini_n, mini_k in enumerate(mini_batch_list):
+                    for i, gid in enumerate(mini_k):
+                        # print(f'forward graph: batch_{batch_n}/mini_{mini_n} - {i} -- {gid}')
+                        _out[mini_n][i] = self.model(self.dataset[gid])
 
-                    batch_loss = self.model.svdd_batch_loss(self.model, _out, fix_center=self.fix_center)
-                    avg_loss_list.append(batch_loss.tolist())
-                    # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
-                    # print(f'Model Output: {_out}')
-                    self.optim.zero_grad()
-                    batch_loss.backward(retain_graph=True)
-                    self.optim.step()
-                    print(f'\t Batch Loss: {batch_loss}; Batch Time: {time.time()-batch_start_time}s;')
+                batch_loss = self.model.svdd_batch_loss(self.model, _out, fix_center=self.fix_center)
+                avg_loss_list.append(batch_loss.tolist())
+                # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
+                # print(f'Model Output: {_out}')
+                self.optim.zero_grad()
+                batch_loss.backward(retain_graph=True)
+                self.optim.step()
+                print(f'\t Batch Loss: {batch_loss}; Batch Time: {time.time()-batch_start_time}s;')
 
             epoch_loss_list.append(np.mean(avg_loss_list))
             print(f'Epoch Loss: {np.mean(avg_loss_list)}; Epoch Time: {time.time() - epoch_start_time}s;')
