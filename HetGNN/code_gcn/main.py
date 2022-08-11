@@ -21,6 +21,7 @@ from train import Train
 @click.option('--dataset_id', default=0, help='choose dataset used for training')
 @click.option('--fix_center', default=True, type=bool, help='if fix the svdd center on first batch pass')
 @click.option('--test_set', default=True, type=bool, help='if create test dataset from input')
+@click.option('--ignore_weight', default=False, type=bool, help='if ignore the edge weight')
 @click.option('--split_data', default=True, type=bool, help='if random split data on train or read from existings')
 @click.option('--sagemaker', default=True, type=bool, help='is it running in SageMaker')
 @click.option('--unzip', default=True, type=bool, help='if unzip feature lists first')

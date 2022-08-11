@@ -19,6 +19,7 @@ import boto3
 class Train(object):
     def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
                  save_model_freq, s3_stage, s3_bucket, s3_prefix, model_version, dataset_id,
+                 ignore_weight=False,
                  test_set=True, fix_center=True, num_eval=None, unzip=False,
                  split_data=True, **kwargs):
         super(Train, self).__init__()
@@ -59,7 +60,8 @@ class Train(object):
                 self.dataset = HetGCNEventGraphDataset(
                     node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
                     edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
-                    node_type_txt=f'{self.data_root_dir}/node_types.txt'
+                    node_type_txt=f'{self.data_root_dir}/node_types.txt',
+                    ignore_weight=ignore_weight
                 )
             # elif self.dataset_id == 1:
             #     self.dataset = CMUDataset(

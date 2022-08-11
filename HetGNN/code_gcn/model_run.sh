@@ -9,9 +9,10 @@ python main.py \
 --unzip False \
 --s3_stage False \
 --split_data False \
+--ignore_weight True \
 --test_set True \
 --save_model_freq 2 \
---lr 0.01 \
+--lr 0.005 \
 --train_iter_n 200 \
 --model_version 3 \
 --feature_size 26 \
