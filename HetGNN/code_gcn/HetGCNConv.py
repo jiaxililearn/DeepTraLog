@@ -60,7 +60,7 @@ class HetGCNConv(MessagePassing):
                 het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=x)
 
             het_out += self.bias1
-            het_out = het_out.relu()
+            het_out = het_out.tanh()
             het_h_embeddings.append(het_out)
 
         combined_het_embedding = torch.cat(het_h_embeddings, 1)
