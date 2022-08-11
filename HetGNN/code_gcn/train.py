@@ -240,8 +240,11 @@ class Train(object):
             train_list = np.array([int(i) for i in fin.read().strip().split()]).astype(int)
         with open(f'{self.data_root_dir}/model_gid_list_eval.txt', 'r') as fin:
             eval_list = np.array([int(i) for i in fin.read().strip().split()]).astype(int)
-        with open(f'{self.data_root_dir}/model_gid_list_test.txt', 'r') as fin:
-            test_list = np.array([int(i) for i in fin.read().strip().split()]).astype(int)
+        try:
+            with open(f'{self.data_root_dir}/model_gid_list_test.txt', 'r') as fin:
+                test_list = np.array([int(i) for i in fin.read().strip().split()]).astype(int)
+        except:
+            test_list = []
         return train_list, eval_list, test_list
 
     def sync_model_path_to_s3(self, s3_bucket, s3_prefix):
