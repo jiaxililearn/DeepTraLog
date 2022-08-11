@@ -16,11 +16,11 @@ class HetGCNConv(MessagePassing):
         fc_node_content_layers = []
         fc_node_content_bias = []
         for _ in range(self.num_node_types):
-            fc_node_content_layers.append(torch.nn.Linear(in_channels, hidden_channels))
+            fc_node_content_layers.append(torch.nn.Linear(in_channels, hidden_channels, bias=False))
             fc_node_content_bias.append(Parameter(torch.Tensor(self.hidden_channels)))
 
         self.fc_node_content_layers = torch.nn.ModuleList(fc_node_content_layers)
-        self.fc_node_content_bias = torch.nn.ModuleList(fc_node_content_bias)
+        self.fc_node_content_bias = fc_node_content_bias
 
         # self.lin1 = torch.nn.Linear(in_channels, self.hidden_channels, bias=False)
         self.lin2 = torch.nn.Linear(self.hidden_channels * self.num_node_types, out_channels, bias=False)
