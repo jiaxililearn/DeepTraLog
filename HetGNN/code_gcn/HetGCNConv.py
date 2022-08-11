@@ -17,13 +17,13 @@ class HetGCNConv(MessagePassing):
         fc_node_content_bias = []
         for _ in range(self.num_node_types):
             fc_node_content_layers.append(torch.nn.Linear(in_channels, hidden_channels, bias=False))
-            fc_node_content_bias.append(Parameter(torch.Tensor(self.hidden_channels)))
+            fc_node_content_bias.append(Parameter(torch.Tensor(hidden_channels)))
 
         self.fc_node_content_layers = torch.nn.ModuleList(fc_node_content_layers)
-        self.fc_node_content_bias = fc_node_content_bias
+        self.fc_node_content_bias = torch.nn.ParameterList(fc_node_content_bias)
 
         # self.lin1 = torch.nn.Linear(in_channels, self.hidden_channels, bias=False)
-        self.lin2 = torch.nn.Linear(self.hidden_channels * self.num_node_types, out_channels, bias=False)
+        self.lin2 = torch.nn.Linear(hidden_channels * num_node_types, out_channels, bias=False)
         # self.lin = Linear(in_channels, out_channels, bias=False, weight_initializer='glorot')
 
         # self.bias1 = Parameter(torch.Tensor(self.hidden_channels))
@@ -42,7 +42,7 @@ class HetGCNConv(MessagePassing):
             torch.nn.init.zeros_(bias)
         torch.nn.init.zeros_(self.bias2)
 
-    def forward(self, x, edge_index, node_types=None, edge_weight=None): #TODO: add edge weight
+    def forward(self, x, edge_index, node_types=None, edge_weight=None):
         """
         forward method
         """
