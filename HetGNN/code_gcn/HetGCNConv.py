@@ -58,15 +58,15 @@ class HetGCNConv(MessagePassing):
             else:
                 # Step 3.1: propagate het message
                 het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=x)
-                het_out += self.bias1
-                het_out = het_out.relu()
 
+            het_out += self.bias1
+            het_out = het_out.relu()
             het_h_embeddings.append(het_out)
 
         combined_het_embedding = torch.cat(het_h_embeddings, 1)
         # print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
         out = self.lin2(combined_het_embedding)
-        out += self.bias2
+        # out += self.bias2
         return out
 
     def het_edge_index(self, edge_index, edge_weight, node_types):
