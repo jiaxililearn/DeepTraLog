@@ -110,8 +110,9 @@ class HetGCN_3(nn.Module):
                     model.set_svdd_center(hypersphere_center)
                     torch.save(hypersphere_center, f'{model.model_path}/HetGNN_SVDD_Center.pt')
             else:
-                hypersphere_center = (model.svdd_center + torch.mean(_batch_out_resahpe, 0)) / 2
-                model.set_svdd_center(hypersphere_center)
+                 hypersphere_center = model.svdd_center
+                # hypersphere_center = (model.svdd_center + torch.mean(_batch_out_resahpe, 0)) / 2
+                # model.set_svdd_center(hypersphere_center)
         else:
             with torch.no_grad():
                 print('compute batch center ..')
