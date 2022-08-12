@@ -97,13 +97,13 @@ class HetGCNConvSum(MessagePassing):
             het_out += self.fc_node_content_bias[ntype]
             het_out = het_out.relu().view(1, self.in_channels)
 
-            print(f'het_out shape: {het_out.shape}')
+            # print(f'het_out shape: {het_out.shape}')
 
             het_h_embeddings.append(het_out)
         # print(f'het_h_embeddings shape: {het_h_embeddings.shape}')
 
         combined_het_embedding = torch.cat(het_h_embeddings, 1)
-        print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
+        # print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
 
         out = self.lin2(combined_het_embedding)
         out += self.bias2
