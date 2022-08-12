@@ -7,9 +7,9 @@ from torch_scatter import scatter_add
 from torch_geometric.utils import add_self_loops, degree
 
 
-class HetGCNConv(MessagePassing):
+class HetGCNConvSum(MessagePassing):
     def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16):
-        super(HetGCNConv, self).__init__(aggr='add')  # "Add" aggregation.
+        super(HetGCNConvSum, self).__init__(aggr='add')  # "Add" aggregation.
         self.num_node_types = num_node_types
         self.hidden_channels = hidden_channels
 
@@ -67,15 +67,15 @@ class HetGCNConv(MessagePassing):
 
             if het_edge_index is None:
                 # TODO: finer way for compute het hidden embedding when no neigh in this neigh type
-                het_out = torch.zeros(x.shape[0], self.hidden_channels, device=edge_index.device)
+                _het_out = torch.zeros(x.shape[0], self.hidden_channels, device=edge_index.device)
             else:
                 # Step 2: Linearly transform node feature matrix. Neighbour type specific node feature hidden embedding
                 # Step 3.1: propagate het message
                 # TODO: masking the resulting nodes in the matrix
-                h = self.fc_node_content_layers[ntype](x)
                 het_edge_index, het_edge_weight = self._norm(het_edge_index, size=x.size(0), edge_weight=het_edge_weight)
-                het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=h)
+                _het_out = self.propagate(het_edge_index, x=x, edge_weight=het_edge_weight)
 
+            het_out = self.fc_node_content_layers[ntype](_het_out)
             het_out += self.fc_node_content_bias[ntype]
             het_out = het_out.relu()
             het_h_embeddings.append(het_out)
@@ -122,12 +122,12 @@ class HetGCNConv(MessagePassing):
         edge_weight = deg_inv_sqrt[row] * edge_weight * deg_inv_sqrt[col]
         return edge_index, edge_weight
 
-    def message(self, x_j, edge_weight, size):
+    def message(self, x_j, edge_weight):
         # x_j has shape [num_edges, out_channels]
         return edge_weight.view(-1, 1) * x_j
 
-    def update(self, aggr_out):
+    def update(self, inputs):
         # aggr_out has shape [num_nodes, out_channels]
 
         # Step 5: Return new node embeddings.
-        return aggr_out
+        return inputs

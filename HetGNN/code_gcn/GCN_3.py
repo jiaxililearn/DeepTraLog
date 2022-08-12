@@ -2,6 +2,7 @@
 import torch
 from torch import nn
 from HetGCNConv import HetGCNConv
+from HetGCNConvSum import HetGCNConvSum
 
 
 class HetGCN_3(nn.Module):
@@ -22,8 +23,8 @@ class HetGCN_3(nn.Module):
 
         # node feature content encoder
         # self.conv1 = HetGCNConv(self.embed_d, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
-        self.conv1 = HetGCNConv(self.embed_d, 32, self.num_node_types, hidden_channels=hidden_channels)
-        self.conv2 = HetGCNConv(32, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
+        self.conv1 = HetGCNConvSum(self.embed_d, 32, self.num_node_types, hidden_channels=hidden_channels)
+        self.conv2 = HetGCNConvSum(32, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
 
         # Others
         self.relu = nn.LeakyReLU()
@@ -60,7 +61,9 @@ class HetGCN_3(nn.Module):
         """
         average all the node het embedding
         """
-        return torch.sum(graph_node_het_embedding, 0)
+        if graph_node_het_embedding.shape[0] == 1:
+            return graph_node_het_embedding
+        return torch.mean(graph_node_het_embedding, 0)
 
     def set_svdd_center(self, center):
         """
