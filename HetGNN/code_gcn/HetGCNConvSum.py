@@ -59,6 +59,8 @@ class HetGCNConvSum(MessagePassing):
         #   type3[10,11]
         # ]
 
+        # x = self.lin(x)
+
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []
         for ntype, het_edge_index, het_edge_weight in self.het_edge_index(edge_index, edge_weight, node_types):
@@ -76,6 +78,8 @@ class HetGCNConvSum(MessagePassing):
                 #                                              edge_weight=het_edge_weight,
                 #                                              flow=self.flow)
                 _het_out = self.propagate(het_edge_index, x=x, edge_weight=het_edge_weight)
+            print(f'{torch.sum(_het_out, 1)}')
+            print(f'{torch.sum(_het_out, 1).shape}')
 
             _het_out = torch.sum(_het_out, 0)
             het_out = self.fc_node_content_layers[ntype](_het_out)
