@@ -71,10 +71,10 @@ class HetGCNConvSum(MessagePassing):
             else:
                 # Step 2: Linearly transform node feature matrix. Neighbour type specific node feature hidden embedding
                 # Step 3.1: propagate het message
-                het_edge_index, het_edge_weight = self._norm(het_edge_index,
-                                                             size=x.size(0),
-                                                             edge_weight=het_edge_weight,
-                                                             flow=self.flow)
+                # het_edge_index, het_edge_weight = self._norm(het_edge_index,
+                #                                              size=x.size(0),
+                #                                              edge_weight=het_edge_weight,
+                #                                              flow=self.flow)
                 _het_out = self.propagate(het_edge_index, x=x, edge_weight=het_edge_weight)
 
             het_out = self.fc_node_content_layers[ntype](_het_out)
