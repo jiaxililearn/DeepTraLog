@@ -8,8 +8,8 @@ from torch_geometric.utils import add_self_loops, degree
 
 
 class HetGCNConvSum(MessagePassing):
-    def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16):
-        super(HetGCNConvSum, self).__init__(aggr='add')  # "Add" aggregation.
+    def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16, flow='target_to_source'):
+        super(HetGCNConvSum, self).__init__(aggr='add', flow=flow)  # "Add" aggregation.
         self.num_node_types = num_node_types
         self.hidden_channels = hidden_channels
 
@@ -74,7 +74,7 @@ class HetGCNConvSum(MessagePassing):
                 het_edge_index, het_edge_weight = self._norm(het_edge_index,
                                                              size=x.size(0),
                                                              edge_weight=het_edge_weight,
-                                                             flow='target_to_source')
+                                                             flow=self.flow)
                 _het_out = self.propagate(het_edge_index, x=x, edge_weight=het_edge_weight)
 
             het_out = self.fc_node_content_layers[ntype](_het_out)
