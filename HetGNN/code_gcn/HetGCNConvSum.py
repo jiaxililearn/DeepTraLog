@@ -77,15 +77,14 @@ class HetGCNConvSum(MessagePassing):
                 #                                              flow=self.flow)
                 _het_out = self.propagate(het_edge_index, x=x, edge_weight=het_edge_weight)
 
-                _het_out = torch.sum(_het_out, 0)
-
+            _het_out = torch.sum(_het_out, 0)
             het_out = self.fc_node_content_layers[ntype](_het_out)
             het_out += self.fc_node_content_bias[ntype]
             het_out = het_out.relu()
             het_h_embeddings.append(het_out)
         # print(f'het_h_embeddings shape: {het_h_embeddings.shape}')
 
-        combined_het_embedding = torch.cat(het_h_embeddings, 0) # 0 since input is single dim
+        combined_het_embedding = torch.cat(het_h_embeddings, 0)  # 0 since input is single dim
         # print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
 
         out = self.lin2(combined_het_embedding)
