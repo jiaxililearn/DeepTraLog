@@ -50,8 +50,8 @@ class HetGCN_3(nn.Module):
         # print(f'x_node_feature shape: {x_node_feature.shape}')
         # print(f'x_edge_index shape: {x_edge_index.shape}')
         h = self.conv1(x_node_feature, x_edge_index, x_node_types, edge_weight=x_edge_weight)
-        h = self.relu(h)
-        h = self.conv2(h, x_edge_index, x_node_types, edge_weight=x_edge_weight)
+        # h = self.relu(h)
+        # h = self.conv2(h, x_edge_index, x_node_types, edge_weight=x_edge_weight)
         h = h.sigmoid()
 
         graph_embedding = self.graph_node_pooling(h)
