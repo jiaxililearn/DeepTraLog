@@ -82,14 +82,17 @@ class HetGCNConvSum(MessagePassing):
                 #                                              flow=self.flow)
                 _het_out = self.propagate(het_edge_index, x=x, edge_weight=het_edge_weight)
 
-            print(f'{torch.sum(_het_out, 1)}')
-            print(f'{torch.sum(_het_out, 1).shape}')
+            # print(f'{torch.sum(_het_out, 1)}')
+            # print(f'{torch.sum(_het_out, 1).shape}')
             # Concat the top K source node in graph
             mask = torch.sum(_het_out, 1).bool()
             _out = torch.zeros(1, self.k * self.in_channels, device=edge_index.device)
             if _het_out[mask].shape[0] > 0:
                 _out[0, :_het_out[mask].shape[0] * _het_out[mask].shape[1]] = _het_out[mask][:self.k].view(1, -1)
+            _out = _out.view(1, 1, self.k * self.in_channels)
+            _out = torch.transpose(_out, 0, 1)
 
+            print(f'_out shape: {_out.shape}')
             # _het_out = torch.sum(_het_out, 0)
             het_out = self.fc_node_content_layers[ntype](_out)
             het_out += self.fc_node_content_bias[ntype]
