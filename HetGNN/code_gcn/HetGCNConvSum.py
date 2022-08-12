@@ -10,6 +10,7 @@ from torch_geometric.utils import add_self_loops, degree
 class HetGCNConvSum(MessagePassing):
     def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16, flow='target_to_source'):
         super(HetGCNConvSum, self).__init__(aggr='add', flow=flow)  # "Add" aggregation.
+        self.in_channels = in_channels
         self.num_node_types = num_node_types
         self.hidden_channels = hidden_channels
 
