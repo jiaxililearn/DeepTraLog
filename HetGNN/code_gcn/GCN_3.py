@@ -60,7 +60,7 @@ class HetGCN_3(nn.Module):
         """
         average all the node het embedding
         """
-        return torch.mean(graph_node_het_embedding, 0)
+        return torch.sum(graph_node_het_embedding, 0)
 
     def set_svdd_center(self, center):
         """

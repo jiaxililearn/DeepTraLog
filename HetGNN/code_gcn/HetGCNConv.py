@@ -59,7 +59,6 @@ class HetGCNConv(MessagePassing):
         #   type3[10,11]
         # ]
 
-        # Step 2: Linearly transform node feature matrix. Deprecated. Neighbour type specific node feature hidden embedding
 
 
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
@@ -69,9 +68,12 @@ class HetGCNConv(MessagePassing):
             # print(f'het_edge_weight shape: {het_edge_weight.shape}')
 
             if het_edge_index is None:
+                # TODO: finer way for compute het hidden embedding when no neigh in this neigh type
                 het_out = torch.zeros(x.shape[0], self.hidden_channels, device=edge_index.device)
             else:
+                # Step 2: Linearly transform node feature matrix. Neighbour type specific node feature hidden embedding
                 # Step 3.1: propagate het message
+                # TODO: masking the resulting nodes in the matrix
                 h = self.fc_node_content_layers[ntype](x)
                 het_edge_index, het_edge_weight = self._norm(het_edge_index, size=x.size(0), edge_weight=het_edge_weight)
                 het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=h)
@@ -82,6 +84,7 @@ class HetGCNConv(MessagePassing):
 
         combined_het_embedding = torch.cat(het_h_embeddings, 1)
         # print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
+
         out = self.lin2(combined_het_embedding)
         out += self.bias2
         return out
