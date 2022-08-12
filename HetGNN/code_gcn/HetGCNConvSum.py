@@ -71,8 +71,10 @@ class HetGCNConvSum(MessagePassing):
             else:
                 # Step 2: Linearly transform node feature matrix. Neighbour type specific node feature hidden embedding
                 # Step 3.1: propagate het message
-                # TODO: masking the resulting nodes in the matrix
-                het_edge_index, het_edge_weight = self._norm(het_edge_index, size=x.size(0), edge_weight=het_edge_weight)
+                het_edge_index, het_edge_weight = self._norm(het_edge_index,
+                                                             size=x.size(0),
+                                                             edge_weight=het_edge_weight,
+                                                             flow='target_to_source')
                 _het_out = self.propagate(het_edge_index, x=x, edge_weight=het_edge_weight)
 
             het_out = self.fc_node_content_layers[ntype](_het_out)
@@ -105,7 +107,9 @@ class HetGCNConvSum(MessagePassing):
 
             yield ntype, torch.stack([row[het_mask], col[het_mask]]), edge_weight[het_mask]
 
-    def _norm(self, edge_index, size, edge_weight=None):
+    def _norm(self, edge_index, size, edge_weight=None, flow='source_to_target'):
+        assert flow in ["source_to_target", "target_to_source"]
+
         if edge_weight is None:
             edge_weight = torch.ones((edge_index.size(1), ), device=edge_index.device)
 
@@ -115,7 +119,11 @@ class HetGCNConvSum(MessagePassing):
         edge_weight = tmp_edge_weight
 
         row, col = edge_index
-        deg = scatter_add(edge_weight, col, dim=0, dim_size=size)
+        if flow == 'source_to_target':
+            deg = scatter_add(edge_weight, col, dim=0, dim_size=size)
+        else:
+            deg = scatter_add(edge_weight, row, dim=0, dim_size=size)
+
         deg_inv_sqrt = deg.pow_(-0.5)
         deg_inv_sqrt.masked_fill_(deg_inv_sqrt == float('inf'), 0)
 

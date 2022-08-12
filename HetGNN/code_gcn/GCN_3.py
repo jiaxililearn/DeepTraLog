@@ -8,7 +8,7 @@ from HetGCNConvSum import HetGCNConvSum
 class HetGCN_3(nn.Module):
     def __init__(self, model_path=None, feature_size=7, out_embed_s=32, num_node_types=7, hidden_channels=16, **kwargs):
         """
-        test model with homegeneoug GCNConv
+        Het GCN based on MessagePassing
         """
         super(HetGCN_3, self).__init__()
         torch.manual_seed(42)
