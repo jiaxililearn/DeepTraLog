@@ -91,7 +91,7 @@ class HetGCNConvSum(MessagePassing):
                 _out[0, :_het_out[mask].shape[0] * _het_out[mask].shape[1]] = _het_out[mask][:self.k].view(1, -1)
 
             # _het_out = torch.sum(_het_out, 0)
-            het_out = self.fc_node_content_layers[ntype](_het_out)
+            het_out = self.fc_node_content_layers[ntype](_out)
             het_out += self.fc_node_content_bias[ntype]
             het_out = het_out.relu()
             het_h_embeddings.append(het_out)
