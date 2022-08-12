@@ -5,7 +5,7 @@ python main.py \
 --batch_s 125 \
 --mini_batch_s 125 \
 --num_eval 225 \
---hidden_channels 16 \
+--hidden_channels 26 \
 --unzip False \
 --s3_stage False \
 --split_data False \
@@ -16,7 +16,7 @@ python main.py \
 --train_iter_n 200 \
 --model_version 3 \
 --feature_size 26 \
---out_embed_s 32 \
+--out_embed_s 26 \
 --model_path ../model_save_HetGCN_streamspot_weight \
 --data_path ../ProcessedData_streamspot
 

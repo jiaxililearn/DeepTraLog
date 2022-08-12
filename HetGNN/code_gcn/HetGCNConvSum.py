@@ -13,10 +13,12 @@ class HetGCNConvSum(MessagePassing):
         self.num_node_types = num_node_types
         self.hidden_channels = hidden_channels
 
+        self.k = 12
+
         fc_node_content_layers = []
         fc_node_content_bias = []
         for _ in range(self.num_node_types):
-            fc_node_content_layers.append(torch.nn.Linear(in_channels, hidden_channels, bias=False))
+            fc_node_content_layers.append(torch.nn.Linear(in_channels * self.k, hidden_channels, bias=False))
             fc_node_content_bias.append(Parameter(torch.Tensor(hidden_channels)))
 
         self.fc_node_content_layers = torch.nn.ModuleList(fc_node_content_layers)
@@ -78,10 +80,16 @@ class HetGCNConvSum(MessagePassing):
                 #                                              edge_weight=het_edge_weight,
                 #                                              flow=self.flow)
                 _het_out = self.propagate(het_edge_index, x=x, edge_weight=het_edge_weight)
+
             print(f'{torch.sum(_het_out, 1)}')
             print(f'{torch.sum(_het_out, 1).shape}')
+            # Concat the top K source node in graph
+            mask = torch.sum(_het_out, 1).bool()
+            _out = torch.zeros(1, self.k * self.in_channels, device=edge_index.device)
+            if _het_out[mask].shape[0] > 0:
+                _out[0, :_het_out[mask].shape[0] * _het_out[mask].shape[1]] = _het_out[mask][:self.k].view(1, -1)
 
-            _het_out = torch.sum(_het_out, 0)
+            # _het_out = torch.sum(_het_out, 0)
             het_out = self.fc_node_content_layers[ntype](_het_out)
             het_out += self.fc_node_content_bias[ntype]
             het_out = het_out.relu()
