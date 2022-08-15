@@ -46,13 +46,20 @@ class Train(object):
                 unzip=unzip
             )
         elif self.model_version == 2:
-            from GCN_2 import HetGCN_2 as HetGCN
-            self.dataset = EventGraphDataset(
+            # from GCN_2 import HetGCN_2 as HetGCN
+            # self.dataset = EventGraphDataset(
+            #     node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
+            #     edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
+            #     het_types=False,
+            #     unzip=unzip
+            # )
+            from GCN_2_1 import HetGCN_2_1 as HetGCN
+            self.dataset = HetGCNEventGraphDataset(
                 node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
                 edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
-                het_types=False,
-                unzip=unzip
+                ignore_weight=ignore_weight
             )
+
         elif self.model_version == 3:
             from GCN_3 import HetGCN_3 as HetGCN
 
