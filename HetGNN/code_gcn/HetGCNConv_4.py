@@ -167,14 +167,19 @@ class HetGCNConv_4(MessagePassing):
             src_type_idx = int(ntype / self.num_node_types)
             dst_type = ntype - self.num_node_types * src_type_idx
 
+            if len(node_types[dst_type]) == 0:
+                return ntype, None, None
+
             src_type = source_types[src_type_idx]
             src_het_mask = sum(row == i for i in node_types[src_type]).bool()
             dst_het_mask = sum(col == i for i in node_types[dst_type]).bool()
             cmask = src_het_mask & dst_het_mask
             return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
         else:
+
             if len(node_types[ntype]) == 0:
                 return ntype, None, None
+
             het_mask = sum(col == i for i in node_types[ntype]).bool()
             return ntype, torch.stack([row[het_mask], col[het_mask]]), edge_weight[het_mask]
 
