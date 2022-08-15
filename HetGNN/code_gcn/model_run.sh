@@ -12,7 +12,7 @@ python main.py \
 --ignore_weight False \
 --test_set True \
 --save_model_freq 2 \
---lr 0.005 \
+--lr 0.01 \
 --train_iter_n 200 \
 --model_version 4 \
 --feature_size 26 \
