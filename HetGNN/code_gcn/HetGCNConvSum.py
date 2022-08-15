@@ -69,6 +69,7 @@ class HetGCNConvSum(MessagePassing):
                     _het_out = torch.zeros(node_feature.shape[0], self.hidden_channels, device=edge_index.device)
                 else:
                     het_edge_index, het_edge_weight = self._norm(het_edge_index, size=node_feature.size(0), edge_weight=het_edge_weight)
+                    print(het_edge_weight)
                     _het_out = self.propagate(het_edge_index, x=node_feature, edge_weight=het_edge_weight)
 
                 # Concat the top K source node in graph
