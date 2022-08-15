@@ -4,7 +4,7 @@ from torch.nn import Parameter
 from torch_geometric.nn.dense.linear import Linear
 from torch_geometric.nn import MessagePassing
 from torch_scatter import scatter_add
-from torch_geometric.utils import add_self_loops, degree
+from torch_geometric.utils import add_remaining_self_loops, degree
 
 
 class HetGCNConvSum(MessagePassing):
@@ -133,7 +133,7 @@ class HetGCNConvSum(MessagePassing):
         if edge_weight is None:
             edge_weight = torch.ones((edge_index.size(1), ), device=edge_index.device)
 
-        edge_index, tmp_edge_weight = add_self_loops(edge_index, edge_attr=edge_weight, num_nodes=size)
+        edge_index, tmp_edge_weight = add_remaining_self_loops(edge_index, edge_attr=edge_weight, num_nodes=size)
 
         assert tmp_edge_weight is not None
         edge_weight = tmp_edge_weight
