@@ -60,7 +60,7 @@ class HetGCNConvSum(MessagePassing):
                 # print(f'het_edge_index shape: {het_edge_index.shape}')
                 # print(f'het_edge_weight shape: {het_edge_weight.shape}')
 
-                _, het_edge_index, het_edge_weight = self.get_het_edge_index(self, edge_index, edge_weight, node_types, ntype)
+                _, het_edge_index, het_edge_weight = self.get_het_edge_index(edge_index, edge_weight, node_types, ntype)
 
                 if het_edge_index is None:
                     # TODO: finer way for compute het hidden embedding when no neigh in this neigh type
