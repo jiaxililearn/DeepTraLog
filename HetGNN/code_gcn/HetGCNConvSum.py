@@ -81,6 +81,7 @@ class HetGCNConvSum(MessagePassing):
                 #                                              edge_weight=het_edge_weight,
                 #                                              flow=self.flow)
                 _het_out = self.propagate(het_edge_index, x=x, edge_weight=het_edge_weight)
+            print(f'Neigh Type {ntype}: {_het_out}')
 
             # print(f'{torch.sum(_het_out, 1)}')
             # print(f'{torch.sum(_het_out, 1).shape}')
