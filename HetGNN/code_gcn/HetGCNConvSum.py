@@ -93,6 +93,7 @@ class HetGCNConvSum(MessagePassing):
 
         out = self.lin2(combined_het_embedding)
         out += self.bias2
+        print(f'out shape: {out.shape}')
         return out
 
     # def forward(self, x, edge_index, node_types=None, edge_weight=None):
