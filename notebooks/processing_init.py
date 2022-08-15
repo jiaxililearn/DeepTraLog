@@ -46,13 +46,16 @@ def load_trace_info(data_root_dir):
     return pd.read_csv(f'{data_root_dir}/trace_info.csv', index_col=None)
 
 
-def get_train_eval_test_gids(model_result_root_dir):
+def get_train_eval_test_gids(model_result_root_dir, testset=True):
     fname_train_list = 'model_gid_list_train.txt'
     fname_eval_list = 'model_gid_list_eval.txt'
     fname_test_list = 'model_gid_list_test.txt'
 
+    flist = [fname_train_list, fname_eval_list, fname_test_list]
+    if not testset:
+        flist = flist[:2]
     gid_list = []
-    for fname_lst in [fname_train_list, fname_eval_list, fname_test_list]:
+    for fname_lst in flist:
         with open(f'{model_result_root_dir}/{fname_lst}', 'r') as fin:
             _list = [int(i) for i in fin.read().strip().split()]
         gid_list.append(_list)
