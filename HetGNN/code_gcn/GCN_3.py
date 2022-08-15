@@ -36,8 +36,8 @@ class HetGCN_3(nn.Module):
         """
         for m in self.modules():
             if isinstance(m, nn.Linear) or isinstance(m, nn.Parameter):
-                nn.init.xavier_uniform_(m.weight)
-                # nn.init.normal_(m.weight.data)
+                # nn.init.xavier_uniform_(m.weight)
+                nn.init.normal_(m.weight)
                 if m.bias is not None:
                     m.bias.data.fill_(0.1)
 
