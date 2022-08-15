@@ -81,7 +81,7 @@ class HetGCNConvSum(MessagePassing):
             # _het_out = torch.sum(_het_out, 0)
             het_out = self.fc_node_content_layers[ntype](_out)
             het_out += self.fc_node_content_bias[ntype]
-            het_out = self.relu(het_out).view(len(batch_data), self.hidden_channels)
+            het_out = het_out.leaky_relu().view(len(batch_data), self.hidden_channels)
 
             het_h_embeddings.append(het_out)
             # print(f'het_h_embeddings shape: {het_h_embeddings.shape}')
