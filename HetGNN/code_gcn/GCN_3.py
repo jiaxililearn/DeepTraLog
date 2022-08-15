@@ -6,7 +6,7 @@ from HetGCNConvSum import HetGCNConvSum
 
 
 class HetGCN_3(nn.Module):
-    def __init__(self, model_path=None, feature_size=7, out_embed_s=32, num_node_types=7, hidden_channels=16, **kwargs):
+    def __init__(self, model_path=None, dataset=None, feature_size=7, out_embed_s=32, num_node_types=7, hidden_channels=16, **kwargs):
         """
         Het GCN based on MessagePassing
         """
@@ -15,6 +15,7 @@ class HetGCN_3(nn.Module):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.svdd_center = None
         self.model_path = model_path
+        self.dataset = dataset
 
         self.embed_d = feature_size
         self.out_embed_d = out_embed_s
@@ -41,21 +42,38 @@ class HetGCN_3(nn.Module):
                 if m.bias is not None:
                     m.bias.data.fill_(0.1)
 
-    def forward(self, data):
+    def forward(self, gid_batch):
         """
-        forward propagate based on node features and edge index
+        forward propagate based on gid batch
         """
-        x_node_feature, x_edge_index, x_edge_weight, x_node_types = data
+        batch_data = [self.dataset[i] for i in gid_batch]
 
         # print(f'x_node_feature shape: {x_node_feature.shape}')
         # print(f'x_edge_index shape: {x_edge_index.shape}')
-        h = self.conv1(x_node_feature, x_edge_index, x_node_types, edge_weight=x_edge_weight)
+        h = self.conv1(batch_data)
         # h = self.relu(h)
         # h = self.conv2(h, x_edge_index, x_node_types, edge_weight=x_edge_weight)
         h = h.sigmoid()
 
-        graph_embedding = self.graph_node_pooling(h)
-        return graph_embedding
+        graph_embeddings = h
+        # graph_embedding = self.graph_node_pooling(h)
+        return graph_embeddings
+
+    # def forward(self, data):
+    #     """
+    #     forward propagate based on node features and edge index
+    #     """
+    #     x_node_feature, x_edge_index, x_edge_weight, x_node_types = data
+
+    #     # print(f'x_node_feature shape: {x_node_feature.shape}')
+    #     # print(f'x_edge_index shape: {x_edge_index.shape}')
+    #     h = self.conv1(x_node_feature, x_edge_index, x_node_types, edge_weight=x_edge_weight)
+    #     # h = self.relu(h)
+    #     # h = self.conv2(h, x_edge_index, x_node_types, edge_weight=x_edge_weight)
+    #     h = h.sigmoid()
+
+    #     graph_embedding = self.graph_node_pooling(h)
+    #     return graph_embedding
 
     def graph_node_pooling(self, graph_node_het_embedding):
         """

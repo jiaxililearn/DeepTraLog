@@ -102,7 +102,7 @@ class Train(object):
         self.s3_prefix = s3_prefix
         self.s3_stage = s3_stage
 
-        self.model = HetGCN(model_path=self.model_path, **kwargs).to(self.device)
+        self.model = HetGCN(model_path=self.model_path, dataset=self.dataset, **kwargs).to(self.device)
 
         self.parameters = filter(lambda p: p.requires_grad, self.model.parameters())
         self.optim = optim.Adam(self.parameters, lr=self.lr, weight_decay=0)
@@ -140,9 +140,10 @@ class Train(object):
 
                 mini_batch_list = k.reshape(int(len(k) / self.mini_batch_s), self.mini_batch_s)
                 for mini_n, mini_k in enumerate(mini_batch_list):
-                    for i, gid in enumerate(mini_k):
+                    # for i, gid in enumerate(mini_k):
                         # print(f'forward graph: batch_{batch_n}/mini_{mini_n} - {i} -- {gid}')
-                        _out[mini_n][i] = self.model(self.dataset[gid])
+                        # _out[mini_n][i] = self.model(self.dataset[gid])
+                    _out[mini_n] = self.model(mini_k)
 
                 batch_loss = self.model.svdd_batch_loss(self.model, _out, fix_center=self.fix_center)
                 avg_loss_list.append(batch_loss.tolist())
