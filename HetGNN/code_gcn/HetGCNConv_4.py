@@ -8,36 +8,25 @@ from torch_geometric.utils import add_remaining_self_loops, degree
 
 
 class HetGCNConv_4(MessagePassing):
-    def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16, flow='target_to_source'):
-        super(HetGCNConv_4, self).__init__(aggr='add', flow=flow)  # "Add" aggregation.
+    """
+    self implemented w/o existing MP lib
+    """
+    def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16):
+        super(HetGCNConv_4, self).__init__()
         self.in_channels = in_channels
         self.num_node_types = num_node_types
         self.hidden_channels = hidden_channels
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-        self._bias = False
-
         self.k = 12
-
         fc_node_content_layers = []
-        fc_node_content_bias = []
         for _ in range(self.num_node_types):
             fc_node_content_layers.append(torch.nn.Linear(in_channels * self.k, hidden_channels, bias=True))
-            if self._bias:
-                fc_node_content_bias.append(Parameter(torch.Tensor(hidden_channels)))
 
         self.fc_node_content_layers = torch.nn.ModuleList(fc_node_content_layers)
 
-        if self._bias:
-            self.fc_node_content_bias = torch.nn.ParameterList(fc_node_content_bias)
-
-        # self.lin1 = torch.nn.Linear(in_channels, self.hidden_channels, bias=False)
         self.lin2 = torch.nn.Linear(hidden_channels * num_node_types, out_channels, bias=True)
         # self.lin = Linear(in_channels, out_channels, bias=False, weight_initializer='glorot')
-
-        # self.bias1 = Parameter(torch.Tensor(self.hidden_channels))
-        if self._bias:
-            self.bias2 = Parameter(torch.Tensor(out_channels))
 
         self.relu = torch.nn.LeakyReLU()
     
@@ -50,11 +39,8 @@ class HetGCNConv_4(MessagePassing):
         for lin in self.fc_node_content_layers:
             lin.reset_parameters()
         self.lin2.reset_parameters()
-        # for bias in self.fc_node_content_bias:
-        #     torch.nn.init.zeros_(bias)
-        # torch.nn.init.zeros_(self.bias2)
     
-    def forward(self, batch_data):
+    def forward(self, batch_data, source_types=[0, 1]):
         """
         forward method
         """
@@ -68,10 +54,9 @@ class HetGCNConv_4(MessagePassing):
                 # print(f'het_edge_index shape: {het_edge_index.shape}')
                 # print(f'het_edge_weight shape: {het_edge_weight.shape}')
 
-                _, het_edge_index, het_edge_weight = self.get_het_edge_index(edge_index, edge_weight, node_types, ntype)
+                _, het_edge_index, het_edge_weight = self.get_het_edge_index(edge_index, edge_weight, node_types, ntype, source_types=source_types)
 
                 if het_edge_index is None:
-                    # TODO: finer way for compute het hidden embedding when no neigh in this neigh type
                     _het_out = torch.zeros(node_feature.shape[0], self.hidden_channels, device=edge_index.device)
                 else:
                     het_edge_index, het_edge_weight = self._norm(het_edge_index, size=node_feature.size(0), edge_weight=het_edge_weight)
@@ -90,8 +75,6 @@ class HetGCNConv_4(MessagePassing):
             # print(f'_out: {_out}')
             # _het_out = torch.sum(_het_out, 0)
             het_out = self.fc_node_content_layers[ntype](_out)
-            if self._bias:
-                het_out += self.fc_node_content_bias[ntype]
             het_out = self.relu(het_out).view(len(batch_data), self.hidden_channels)
 
             het_h_embeddings.append(het_out)
@@ -101,7 +84,6 @@ class HetGCNConv_4(MessagePassing):
         # print(f'combined_het_embedding: {combined_het_embedding}')
 
         out = self.lin2(combined_het_embedding)
-        out += self.bias2
         # print(f'out shape: {out.shape}')
         return out
 
@@ -174,15 +156,27 @@ class HetGCNConv_4(MessagePassing):
     #     out += self.bias2
     #     return out
 
-    def get_het_edge_index(self, edge_index, edge_weight, node_types, ntype):
+    def get_het_edge_index(self, edge_index, edge_weight, node_types, ntype, source_types=None):
         """
         get het edge index by given type
         """
         row, col = edge_index
-        if len(node_types[ntype]) == 0:
-            return ntype, None, None
-        het_mask = sum(col == i for i in node_types[ntype]).bool()
-        return ntype, torch.stack([row[het_mask], col[het_mask]]), edge_weight[het_mask]
+
+        if source_types is not None:
+            num_src_types = len(source_types)
+            src_type_idx = int(ntype / self.num_node_types)
+            dst_type = ntype - self.num_node_types * src_type_idx
+
+            src_type = source_types[src_type_idx]
+            src_het_mask = sum(row == i for i in node_types[src_type]).bool()
+            dst_het_mask = sum(col == i for i in node_types[dst_type]).bool()
+            cmask = src_het_mask & dst_het_mask
+            return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
+        else:
+            if len(node_types[ntype]) == 0:
+                return ntype, None, None
+            het_mask = sum(col == i for i in node_types[ntype]).bool()
+            return ntype, torch.stack([row[het_mask], col[het_mask]]), edge_weight[het_mask]
 
     def het_edge_index(self, edge_index, edge_weight, node_types):
         """

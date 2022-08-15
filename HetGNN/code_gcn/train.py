@@ -76,6 +76,15 @@ class Train(object):
             #         edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
             #         node_type_txt=f'{self.data_root_dir}/node_types.txt'
             #     )
+        elif self.model_version == 4:
+            from GCN_4 import HetGCN_4 as HetGCN
+            if self.dataset_id == 0:
+                self.dataset = HetGCNEventGraphDataset(
+                    node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
+                    edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
+                    node_type_txt=f'{self.data_root_dir}/node_types.txt',
+                    ignore_weight=ignore_weight
+                )
         else:
             from GCN import HetGCN
             self.dataset = EventGraphDataset(
