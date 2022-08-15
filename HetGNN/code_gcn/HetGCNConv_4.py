@@ -11,21 +11,22 @@ class HetGCNConv_4(MessagePassing):
     """
     self implemented w/o existing MP lib
     """
-    def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16):
+    def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16, num_src_types=2):
         super(HetGCNConv_4, self).__init__()
         self.in_channels = in_channels
         self.num_node_types = num_node_types
         self.hidden_channels = hidden_channels
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        self.num_src_types = num_src_types
 
         self.k = 12
         fc_node_content_layers = []
-        for _ in range(self.num_node_types):
+        for _ in range(self.num_node_types * self.num_src_types):
             fc_node_content_layers.append(torch.nn.Linear(in_channels * self.k, hidden_channels, bias=True))
 
         self.fc_node_content_layers = torch.nn.ModuleList(fc_node_content_layers)
 
-        self.lin2 = torch.nn.Linear(hidden_channels * num_node_types, out_channels, bias=True)
+        self.lin2 = torch.nn.Linear(hidden_channels * num_node_types * num_src_types, out_channels, bias=True)
         # self.lin = Linear(in_channels, out_channels, bias=False, weight_initializer='glorot')
 
         self.relu = torch.nn.LeakyReLU()
@@ -46,7 +47,7 @@ class HetGCNConv_4(MessagePassing):
         """
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []
-        for ntype in range(self.num_node_types * len(source_types)):
+        for ntype in range(self.num_node_types * self.num_src_types):
             _out = torch.zeros(len(batch_data), self.k * self.in_channels, device=self.device)
 
             for i, (node_feature, edge_index, edge_weight, node_types) in enumerate(batch_data):
