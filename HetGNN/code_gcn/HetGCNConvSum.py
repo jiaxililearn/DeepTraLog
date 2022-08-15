@@ -86,10 +86,9 @@ class HetGCNConvSum(MessagePassing):
             het_out = self.relu(het_out).view(len(batch_data), self.hidden_channels)
 
             het_h_embeddings.append(het_out)
-            print(f'het_h_embeddings shape: {het_h_embeddings.shape}')
 
         combined_het_embedding = torch.cat(het_h_embeddings, 1).view(len(batch_data), self.hidden_channels * self.num_node_types)
-        # print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
+        print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
         # print(f'combined_het_embedding: {combined_het_embedding}')
 
         out = self.lin2(combined_het_embedding)
