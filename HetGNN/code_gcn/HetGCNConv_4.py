@@ -46,7 +46,7 @@ class HetGCNConv_4(MessagePassing):
         """
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []
-        for ntype in range(self.num_node_types):
+        for ntype in range(self.num_node_types * len(source_types)):
             _out = torch.zeros(len(batch_data), self.k * self.in_channels, device=self.device)
 
             for i, (node_feature, edge_index, edge_weight, node_types) in enumerate(batch_data):
