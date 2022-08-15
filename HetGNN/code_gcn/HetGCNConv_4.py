@@ -78,10 +78,11 @@ class HetGCNConv_4(MessagePassing):
             het_out = self.fc_node_content_layers[ntype](_out)
             het_out = self.relu(het_out).view(len(batch_data), self.hidden_channels)
 
+            print(f'het_out shape: {het_out.shape}')
             het_h_embeddings.append(het_out)
 
-        combined_het_embedding = torch.cat(het_h_embeddings, 1).view(len(batch_data), self.hidden_channels * self.num_node_types)
-        # print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
+        combined_het_embedding = torch.cat(het_h_embeddings, 1).view(len(batch_data), self.hidden_channels * self.num_node_types * self.num_src_types)
+        print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
         # print(f'combined_het_embedding: {combined_het_embedding}')
 
         out = self.lin2(combined_het_embedding)
