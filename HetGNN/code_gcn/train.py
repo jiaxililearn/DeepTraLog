@@ -287,6 +287,7 @@ class Train(object):
         trace_info_df = pd.read_csv(f'{self.data_root_dir}/trace_info.csv', index_col=None)
         with torch.no_grad():
             pred_scores = self.model.predict_score(eval_list).cpu().detach().numpy()
+            print(pred_scores)
 
             label = trace_info_df[trace_info_df['trace_id'].isin(eval_list)]['trace_bool'] \
                 .apply(lambda x: 0 if x else 1).values
