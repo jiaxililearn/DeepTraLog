@@ -108,7 +108,7 @@ class HetGCN_3(nn.Module):
         """
         with torch.no_grad():
             _out = self(g_data)
-            score = torch.mean(torch.square(_out - self.svdd_center))
+            score = torch.mean(torch.square(_out - self.svdd_center), 1) # mean on rows
         return score
 
     @staticmethod
