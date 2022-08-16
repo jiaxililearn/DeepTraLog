@@ -81,10 +81,11 @@ class CMUGraphDataset(Dataset):
                         cond = (self.node_features['destination-id'] == dst_id) & (self.node_features['graph-id'] == gid)
                         self.graph_edge_embedding[relation_id][gid][i] += self.node_features[cond].values[:, 2:][0]
 
+                        cnt += 1
+                        if cnt % 10000 == 0:
+                            print(f'Processed {cnt} Nodes')
+
                     line = fin.readline()
-                    cnt += 1
-                    if cnt % 5000 == 0:
-                        print(f'Processed {cnt} lines')
         print('done')
 
     # def read_graph(self, gid):
