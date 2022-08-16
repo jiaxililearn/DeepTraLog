@@ -10,7 +10,7 @@ from torch.utils.data import Dataset
 
 
 class CMUGraphDataset(Dataset):
-    def __init__(self, data_root_path=None, transform=None, **kwargs):
+    def __init__(self, data_root_path=None, preprocessing=False, transform=None, **kwargs):
         """
         node_feature_csv: path to the node feature csv file
         het_neigh_root: path to the het neighbour list root dir
@@ -24,69 +24,81 @@ class CMUGraphDataset(Dataset):
         self.max_num_edge_embeddings = 12
         self.incoming_node_embedding_size = 26
         self.topk = 12
+        self.preprocessing = preprocessing
 
         self.data_root_path = data_root_path
         if data_root_path is None:
             self.data_root_path = '../custom_data_simple'
+        
+        if preprocessing:
+            self.relation_types_f = ["a_a_list.txt",
+                                     "a_b_list.txt",
+                                     "a_c_list.txt",
+                                     "a_d_list.txt",
+                                     "a_e_list.txt",
+                                     "a_f_list.txt",
+                                     "a_g_list.txt",
+                                     "a_h_list.txt",
+                                     "b_a_list.txt",
+                                     "b_b_list.txt",
+                                     "b_c_list.txt",
+                                     "b_d_list.txt",
+                                     "b_e_list.txt",
+                                     "b_h_list.txt"]
 
-        self.relation_types_f = ["a_a_list.txt",
-                                 "a_b_list.txt",
-                                 "a_c_list.txt",
-                                 "a_d_list.txt",
-                                 "a_e_list.txt",
-                                 "a_f_list.txt",
-                                 "a_g_list.txt",
-                                 "a_h_list.txt",
-                                 "b_a_list.txt",
-                                 "b_b_list.txt",
-                                 "b_c_list.txt",
-                                 "b_d_list.txt",
-                                 "b_e_list.txt",
-                                 "b_h_list.txt"]
+            self.node_features = pd.read_csv(f'{self.data_root_path}/incoming_edge_embedding.csv')
 
-        self.graph_edge_embedding = np.zeros(
-            (len(self.relation_types_f), self.n_graphs, self.max_num_edge_embeddings, self.incoming_node_embedding_size))
+            # load up feature matrix based on the relation types
+            for relation_id, relation_f in enumerate(self.relation_types_f):
+                print(f'Reading Relation Type File: {relation_f}')
+                fname = relation_f.split('.')[0]
 
-        self.node_features = pd.read_csv(f'{self.data_root_path}/incoming_edge_embedding.csv')
+                graph_edge_embedding = np.zeros(
+                    (self.n_graphs, self.max_num_edge_embeddings, self.incoming_node_embedding_size))
 
-        # load up feature matrix based on the relation types
-        for relation_id, relation_f in enumerate(self.relation_types_f):
-            print(f'Reading Relation Type File: {relation_f}')
-            with open(f'{self.data_root_path}/{relation_f}', 'r') as fin:
-                cnt = 0
-                line = fin.readline()
-                current_gid = -1
-                current_src_id = -1
-                i = -1  # aggregate top k src-neighs in the neigh for a graph
-                while line:
-                    part_ = line.strip().split(':')
-                    gid = int(part_[0])
-                    src_id = int(part_[1])
-                    neigh_list = [int(i) for i in part_[2].split(',')]
-
-                    # reset counters when a new graph reached
-                    if current_gid != gid:
-                        i = -1
-                        current_src_id = -1
-                        current_gid = gid
-                        g_node_feature = self.node_features[self.node_features['graph-id'] == gid]
-
-                    if current_src_id != src_id:
-                        i += 1
-                        current_src_id = src_id
-
-                    if i >= self.topk:
-                        print(f'Skip src-neigh list since limit reached k: {self.topk}')
-                        continue
-
-                    for dst_id in neigh_list:
-                        self.graph_edge_embedding[relation_id][gid][i] += g_node_feature[g_node_feature['destination-id'] == dst_id].values[:, 2:][0]
-
-                        cnt += 1
-                        if cnt % 2000 == 0:
-                            print(f'\tProcessed {cnt} Nodes')
-
+                with open(f'{self.data_root_path}/{relation_f}', 'r') as fin:
+                    cnt = 0
                     line = fin.readline()
+                    current_gid = -1
+                    current_src_id = -1
+                    i = -1  # aggregate top k src-neighs in the neigh for a graph
+                    while line:
+                        part_ = line.strip().split(':')
+                        gid = int(part_[0])
+                        src_id = int(part_[1])
+                        neigh_list = [int(i) for i in part_[2].split(',')]
+
+                        # reset counters when a new graph reached
+                        if current_gid != gid:
+                            i = -1
+                            current_src_id = -1
+
+                            if current_gid != -1:
+                                torch.save(graph_edge_embedding, f'../custom_data_simple/processed/{fname}.pt')
+
+                            current_gid = gid
+                            g_node_feature = self.node_features[self.node_features['graph-id'] == gid]
+
+                        if current_src_id != src_id:
+                            i += 1
+                            current_src_id = src_id
+
+                        if i >= self.topk:
+                            print(f'Skip src-neigh list since limit reached k for graph {gid} node {src_id}: {self.topk}')
+                            continue
+
+                        for dst_id in neigh_list:
+                            graph_edge_embedding[gid][i] += g_node_feature[g_node_feature['destination-id'] == dst_id].values[:, 2:][0]
+
+                            cnt += 1
+                            if cnt % 10000 == 0:
+                                print(f'\tProcessed {cnt} Nodes')
+
+                        line = fin.readline()
+                break
+        else:
+            # read from existing
+            pass
         print('done')
 
     # def read_graph(self, gid):
