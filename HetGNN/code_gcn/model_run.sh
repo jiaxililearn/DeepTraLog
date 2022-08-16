@@ -1,6 +1,6 @@
 python main.py \
 --sagemaker False \
---num_node_types 8 \
+--num_node_types 14 \
 --num_train 375 \
 --batch_s 125 \
 --mini_batch_s 125 \
@@ -14,10 +14,11 @@ python main.py \
 --save_model_freq 2 \
 --lr 0.0001 \
 --train_iter_n 200 \
---model_version 4 \
+--model_version 5 \
+--dataset_id 1 \
 --feature_size 26 \
 --out_embed_s 26 \
---model_path ../model_save_HetGCN_streamspot_weight \
+--model_path ../model_save_HetGCN_streamspot_hetgnn_paper \
 --data_path ../ProcessedData_streamspot
 
 

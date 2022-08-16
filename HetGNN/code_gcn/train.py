@@ -13,6 +13,7 @@ import pickle
 
 from data_loader_origin import EventGraphDataset
 from data_loader import HetGCNEventGraphDataset
+from data_loader_cmu import CMUGraphDataset
 
 import boto3
 
@@ -85,6 +86,12 @@ class Train(object):
                     node_type_txt=f'{self.data_root_dir}/node_types.txt',
                     ignore_weight=ignore_weight
                 )
+
+        elif self.model_version == 5:
+            from GCN_5 import HetGCN_5 as HetGCN
+            if self.dataset_id == 1:
+                self.dataset = CMUGraphDataset()
+
         else:
             from GCN import HetGCN
             self.dataset = EventGraphDataset(

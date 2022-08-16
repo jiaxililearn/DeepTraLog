@@ -30,22 +30,22 @@ class CMUGraphDataset(Dataset):
         if data_root_path is None:
             self.data_root_path = '../custom_data_simple'
         
+        self.relation_types_f = ["a_a_list",
+                                 "a_b_list",
+                                 "a_c_list",
+                                 "a_d_list",
+                                 "a_e_list",
+                                 "a_f_list",
+                                 "a_g_list",
+                                 "a_h_list",
+                                 "b_a_list",
+                                 "b_b_list",
+                                 "b_c_list",
+                                 "b_d_list",
+                                 "b_e_list",
+                                 "b_h_list"]
+        
         if preprocessing:
-            self.relation_types_f = ["a_a_list.txt",
-                                     "a_b_list.txt",
-                                     "a_c_list.txt",
-                                     "a_d_list.txt",
-                                     "a_e_list.txt",
-                                     "a_f_list.txt",
-                                     "a_g_list.txt",
-                                     "a_h_list.txt",
-                                     "b_a_list.txt",
-                                     "b_b_list.txt",
-                                     "b_c_list.txt",
-                                     "b_d_list.txt",
-                                     "b_e_list.txt",
-                                     "b_h_list.txt"]
-
             self.node_features = pd.read_csv(f'{self.data_root_path}/incoming_edge_embedding.csv')
 
             # load up feature matrix based on the relation types
@@ -56,7 +56,7 @@ class CMUGraphDataset(Dataset):
                 graph_edge_embedding = np.zeros(
                     (self.n_graphs, self.max_num_edge_embeddings, self.incoming_node_embedding_size))
 
-                with open(f'{self.data_root_path}/{relation_f}', 'r') as fin:
+                with open(f'{self.data_root_path}/{relation_f}.txt', 'r') as fin:
                     cnt = 0
                     line = fin.readline()
                     current_gid = -1
@@ -94,10 +94,21 @@ class CMUGraphDataset(Dataset):
 
                         line = fin.readline()
                 print('Saving to file')
-                torch.save(graph_edge_embedding, f'../custom_data_simple/processed/{fname}.pt')
+                torch.save(graph_edge_embedding, f'{self.data_root_path}/processed/{fname}.pt')
         else:
             # TODO: read from existing
-            pass
+            self.feature_list = torch.zeros(len(self.relation_types_f),
+                                            self.n_graphs, self.max_num_edge_embeddings,
+                                            self.incoming_node_embedding_size,
+                                            device=self.device)
+
+            for i, relation_type in enumerate(self.relation_types_f):
+                print(f'reading features from {relation_type}')
+                features_fpath = f'{self.data_root_path}/processed/{relation_type}.pt'
+                features_ = torch.load(features_fpath)
+                features_ = torch.from_numpy(features_).float().to(self.device)
+                
+                self.feature_list[i] = features_
         print('done')
 
     # def read_graph(self, gid):
@@ -116,25 +127,12 @@ class CMUGraphDataset(Dataset):
                 node_feature: (n_node, n_feature)
                 graph_het_feature: (n_neigh, n_node, topk, n_feature)
         """
-        graph_node_feature = torch.from_numpy(
-            self.node_feature_df[self.node_feature_df.trace_id == gid].iloc[:, 2:].values).float().to(self.device)
-
-        edge_index = torch.from_numpy(
-            self.edge_inedx_df[self.edge_inedx_df.trace_id == gid][['src_id', 'dst_id']].values.reshape(2, -1)
-        ).type(torch.LongTensor).to(self.device)
-
-        if self.include_edge_weight:
-            edge_weight = torch.from_numpy(
-                self.edge_inedx_df[self.edge_inedx_df.trace_id == gid]['weight'].values.reshape(-1,)
-            ).float().to(self.device)
-        else:
-            edge_weight = None
-
-        return graph_node_feature, edge_index, edge_weight, self.node_types[gid]
+        return self.feature_list[:, gid, :]
 
 
 if __name__ == '__main__':
-    dataset = CMUGraphDataset(
-    )
+    dataset = CMUGraphDataset()
 
     print(dataset[0])
+    print(dataset[[0,1]].shape)
+    print(dataset[[0]].shape)
