@@ -81,7 +81,8 @@ class CMUGraphDataset(Dataset):
                             current_src_id = src_id
 
                         if i >= self.topk:
-                            # print(f'Skip src-neigh list since limit reached k for graph {gid} node {src_id}: {self.topk}')
+                            print(f'Skip src-neigh list since limit reached k for graph {gid} node {src_id}: {self.topk}')
+                            line = fin.readline()
                             continue
 
                         for dst_id in neigh_list:
