@@ -2,6 +2,7 @@
 **/*.bkp
 **/model_save*
 **/ProcessedData*
+**/custom_data_simple
 .vscode
 HetGNN/data/**
 **/.DS_Store
