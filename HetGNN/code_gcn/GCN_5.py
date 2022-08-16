@@ -27,7 +27,7 @@ class HetGCN_5(nn.Module):
 
         # node feature content encoder
         fc_node_content_layers = []
-        for _ in range(self.num_node_types * self.num_node_types):
+        for _ in range(self.num_node_types):
             fc_node_content_layers.append(nn.Linear(self.embed_d * self.k, hidden_channels, bias=True))
         self.fc_node_content_layers = nn.ModuleList(fc_node_content_layers)
 
