@@ -11,8 +11,9 @@ class HetGCN_5(nn.Module):
         Het GCN based on HetGNN paper
         """
         super(HetGCN_5, self).__init__()
-        torch.manual_seed(10)
-        torch.cuda.manual_seed_all(10)
+        random_seed = 2
+        torch.manual_seed(random_seed)
+        torch.cuda.manual_seed_all(random_seed)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.svdd_center = None
         self.model_path = model_path
@@ -29,10 +30,10 @@ class HetGCN_5(nn.Module):
         fc_node_content_layers = []
         for _ in range(self.num_node_types * self.num_node_types):
             fc_node_content_layers.append(nn.Linear(self.embed_d * self.k, hidden_channels, bias=True))
-        self.fc_node_content_layers = torch.nn.ModuleList(fc_node_content_layers)
+        self.fc_node_content_layers = nn.ModuleList(fc_node_content_layers)
 
         # Het Neighbour Encoder
-        self.fc_het_neigh_agg = torch.nn.Linear(hidden_channels * num_node_types, self.out_embed_d, bias=True)
+        self.fc_het_neigh_agg = nn.Linear(hidden_channels * num_node_types, self.out_embed_d, bias=True)
 
         # Others
         self.relu = nn.LeakyReLU()
