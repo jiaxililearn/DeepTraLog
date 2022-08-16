@@ -75,15 +75,15 @@ class CMUGraphDataset(Dataset):
 
                     if i >= self.topk:
                         print(f'Skip src-neigh list since limit reached k: {self.topk}')
-                        continue 
+                        continue
 
-                    for dst_id in neigh_list:
+                    for dst_id in tqdm(neigh_list):
                         cond = (self.node_features['destination-id'] == dst_id) & (self.node_features['graph-id'] == gid)
                         self.graph_edge_embedding[relation_id][gid][i] += self.node_features[cond].values[:, 2:][0]
 
-                        cnt += 1
-                        if cnt % 10000 == 0:
-                            print(f'Processed {cnt} Nodes')
+                    cnt += 1
+                    if cnt % 1000 == 0:
+                        print(f'\tProcessed {cnt} Nodes')
 
                     line = fin.readline()
         print('done')
