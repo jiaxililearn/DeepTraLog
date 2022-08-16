@@ -124,6 +124,8 @@ class Train(object):
         self.optim = optim.Adam(self.parameters, lr=self.lr, weight_decay=0)
         self.model.init_weights()
 
+        print(self.model)
+
     def train(self):
         """
         model training method
