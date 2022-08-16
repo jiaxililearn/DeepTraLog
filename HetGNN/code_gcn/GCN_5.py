@@ -53,7 +53,7 @@ class HetGCN_5(nn.Module):
         forward propagate based on gid batch
         """
         graph_het_embeddings = []
-        for relation_id in self.num_node_types:
+        for relation_id in range(self.num_node_types):
             het_neigh_embed_ = self.dataset[gid_batch][relation_id, :, :, :] \
                 .view(len(gid_batch), 1, self.embed_d * self.k)
             het_neigh_embed_ = torch.transpose(het_neigh_embed_, 0, 1)

@@ -19,7 +19,7 @@ python main.py \
 --feature_size 26 \
 --out_embed_s 26 \
 --model_path ../model_save_HetGCN_streamspot_hetgnn_paper \
---data_path ../ProcessedData_streamspot
+--data_path ../custom_data_simple
 
 
 sudo update-alternatives --config gcc
