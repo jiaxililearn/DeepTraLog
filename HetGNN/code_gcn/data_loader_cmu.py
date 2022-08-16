@@ -73,11 +73,6 @@ class CMUGraphDataset(Dataset):
                             print('reset src id')
                             i = -1
                             current_src_id = -1
-
-                            if current_gid != -1:
-                                print('Saving to file')
-                                torch.save(graph_edge_embedding, f'../custom_data_simple/processed/{fname}.pt')
-
                             current_gid = gid
                             g_node_feature = self.node_features[self.node_features['graph-id'] == gid]
 
@@ -97,6 +92,8 @@ class CMUGraphDataset(Dataset):
                                 print(f'\tProcessed {cnt} Nodes')
 
                         line = fin.readline()
+                print('Saving to file')
+                torch.save(graph_edge_embedding, f'../custom_data_simple/processed/{fname}.pt')
         else:
             # TODO: read from existing
             pass
