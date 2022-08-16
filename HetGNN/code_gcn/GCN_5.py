@@ -6,12 +6,11 @@ from torch import nn
 
 class HetGCN_5(nn.Module):
     def __init__(self, model_path=None, dataset=None, feature_size=7, out_embed_s=32,
-                 num_node_types=7, hidden_channels=16, k=12, **kwargs):
+                 num_node_types=7, hidden_channels=16, k=12, random_seed=10, **kwargs):
         """
         Het GCN based on HetGNN paper
         """
         super(HetGCN_5, self).__init__()
-        random_seed = 0
         torch.manual_seed(random_seed)
         torch.cuda.manual_seed_all(random_seed)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'

@@ -17,6 +17,7 @@ from train import Train
 @click.option('--hidden_channels', default=16, help='size of hidden channels')
 @click.option('--feature_size', default=7, help='input node feature size')
 @click.option('--out_embed_s', default=32, help='output feature size')
+@click.option('--seed', default=32, help='random seed')
 @click.option('--model_version', default=3, help='train with model version')
 @click.option('--dataset_id', default=0, help='choose dataset used for training')
 @click.option('--fix_center', default=True, type=bool, help='if fix the svdd center on first batch pass')
