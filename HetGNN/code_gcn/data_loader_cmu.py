@@ -70,7 +70,7 @@ class CMUGraphDataset(Dataset):
 
                         # reset counters when a new graph reached
                         if current_gid != gid:
-                            print('reset src id')
+                            print(f'read graph {gid}')
                             i = -1
                             current_src_id = -1
                             current_gid = gid
