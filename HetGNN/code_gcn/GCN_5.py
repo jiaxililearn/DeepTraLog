@@ -31,7 +31,7 @@ class HetGCN_5(nn.Module):
         self.fc_node_content_layers = torch.nn.ModuleList(fc_node_content_layers)
 
         # Het Neighbour Encoder
-        self.fc_het_neigh_encoder = torch.nn.Linear(hidden_channels * num_node_types, self.out_embed_d, bias=True)
+        self.fc_het_neigh_agg = torch.nn.Linear(hidden_channels * num_node_types, self.out_embed_d, bias=True)
 
         # Others
         self.relu = nn.LeakyReLU()
