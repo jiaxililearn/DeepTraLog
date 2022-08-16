@@ -47,8 +47,8 @@ class HetGCN_5(nn.Module):
             if isinstance(m, nn.Linear) or isinstance(m, nn.Parameter):
                 # nn.init.xavier_uniform_(m.weight)
                 nn.init.xavier_normal_(m.weight)
-                if m.bias is not None:
-                    m.bias.data.fill_(0.1)
+                # if m.bias is not None:
+                m.bias.data.fill_(0.1)
 
     def forward(self, gid_batch):
         """
