@@ -11,7 +11,7 @@ class HetGCN_5(nn.Module):
         Het GCN based on HetGNN paper
         """
         super(HetGCN_5, self).__init__()
-        torch.manual_seed(42)
+        torch.manual_seed(10)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.svdd_center = None
         self.model_path = model_path
