@@ -87,7 +87,6 @@ class CMUGraphDataset(Dataset):
                             print(f'\tProcessed {cnt} Nodes')
 
                     line = fin.readline()
-            break
         print('done')
 
     # def read_graph(self, gid):
