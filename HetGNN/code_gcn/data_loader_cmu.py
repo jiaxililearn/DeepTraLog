@@ -70,10 +70,12 @@ class CMUGraphDataset(Dataset):
 
                         # reset counters when a new graph reached
                         if current_gid != gid:
+                            print('reset src id')
                             i = -1
                             current_src_id = -1
 
                             if current_gid != -1:
+                                print('Saving to file')
                                 torch.save(graph_edge_embedding, f'../custom_data_simple/processed/{fname}.pt')
 
                             current_gid = gid
@@ -84,7 +86,7 @@ class CMUGraphDataset(Dataset):
                             current_src_id = src_id
 
                         if i >= self.topk:
-                            print(f'Skip src-neigh list since limit reached k for graph {gid} node {src_id}: {self.topk}')
+                            # print(f'Skip src-neigh list since limit reached k for graph {gid} node {src_id}: {self.topk}')
                             continue
 
                         for dst_id in neigh_list:
@@ -95,9 +97,8 @@ class CMUGraphDataset(Dataset):
                                 print(f'\tProcessed {cnt} Nodes')
 
                         line = fin.readline()
-                break
         else:
-            # read from existing
+            # TODO: read from existing
             pass
         print('done')
 
