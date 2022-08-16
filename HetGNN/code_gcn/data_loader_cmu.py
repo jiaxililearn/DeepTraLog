@@ -69,6 +69,8 @@ class CMUGraphDataset(Dataset):
                         i = -1
                         current_src_id = -1
                         current_gid = gid
+                        g_node_feature = self.node_features[self.node_features['graph-id'] == gid]
+
                     if current_src_id != src_id:
                         i += 1
                         current_src_id = src_id
@@ -78,14 +80,14 @@ class CMUGraphDataset(Dataset):
                         continue
 
                     for dst_id in neigh_list:
-                        cond = (self.node_features['destination-id'] == dst_id) & (self.node_features['graph-id'] == gid)
-                        self.graph_edge_embedding[relation_id][gid][i] += self.node_features[cond].values[:, 2:][0]
+                        self.graph_edge_embedding[relation_id][gid][i] += g_node_feature[g_node_feature['destination-id'] == dst_id].values[:, 2:][0]
 
                         cnt += 1
                         if cnt % 2000 == 0:
                             print(f'\tProcessed {cnt} Nodes')
 
                     line = fin.readline()
+            break
         print('done')
 
     # def read_graph(self, gid):
