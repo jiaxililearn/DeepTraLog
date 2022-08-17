@@ -66,7 +66,7 @@ def model_output(model, data):
     _out = model(data).cpu().detach().numpy()
     _out = _out.reshape((_out.shape[0], -1))
     _score = model.predict_score(data).cpu().detach().numpy()
-    return _out, _score
+    return _out, _score[0]
 
 def get_graph_results(data_root_dir, model, dataset, gid_list, name='train'):
     g_embeddings = []
