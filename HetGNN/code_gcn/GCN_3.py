@@ -2,11 +2,12 @@
 import torch
 from torch import nn
 from HetGCNConv import HetGCNConv
+from HetGCNConv_3_1 import HetGCNConv_3_1
 from HetGCNConvSum import HetGCNConvSum
 
 
 class HetGCN_3(nn.Module):
-    def __init__(self, model_path=None, dataset=None, feature_size=7, out_embed_s=32, num_node_types=7, hidden_channels=16, **kwargs):
+    def __init__(self, model_path=None, dataset=None, feature_size=7, out_embed_s=32, num_node_types=7, hidden_channels=16, model_sub_version=0, **kwargs):
         """
         Het GCN based on MessagePassing
         """
@@ -23,9 +24,13 @@ class HetGCN_3(nn.Module):
         self.num_node_types = num_node_types
 
         # node feature content encoder
-        self.conv1 = HetGCNConv(self.embed_d, 32, self.num_node_types, hidden_channels=hidden_channels)
-        # self.conv1 = HetGCNConvSum(self.embed_d, out_embed_s, self.num_node_types, hidden_channels=hidden_channels)
-        self.conv2 = HetGCNConv(32, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
+        if model_sub_version == 1:
+            self.conv1 = HetGCNConv_3_1(self.embed_d, 32, self.num_node_types, hidden_channels=hidden_channels)
+            self.conv2 = HetGCNConv_3_1(32, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
+        else:
+            self.conv1 = HetGCNConv(self.embed_d, 32, self.num_node_types, hidden_channels=hidden_channels)
+            # self.conv1 = HetGCNConvSum(self.embed_d, out_embed_s, self.num_node_types, hidden_channels=hidden_channels)
+            self.conv2 = HetGCNConv(32, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
 
         # Others
         self.relu = nn.LeakyReLU()
@@ -127,7 +132,7 @@ def svdd_batch_loss(model, embed_batch, l2_lambda=0.001, fix_center=True):
         if model.svdd_center is None:
             with torch.no_grad():
                 print('Set initial center ..')
-                hypersphere_center = torch.mean(_batch_out_resahpe, 0)
+                hypersphere_center = torch.mean(_batch_out_resahpe, 0).view(1, -1)
                 model.set_svdd_center(hypersphere_center)
                 torch.save(hypersphere_center, f'{model.model_path}/HetGNN_SVDD_Center.pt')
         else:

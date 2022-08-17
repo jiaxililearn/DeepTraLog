@@ -19,6 +19,7 @@ from train import Train
 @click.option('--out_embed_s', default=32, help='output feature size')
 @click.option('--seed', default=32, help='random seed')
 @click.option('--model_version', default=3, help='train with model version')
+@click.option('--model_sub_version', default=0, help='train with sub model version')
 @click.option('--dataset_id', default=0, help='choose dataset used for training')
 @click.option('--fix_center', default=True, type=bool, help='if fix the svdd center on first batch pass')
 @click.option('--test_set', default=True, type=bool, help='if create test dataset from input')
