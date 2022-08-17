@@ -63,7 +63,9 @@ class Train(object):
 
         elif self.model_version == 3:
             from GCN_3 import HetGCN_3 as HetGCN
+            from GCN_3 import svdd_batch_loss
 
+            self.loss = svdd_batch_loss
             if self.dataset_id == 0:
                 self.dataset = HetGCNEventGraphDataset(
                     node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
