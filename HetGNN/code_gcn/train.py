@@ -20,7 +20,7 @@ import boto3
 class Train(object):
     def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
                  save_model_freq, s3_stage, s3_bucket, s3_prefix, model_version, dataset_id,
-                 ignore_weight=False, source_types=None,
+                 ignore_weight=False, source_types=None, input_type='single',
                  test_set=True, fix_center=True, num_eval=None, unzip=False,
                  split_data=True, **kwargs):
         super(Train, self).__init__()
@@ -34,6 +34,7 @@ class Train(object):
         self.dataset_id = dataset_id
         self.test_set = test_set
         self.split_data = split_data
+        self.input_type = input_type
 
         self.source_types = None
 
@@ -175,11 +176,15 @@ class Train(object):
 
                 mini_batch_list = k.reshape(int(len(k) / self.mini_batch_s), self.mini_batch_s)
                 for mini_n, mini_k in enumerate(mini_batch_list):
-                    for i, gid in enumerate(mini_k):
-                        # print(f'forward graph: batch_{batch_n}/mini_{mini_n} - {i} -- {gid}')
-                        _out[mini_n][i] = self.model(self.dataset[gid])
-                    # _out_tmp = self.model(mini_k)
-                    # _out[mini_n] = _out_tmp
+
+                    if self.input_type == 'single':
+                        for i, gid in enumerate(mini_k):
+                            # print(f'forward graph: batch_{batch_n}/mini_{mini_n} - {i} -- {gid}')
+                            _out[mini_n][i] = self.model(self.dataset[gid])
+                    # else if 'batch' input type
+                    else:
+                        _out_tmp = self.model(mini_k)
+                        _out[mini_n] = _out_tmp
 
                 batch_loss = self.loss(self.model, _out, fix_center=self.fix_center)
                 avg_loss_list.append(batch_loss.tolist())
@@ -322,11 +327,16 @@ class Train(object):
         self.model.eval()
         trace_info_df = pd.read_csv(f'{self.data_root_dir}/trace_info.csv', index_col=None)
         with torch.no_grad():
-            pred_scores = []
-            for gid in eval_list:
-                _score = self.model.predict_score(self.dataset[gid]).cpu().detach().numpy()
-                pred_scores.append(_score)
-            # print(pred_scores)
+            
+
+            if self.input_type == 'single':
+                pred_scores = []
+                for gid in eval_list:
+                    _score = self.model.predict_score(self.dataset[gid]).cpu().detach().numpy()
+                    pred_scores.append(_score)
+            # else if 'batch' input type
+            else:
+                pred_scores = self.model.predict_score(eval_list).cpu().detach().numpy()
 
             labels = []
             for gid in eval_list:

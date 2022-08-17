@@ -16,6 +16,7 @@ python main.py \
 --train_iter_n 200 \
 --model_version 4 \
 --model_sub_version 0 \
+--source_types 0,1,2,3,4,5,6,7 \
 --dataset_id 0 \
 --feature_size 7 \
 --out_embed_s 16 \
