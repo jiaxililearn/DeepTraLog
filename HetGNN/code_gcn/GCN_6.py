@@ -4,13 +4,13 @@ from torch import nn
 # from HetGCNConv_4 import HetGCNConv_4
 
 
-class HetGCN_5(nn.Module):
+class HetGCN_6(nn.Module):
     def __init__(self, model_path=None, dataset=None, feature_size=7, out_embed_s=32,
                  num_node_types=7, hidden_channels=16, k=12, random_seed=10, **kwargs):
         """
         Het GCN based on HetGNN paper
         """
-        super(HetGCN_5, self).__init__()
+        super(HetGCN_6, self).__init__()
         torch.manual_seed(random_seed)
         torch.cuda.manual_seed_all(random_seed)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -26,10 +26,21 @@ class HetGCN_5(nn.Module):
         self.num_node_types = num_node_types
 
         # node feature content encoder
-        fc_node_content_layers = []
-        for _ in range(self.num_node_types):
-            fc_node_content_layers.append(nn.Linear(self.embed_d * self.k, hidden_channels, bias=True))
-        self.fc_node_content_layers = nn.ModuleList(fc_node_content_layers)
+        self.fc_a_a_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_a_b_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_a_c_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_a_d_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_a_e_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_a_f_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_a_g_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_a_h_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+
+        self.fc_b_a_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_b_b_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_b_c_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_b_d_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_b_e_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
+        self.fc_b_h_agg = nn.Linear(self.embed_d * self.k, self.embed_d)
 
         # Het Neighbour Encoder
         self.fc_het_neigh_agg = nn.Linear(hidden_channels * num_node_types, self.out_embed_d, bias=True)
@@ -45,7 +56,7 @@ class HetGCN_5(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Linear) or isinstance(m, nn.Parameter):
                 # nn.init.xavier_uniform_(m.weight)
-                nn.init.xavier_normal_(m.weight)
+                nn.init.xavier_normal_(m.weight.data)
                 # if m.bias is not None:
                 m.bias.data.fill_(0.1)
 
@@ -55,29 +66,21 @@ class HetGCN_5(nn.Module):
         """
         graph_het_embeddings = []
         for relation_id in range(self.num_node_types):
-            het_neigh_embed_ = self.dataset[gid_batch][relation_id] \
+            het_neigh_embed_ = self.dataset[gid_batch][relation_id, :, :, :] \
                 .view(len(gid_batch), 1, self.embed_d * self.k)
             het_neigh_embed_ = torch.transpose(het_neigh_embed_, 0, 1)
 
-            print(f'het_neigh_embed_ shape: {het_neigh_embed_.shape}')
-
             output_ = self.fc_node_content_layers[relation_id](het_neigh_embed_)
             output_ = self.relu(output_).view(len(gid_batch), self.hidden_channels)
-
-            print(f'output_ shape: {output_.shape}')
 
             graph_het_embeddings.append(output_)
 
         graph_het_embeddings = torch.cat(graph_het_embeddings, 1) \
             .view(len(gid_batch), self.hidden_channels * self.num_node_types)
-        
-        print(f'graph_het_embeddings shape: {graph_het_embeddings.shape}')
 
         graph_het_embeddings = self.sigmoid(
             self.fc_het_neigh_agg(graph_het_embeddings)
         )
-
-        print(f'final graph_het_embeddings shape: {graph_het_embeddings.shape}')
         return graph_het_embeddings
 
     # def forward(self, data):
