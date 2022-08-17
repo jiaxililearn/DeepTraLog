@@ -174,7 +174,7 @@ class HetGCNConv_4(MessagePassing):
                 dst_type = ntype - self.num_node_types * src_type_idx
                 src_type = source_types[src_type_idx]
 
-                if len(node_types[dst_type]) == 0 or len(node_types[src_type]):
+                if len(node_types[dst_type]) == 0 or len(node_types[src_type]) == 0:
                     return ntype, None, None
 
                 src_het_mask = sum(row == i for i in node_types[src_type]).bool()
