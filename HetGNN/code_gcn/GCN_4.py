@@ -5,7 +5,8 @@ from HetGCNConv_4 import HetGCNConv_4
 
 
 class HetGCN_4(nn.Module):
-    def __init__(self, model_path=None, dataset=None, feature_size=7, out_embed_s=32, random_seed=42, num_node_types=7, hidden_channels=16, **kwargs):
+    def __init__(self, model_path=None, dataset=None, source_types=None,
+                 feature_size=7, out_embed_s=32, random_seed=42, num_node_types=7, hidden_channels=16, **kwargs):
         """
         Het GCN based on MessagePassing + segragation of the source neighbour type
         """
@@ -15,6 +16,7 @@ class HetGCN_4(nn.Module):
         self.svdd_center = None
         self.model_path = model_path
         self.dataset = dataset
+        self.source_types = source_types
 
         self.embed_d = feature_size
         self.out_embed_d = out_embed_s
@@ -23,7 +25,8 @@ class HetGCN_4(nn.Module):
 
         # node feature content encoder
         # self.conv1 = HetGCNConv(self.embed_d, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
-        self.conv1 = HetGCNConv_4(self.embed_d, out_embed_s, self.num_node_types, hidden_channels=hidden_channels)
+        self.conv1 = HetGCNConv_4(self.embed_d, out_embed_s, self.num_node_types,
+                                  hidden_channels=hidden_channels, num_src_types=len(source_types))
         # self.conv2 = HetGCNConvSum(32, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
 
         # Others
@@ -49,7 +52,7 @@ class HetGCN_4(nn.Module):
 
         # print(f'x_node_feature shape: {x_node_feature.shape}')
         # print(f'x_edge_index shape: {x_edge_index.shape}')
-        h = self.conv1(batch_data)
+        h = self.conv1(batch_data, source_types=self.source_types)
         # h = self.relu(h)
         # h = self.conv2(h, x_edge_index, x_node_types, edge_weight=x_edge_weight)
         h = h.sigmoid()

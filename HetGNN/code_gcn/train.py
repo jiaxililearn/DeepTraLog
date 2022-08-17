@@ -20,7 +20,7 @@ import boto3
 class Train(object):
     def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
                  save_model_freq, s3_stage, s3_bucket, s3_prefix, model_version, dataset_id,
-                 ignore_weight=False,
+                 ignore_weight=False, source_types=None,
                  test_set=True, fix_center=True, num_eval=None, unzip=False,
                  split_data=True, **kwargs):
         super(Train, self).__init__()
@@ -34,6 +34,11 @@ class Train(object):
         self.dataset_id = dataset_id
         self.test_set = test_set
         self.split_data = split_data
+
+        self.source_types = None
+
+        if source_types is not None:
+            self.source_types = [int(i) for i in source_types.split(',')]
 
         self.fix_center = fix_center
 
@@ -130,7 +135,7 @@ class Train(object):
         self.s3_prefix = s3_prefix
         self.s3_stage = s3_stage
 
-        self.model = HetGCN(model_path=self.model_path, dataset=self.dataset, **kwargs).to(self.device)
+        self.model = HetGCN(model_path=self.model_path, dataset=self.dataset, source_types=self.source_types, **kwargs).to(self.device)
 
         self.parameters = filter(lambda p: p.requires_grad, self.model.parameters())
         self.optim = optim.Adam(self.parameters, lr=self.lr, weight_decay=0)

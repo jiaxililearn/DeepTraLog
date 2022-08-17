@@ -12,10 +12,10 @@ python main.py \
 --ignore_weight True \
 --test_set True \
 --save_model_freq 2 \
---lr 0.005 \
+--lr 0.001 \
 --train_iter_n 200 \
---model_version 3 \
---model_sub_version 1 \
+--model_version 4 \
+--model_sub_version 0 \
 --dataset_id 0 \
 --feature_size 7 \
 --out_embed_s 16 \
