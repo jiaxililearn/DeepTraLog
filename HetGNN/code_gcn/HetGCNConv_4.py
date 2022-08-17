@@ -183,6 +183,7 @@ class HetGCNConv_4(MessagePassing):
             except Exception as e:
                 print(f'{src_type_idx} - {dst_type}')
                 print(f'row: {row}')
+                print(f'node_types[src_type]: {node_types[src_type]}')
                 raise Exception(e)
             return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
         else:
