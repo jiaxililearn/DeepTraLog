@@ -15,7 +15,7 @@ python main.py \
 --save_model_freq 2 \
 --lr 0.005 \
 --train_iter_n 200 \
---model_version 4 \
+--model_version 2 \
 --dataset_id 0 \
 --feature_size 26 \
 --out_embed_s 26 \

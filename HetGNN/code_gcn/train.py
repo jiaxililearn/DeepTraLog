@@ -168,11 +168,11 @@ class Train(object):
 
                 mini_batch_list = k.reshape(int(len(k) / self.mini_batch_s), self.mini_batch_s)
                 for mini_n, mini_k in enumerate(mini_batch_list):
-                    # for i, gid in enumerate(mini_k):
+                    for i, gid in enumerate(mini_k):
                         # print(f'forward graph: batch_{batch_n}/mini_{mini_n} - {i} -- {gid}')
-                        # _out[mini_n][i] = self.model(self.dataset[gid])
-                    _out_tmp = self.model(mini_k)
-                    _out[mini_n] = _out_tmp
+                        _out[mini_n][i] = self.model(self.dataset[gid])
+                    # _out_tmp = self.model(mini_k)
+                    # _out[mini_n] = _out_tmp
 
                 batch_loss = self.loss(self.model, _out, fix_center=self.fix_center)
                 avg_loss_list.append(batch_loss.tolist())

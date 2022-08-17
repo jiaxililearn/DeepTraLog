@@ -23,9 +23,9 @@ class HetGCN_3(nn.Module):
         self.num_node_types = num_node_types
 
         # node feature content encoder
-        # self.conv1 = HetGCNConv(self.embed_d, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
-        self.conv1 = HetGCNConvSum(self.embed_d, out_embed_s, self.num_node_types, hidden_channels=hidden_channels)
-        # self.conv2 = HetGCNConvSum(32, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
+        self.conv1 = HetGCNConv(self.embed_d, 32, self.num_node_types, hidden_channels=hidden_channels)
+        # self.conv1 = HetGCNConvSum(self.embed_d, out_embed_s, self.num_node_types, hidden_channels=hidden_channels)
+        self.conv2 = HetGCNConv(32, self.out_embed_d, self.num_node_types, hidden_channels=hidden_channels)
 
         # Others
         self.relu = nn.LeakyReLU()
@@ -42,22 +42,22 @@ class HetGCN_3(nn.Module):
                 if m.bias is not None:
                     m.bias.data.fill_(0.1)
 
-    def forward(self, gid_batch):
+    def forward(self, dataset_):
         """
         forward propagate based on gid batch
         """
-        batch_data = [self.dataset[i] for i in gid_batch]
+        x_node_feature, x_edge_index, x_edge_weight, x_node_types = dataset_
 
         # print(f'x_node_feature shape: {x_node_feature.shape}')
         # print(f'x_edge_index shape: {x_edge_index.shape}')
-        h = self.conv1(batch_data)
-        # h = self.relu(h)
-        # h = self.conv2(h, x_edge_index, x_node_types, edge_weight=x_edge_weight)
+        h = self.conv1(x_node_feature, x_edge_index, x_node_types, edge_weight=x_edge_weight)
+        h = self.relu(h)
+        h = self.conv2(h, x_edge_index, x_node_types, edge_weight=x_edge_weight)
         h = h.sigmoid()
 
-        graph_embeddings = h
-        # graph_embedding = self.graph_node_pooling(h)
-        return graph_embeddings
+        # graph_embeddings = h
+        graph_embedding = self.graph_node_pooling(h)
+        return graph_embedding
 
     # def forward(self, data):
     #     """
