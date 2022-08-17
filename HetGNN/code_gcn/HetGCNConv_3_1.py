@@ -64,6 +64,9 @@ class HetGCNConv_3_1(MessagePassing):
         h += self.bias1
         h = h.relu()
 
+        if edge_weight is None:
+            edge_weight = torch.ones((edge_index.size(1), ), device=edge_index.device)
+
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []
         for ntype, het_edge_index, het_edge_weight in self.het_edge_index(edge_index, edge_weight, node_types):
@@ -108,9 +111,6 @@ class HetGCNConv_3_1(MessagePassing):
             yield ntype, torch.stack([row[het_mask], col[het_mask]]), edge_weight[het_mask]
 
     def _norm(self, edge_index, size, edge_weight=None):
-        if edge_weight is None:
-            edge_weight = torch.ones((edge_index.size(1), ), device=edge_index.device)
-
         edge_index, tmp_edge_weight = add_self_loops(edge_index, edge_attr=edge_weight, num_nodes=size)
 
         assert tmp_edge_weight is not None
