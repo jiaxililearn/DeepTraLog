@@ -62,7 +62,8 @@ class HetGCNConv(MessagePassing):
         #   type3[10,11]
         # ]
 
-
+        if edge_weight is None:
+            edge_weight = torch.ones((edge_index.size(1), ), device=edge_index.device)
 
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []

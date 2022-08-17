@@ -1,11 +1,10 @@
 python main.py \
 --sagemaker False \
 --num_node_types 8 \
---num_train 200 \
---batch_s 100 \
---mini_batch_s 100 \
---num_eval 100 \
---hidden_channels 16 \
+--num_train 65000 \
+--batch_s 500 \
+--mini_batch_s 500 \
+--num_eval 30000 \
 --seed 10 \
 --unzip False \
 --s3_stage False \
@@ -20,6 +19,7 @@ python main.py \
 --dataset_id 0 \
 --feature_size 7 \
 --out_embed_s 16 \
+--hidden_channels 16 \
 --model_path ../model_save_HetGCN_gcn3 \
 --data_path ../ProcessedData_HetGCN
 
