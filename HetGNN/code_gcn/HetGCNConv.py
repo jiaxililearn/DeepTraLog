@@ -9,6 +9,9 @@ from torch_geometric.utils import add_self_loops, degree
 
 class HetGCNConv(MessagePassing):
     def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16):
+        """
+        Het GCN Implemented based on MessagePassing with individual neighbour layers
+        """
         super(HetGCNConv, self).__init__(aggr='add')  # "Add" aggregation.
         self.num_node_types = num_node_types
         self.hidden_channels = hidden_channels
@@ -59,6 +62,8 @@ class HetGCNConv(MessagePassing):
         #   type3[10,11]
         # ]
 
+
+
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []
         for ntype, het_edge_index, het_edge_weight in self.het_edge_index(edge_index, edge_weight, node_types):
@@ -71,7 +76,7 @@ class HetGCNConv(MessagePassing):
             else:
                 # Step 2: Linearly transform node feature matrix. Neighbour type specific node feature hidden embedding
                 # Step 3.1: propagate het message
-                # TODO: masking the resulting nodes in the matrix
+                # TODO: masking the resulting nodes in the matrix?
                 h = self.fc_node_content_layers[ntype](x)
                 het_edge_index, het_edge_weight = self._norm(het_edge_index, size=x.size(0), edge_weight=het_edge_weight)
                 het_out = self.propagate(het_edge_index, edge_weight=het_edge_weight, size=(x.size(0), x.size(0)), x=h)
