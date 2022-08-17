@@ -81,7 +81,7 @@ class HetGCN_3(nn.Module):
         """
         if graph_node_het_embedding.shape[0] == 1:
             return graph_node_het_embedding
-        return torch.mean(graph_node_het_embedding, 0)
+        return torch.mean(graph_node_het_embedding, 0).view(1,-1)
 
     def set_svdd_center(self, center):
         """
