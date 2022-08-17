@@ -79,6 +79,9 @@ class Train(object):
             #     )
         elif self.model_version == 4:
             from GCN_4 import HetGCN_4 as HetGCN
+            from GCN_4 import svdd_batch_loss
+
+            self.loss = svdd_batch_loss
             if self.dataset_id == 0:
                 self.dataset = HetGCNEventGraphDataset(
                     node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
@@ -91,6 +94,13 @@ class Train(object):
             from GCN_5 import HetGCN_5 as HetGCN
             if self.dataset_id == 1:
                 self.dataset = CMUGraphDataset()
+        
+        elif self.model_version == 6:
+            from GCN_6 import HetAgg as HetGCN
+            from GCN_6 import svdd_batch_loss
+            if self.dataset_id == 1:
+                self.dataset = CMUGraphDataset()
+            self.loss = svdd_batch_loss
 
         else:
             from GCN import HetGCN
@@ -161,9 +171,10 @@ class Train(object):
                     # for i, gid in enumerate(mini_k):
                         # print(f'forward graph: batch_{batch_n}/mini_{mini_n} - {i} -- {gid}')
                         # _out[mini_n][i] = self.model(self.dataset[gid])
-                    _out[mini_n] = self.model(mini_k)
+                    _out_tmp = self.model(mini_k)
+                    _out[mini_n] = _out_tmp
 
-                batch_loss = self.model.svdd_batch_loss(self.model, _out, fix_center=self.fix_center)
+                batch_loss = self.loss(self.model, _out, fix_center=self.fix_center)
                 avg_loss_list.append(batch_loss.tolist())
                 # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
                 # print(f'Model Output: {_out}')
@@ -307,13 +318,23 @@ class Train(object):
             pred_scores = self.model.predict_score(eval_list).cpu().detach().numpy()
             # print(pred_scores)
 
-            label = trace_info_df[trace_info_df['trace_id'].isin(eval_list)]['trace_bool'] \
-                .apply(lambda x: 0 if x else 1).values
+            labels = []
+            for gid in eval_list:
+                if trace_info_df[trace_info_df['trace_id'] == gid]['trace_bool'].values[0]:
+                    labels.append(0)
+                else:
+                    labels.append(1)
+            # label = trace_info_df[trace_info_df['trace_id'].isin(eval_list)]['trace_bool'] \
+            #     .apply(lambda x: 0 if x else 1).values
+            
+            print(f'pred_scores: {pred_scores}')
+            print(f'label: {labels}')
 
-            fpr, tpr, roc_thresholds = roc_curve(label, pred_scores)
+
+            fpr, tpr, roc_thresholds = roc_curve(labels, pred_scores)
             roc_auc = auc(fpr, tpr)
 
-            precision, recall, pr_thresholds = precision_recall_curve(label, pred_scores)
+            precision, recall, pr_thresholds = precision_recall_curve(labels, pred_scores)
             ap = auc(recall, precision)
 
             print(f'\tAUC:{roc_auc}; Avg Precision:{ap};')

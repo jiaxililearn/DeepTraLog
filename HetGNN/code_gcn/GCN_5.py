@@ -59,25 +59,25 @@ class HetGCN_5(nn.Module):
                 .view(len(gid_batch), 1, self.embed_d * self.k)
             het_neigh_embed_ = torch.transpose(het_neigh_embed_, 0, 1)
 
-            print(f'het_neigh_embed_ shape: {het_neigh_embed_.shape}')
+            # print(f'het_neigh_embed_ shape: {het_neigh_embed_.shape}')
 
             output_ = self.fc_node_content_layers[relation_id](het_neigh_embed_)
             output_ = self.relu(output_).view(len(gid_batch), self.hidden_channels)
 
-            print(f'output_ shape: {output_.shape}')
+            # print(f'output_ shape: {output_.shape}')
 
             graph_het_embeddings.append(output_)
 
         graph_het_embeddings = torch.cat(graph_het_embeddings, 1) \
             .view(len(gid_batch), self.hidden_channels * self.num_node_types)
         
-        print(f'graph_het_embeddings shape: {graph_het_embeddings.shape}')
+        # print(f'graph_het_embeddings shape: {graph_het_embeddings.shape}')
 
         graph_het_embeddings = self.sigmoid(
             self.fc_het_neigh_agg(graph_het_embeddings)
         )
 
-        print(f'final graph_het_embeddings shape: {graph_het_embeddings.shape}')
+        # print(f'final graph_het_embeddings shape: {graph_het_embeddings.shape}')
         return graph_het_embeddings
 
     # def forward(self, data):

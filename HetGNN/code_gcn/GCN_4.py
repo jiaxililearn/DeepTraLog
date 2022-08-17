@@ -110,39 +110,37 @@ class HetGCN_4(nn.Module):
             score = torch.mean(torch.square(_out - self.svdd_center), 1) # mean on rows
         return score
 
-    @staticmethod
-    def svdd_batch_loss(model, embed_batch, l2_lambda=0.001, fix_center=True):
-        """
-        Compute SVDD Loss on batch
-        """
-        # TODO
-        out_embed_d = model.out_embed_d
-        l2_lambda = l2_lambda
+def svdd_batch_loss(model, embed_batch, l2_lambda=0.001, fix_center=True):
+    """
+    Compute SVDD Loss on batch
+    """
+    # TODO
+    out_embed_d = model.out_embed_d
 
-        _batch_out = embed_batch
-        _batch_out_resahpe = _batch_out.view(_batch_out.size()[0] * _batch_out.size()[1], out_embed_d)
+    _batch_out = embed_batch
+    _batch_out_resahpe = _batch_out.view(_batch_out.size()[0] * _batch_out.size()[1], out_embed_d)
 
-        if fix_center:
-            if model.svdd_center is None:
-                with torch.no_grad():
-                    print('Set initial center ..')
-                    hypersphere_center = torch.mean(_batch_out_resahpe, 0)
-                    model.set_svdd_center(hypersphere_center)
-                    torch.save(hypersphere_center, f'{model.model_path}/HetGNN_SVDD_Center.pt')
-            else:
-                hypersphere_center = model.svdd_center
-                #  with torch.no_grad():
-                #     hypersphere_center = (model.svdd_center + torch.mean(_batch_out_resahpe, 0)) / 2
-                #     model.set_svdd_center(hypersphere_center)
-        else:
+    if fix_center:
+        if model.svdd_center is None:
             with torch.no_grad():
-                print('compute batch center ..')
+                print('Set initial center ..')
                 hypersphere_center = torch.mean(_batch_out_resahpe, 0)
+                model.set_svdd_center(hypersphere_center)
+                torch.save(hypersphere_center, f'{model.model_path}/HetGNN_SVDD_Center.pt')
+        else:
+            hypersphere_center = model.svdd_center
+            #  with torch.no_grad():
+            #     hypersphere_center = (model.svdd_center + torch.mean(_batch_out_resahpe, 0)) / 2
+            #     model.set_svdd_center(hypersphere_center)
+    else:
+        with torch.no_grad():
+            print('compute batch center ..')
+            hypersphere_center = torch.mean(_batch_out_resahpe, 0)
 
-        dist = torch.square(_batch_out_resahpe - hypersphere_center)
-        loss_ = torch.mean(torch.sum(dist, 1))
+    dist = torch.square(_batch_out_resahpe - hypersphere_center)
+    loss_ = torch.mean(torch.sum(dist, 1))
 
-        l2_norm = sum(p.pow(2.0).sum() for p in model.parameters()) / 2
+    l2_norm = sum(p.pow(2.0).sum() for p in model.parameters()) / 2
 
-        loss = loss_ + l2_lambda * l2_norm
-        return loss
+    loss = loss_ + l2_lambda * l2_norm
+    return loss
