@@ -327,8 +327,8 @@ class Train(object):
             # label = trace_info_df[trace_info_df['trace_id'].isin(eval_list)]['trace_bool'] \
             #     .apply(lambda x: 0 if x else 1).values
             
-            print(f'pred_scores: {pred_scores}')
-            print(f'label: {labels}')
+            # print(f'pred_scores: {pred_scores}')
+            # print(f'label: {labels}')
 
 
             fpr, tpr, roc_thresholds = roc_curve(labels, pred_scores)
