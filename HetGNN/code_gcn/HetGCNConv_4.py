@@ -55,6 +55,9 @@ class HetGCNConv_4(MessagePassing):
                 # print(f'het_edge_index shape: {het_edge_index.shape}')
                 # print(f'het_edge_weight shape: {het_edge_weight.shape}')
 
+                if edge_weight is None:
+                    edge_weight = torch.ones((edge_index.size(1), ), device=edge_index.device)
+
                 _, het_edge_index, het_edge_weight = self.get_het_edge_index(edge_index, edge_weight, node_types, ntype, source_types=source_types)
 
                 if het_edge_index is None:
