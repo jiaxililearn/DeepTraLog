@@ -172,16 +172,17 @@ class HetGCNConv_4(MessagePassing):
                 num_src_types = len(source_types)
                 src_type_idx = int(ntype / self.num_node_types)
                 dst_type = ntype - self.num_node_types * src_type_idx
-                
-                if len(node_types[dst_type]) == 0:
+                src_type = source_types[src_type_idx]
+
+                if len(node_types[dst_type]) == 0 or len(node_types[src_type]):
                     return ntype, None, None
 
-                src_type = source_types[src_type_idx]
                 src_het_mask = sum(row == i for i in node_types[src_type]).bool()
                 dst_het_mask = sum(col == i for i in node_types[dst_type]).bool()
                 cmask = src_het_mask & dst_het_mask
             except Exception as e:
                 print(f'{src_type_idx} - {dst_type}')
+                print(f'row: {row}')
                 raise Exception(e)
             return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
         else:
