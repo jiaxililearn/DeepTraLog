@@ -5,12 +5,12 @@ from HetGCNConv_4 import HetGCNConv_4
 
 
 class HetGCN_4(nn.Module):
-    def __init__(self, model_path=None, dataset=None, feature_size=7, out_embed_s=32, num_node_types=7, hidden_channels=16, **kwargs):
+    def __init__(self, model_path=None, dataset=None, feature_size=7, out_embed_s=32, random_seed=42, num_node_types=7, hidden_channels=16, **kwargs):
         """
         Het GCN based on MessagePassing + segragation of the source neighbour type
         """
         super(HetGCN_4, self).__init__()
-        torch.manual_seed(42)
+        torch.manual_seed(random_seed)
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.svdd_center = None
         self.model_path = model_path

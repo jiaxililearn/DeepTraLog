@@ -1,10 +1,10 @@
 python main.py \
 --sagemaker False \
---num_node_types 14 \
---num_train 360 \
---batch_s 360 \
---mini_batch_s 360 \
---num_eval 125 \
+--num_node_types 8 \
+--num_train 375 \
+--batch_s 125 \
+--mini_batch_s 125 \
+--num_eval 225 \
 --hidden_channels 26 \
 --seed 10 \
 --unzip False \
@@ -19,8 +19,8 @@ python main.py \
 --dataset_id 0 \
 --feature_size 26 \
 --out_embed_s 26 \
---model_path ../model_save_HetGCN_streamspot_hetgnn_paper \
---data_path ../custom_data_simple
+--model_path ../model_save_HetGCN_streamspot_weight \
+--data_path ../ProcessedData_streamspot
 
 
 sudo update-alternatives --config gcc
