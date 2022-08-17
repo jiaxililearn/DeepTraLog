@@ -63,7 +63,8 @@ def get_train_eval_test_gids(model_result_root_dir, testset=True):
 
 
 def model_output(model, data):
-    _out = model(data).cpu().detach().numpy().reshape((-1, -1))
+    _out = model(data).cpu().detach().numpy()
+    _out = _out.reshape((_out.shape[0], -1))
     _score = model.predict_score(data).cpu().detach().numpy()
     return _out, _score
 
