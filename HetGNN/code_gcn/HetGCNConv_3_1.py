@@ -61,8 +61,8 @@ class HetGCNConv_3_1(MessagePassing):
         # ]
 
         h = self.lin1(x)
-        h = h.relu()
         h += self.bias1
+        h = h.relu()
 
         # Step 3: compute Het Edge Index from node-type-based adjacancy matrices
         het_h_embeddings = []
