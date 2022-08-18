@@ -77,7 +77,7 @@ def get_graph_results(data_root_dir, model, dataset, gid_list, name='train'):
         g_scores.append(_score)
     g_embeddings = np.array(g_embeddings)
 
-    print(g_scores)
+    # print(g_scores)
     g_embeddings = g_embeddings.reshape(g_embeddings.shape[0], -1)
     resultdf = pd.DataFrame(g_embeddings, columns=[f'e{i}' for i in range(g_embeddings.shape[1])])
     resultdf['scores'] = g_scores
