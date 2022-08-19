@@ -68,7 +68,7 @@ def model_output(model, data):
     _score = model.predict_score(data).cpu().detach().numpy()
     return _out, _score
 
-def get_graph_results(data_root_dir, model, dataset, gid_list, input_type='batch', name='train'):
+def get_graph_results(data_root_dir, model, dataset, gid_list, input_type='single', name='train'):
     
     if input_type == 'batch':
         g_embeddings, g_scores = model_output(model, gid_list)
@@ -78,7 +78,7 @@ def get_graph_results(data_root_dir, model, dataset, gid_list, input_type='batch
         for gid in tqdm(gid_list):
             _embedding, _score = model_output(model, dataset[gid])
             g_embeddings.append(_embedding)
-            g_scores.append(_score)
+            g_scores.append(_score[0])
         g_embeddings = np.array(g_embeddings)
     g_embeddings = g_embeddings.reshape(g_embeddings.shape[0], -1)
     # print(g_scores)
