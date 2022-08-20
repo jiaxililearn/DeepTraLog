@@ -31,6 +31,7 @@ class HetGCNConv_7(MessagePassing):
                 fc_node_content_layers.append(torch.nn.Linear(in_channels, hidden_channels, bias=True))
             hidden_conv_layers.append(torch.nn.ModuleList(fc_node_content_layers))
         self.hidden_conv_layers = torch.nn.ModuleList(hidden_conv_layers)
+        print(self.hidden_conv_layers)
 
         self.fc_het_layer = torch.nn.Linear(hidden_channels * num_node_types * num_src_types, out_channels, bias=True)
 

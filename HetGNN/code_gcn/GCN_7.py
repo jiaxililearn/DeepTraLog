@@ -30,7 +30,7 @@ class HetGCN_7(nn.Module):
                                               hidden_channels=hidden_channels,
                                               num_hidden_conv_layers=num_hidden_conv_layers,
                                               num_src_types=len(source_types))
-            print(self.het_node_conv)
+            print(f'num_hidden_conv_layers: {num_hidden_conv_layers}')
         else:
             pass
 
