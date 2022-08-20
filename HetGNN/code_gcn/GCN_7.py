@@ -6,7 +6,7 @@ from HetGCNConv_7 import HetGCNConv_7
 
 class HetGCN_7(nn.Module):
     def __init__(self, model_path=None, dataset=None, source_types=None,
-                 feature_size=7, out_embed_s=32, random_seed=42, num_node_types=7, hidden_channels=16, **kwargs):
+                 feature_size=7, out_embed_s=32, random_seed=42, num_node_types=7, hidden_channels=16, model_sub_version=0, **kwargs):
         """
         Het GCN based on MessagePassing + segragation of the source neighbour type
         """
@@ -17,6 +17,7 @@ class HetGCN_7(nn.Module):
         self.model_path = model_path
         self.dataset = dataset
         self.source_types = source_types
+        self.model_sub_version = model_sub_version
 
         self.embed_d = feature_size
         self.out_embed_d = out_embed_s
@@ -24,8 +25,11 @@ class HetGCN_7(nn.Module):
         self.num_node_types = num_node_types
 
         # node feature content encoder
-        self.het_node_conv = HetGCNConv_7(self.embed_d, self.out_embed_d, self.num_node_types,
-                                          hidden_channels=hidden_channels, num_src_types=len(source_types))
+        if model_sub_version == 0:
+            self.het_node_conv = HetGCNConv_7(self.embed_d, self.out_embed_d, self.num_node_types,
+                                              hidden_channels=hidden_channels, num_src_types=len(source_types))
+        else:
+            pass
 
         # Others
         self.relu = nn.LeakyReLU()

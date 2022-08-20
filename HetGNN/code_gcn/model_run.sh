@@ -50,6 +50,7 @@ python main.py \
 --lr 0.001 \
 --train_iter_n 100 \
 --model_version 7 \
+--model_sub_version 0 \
 --source_types 0,1 \
 --dataset_id 0 \
 --input_type batch \
