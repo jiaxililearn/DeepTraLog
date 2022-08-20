@@ -73,7 +73,7 @@ class HetGCNConv_7(MessagePassing):
                 content_h = self.relu(content_h)
 
                 for i in range(1, self.num_hidden_conv_layers):
-                    print(f'hidden {i}')
+                    # print(f'hidden {i}')
                     content_h = self.hidden_conv_layers[i][ntype](content_h)
                     content_h = self.propagate(het_edge_index, x=content_h, edge_weight=het_edge_weight)
                     content_h = self.relu(content_h)
