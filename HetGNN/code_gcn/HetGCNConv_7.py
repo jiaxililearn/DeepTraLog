@@ -76,11 +76,11 @@ class HetGCNConv_7(MessagePassing):
         combined_het_embedding = torch.cat(het_h_embeddings, 1).view(node_feature.shape[0], self.hidden_channels * self.num_node_types * self.num_src_types)
 
         # max pooling
-        combined_het_embedding, _= torch.max(combined_het_embedding, dim=0)
-        print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
+        combined_het_embedding, _ = torch.max(combined_het_embedding, dim=0)
+        # print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
         # print(f'combined_het_embedding: {combined_het_embedding}')
 
-        out = self.fc_het_layer(combined_het_embedding)
+        out = self.fc_het_layer(combined_het_embedding.view(1, -1))
         # print(f'out shape: {out.shape}')
         return out
 
