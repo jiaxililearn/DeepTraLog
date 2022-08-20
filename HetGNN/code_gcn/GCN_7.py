@@ -5,7 +5,8 @@ from HetGCNConv_7 import HetGCNConv_7
 
 class HetGCN_7(nn.Module):
     def __init__(self, model_path=None, dataset=None, source_types=None,
-                 feature_size=7, out_embed_s=32, random_seed=42, num_node_types=7, hidden_channels=16, model_sub_version=0, **kwargs):
+                 feature_size=7, out_embed_s=32, random_seed=42, num_node_types=7, hidden_channels=16,
+                 num_hidden_conv_layers=1, model_sub_version=0, **kwargs):
         """
         Het GCN based on MessagePassing + segragation of the source neighbour type
         """
@@ -26,7 +27,8 @@ class HetGCN_7(nn.Module):
         # node feature content encoder
         if model_sub_version == 0:
             self.het_node_conv = HetGCNConv_7(self.embed_d, self.out_embed_d, self.num_node_types,
-                                              hidden_channels=hidden_channels, num_src_types=len(source_types))
+                                              hidden_channels=hidden_channels, num_hidden_conv_layers=num_hidden_conv_layers,
+                                              num_src_types=len(source_types))
             print(self.het_node_conv)
         else:
             pass
