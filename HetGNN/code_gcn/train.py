@@ -97,6 +97,18 @@ class Train(object):
                     node_type_txt=f'{self.data_root_dir}/node_types.txt',
                     ignore_weight=ignore_weight
                 )
+        elif self.model_version == 7:
+            from GCN_7 import HetGCN_7 as HetGCN
+            from GCN_7 import svdd_batch_loss
+
+            self.loss = svdd_batch_loss
+            if self.dataset_id == 0:
+                self.dataset = HetGCNEventGraphDataset(
+                    node_feature_csv=f'{self.data_root_dir}/node_feature_norm.csv',
+                    edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
+                    node_type_txt=f'{self.data_root_dir}/node_types.txt',
+                    ignore_weight=ignore_weight
+                )
 
         elif self.model_version == 5:
             from GCN_5 import HetGCN_5 as HetGCN

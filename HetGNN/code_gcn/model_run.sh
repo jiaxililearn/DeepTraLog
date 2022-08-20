@@ -1,10 +1,10 @@
 python main.py \
 --sagemaker False \
 --num_node_types 8 \
---num_train 65000 \
---batch_s 500 \
---mini_batch_s 500 \
---num_eval 30000 \
+--num_train 3200 \
+--batch_s 32 \
+--mini_batch_s 32 \
+--num_eval 1000 \
 --seed 10 \
 --unzip False \
 --s3_stage False \
@@ -12,16 +12,17 @@ python main.py \
 --ignore_weight True \
 --test_set True \
 --save_model_freq 2 \
---lr 0.001 \
+--lr 0.0001 \
 --train_iter_n 200 \
 --model_version 4 \
 --model_sub_version 0 \
 --source_types 0,1,2,3,4,5,6,7 \
 --dataset_id 0 \
+--input_type batch \
 --feature_size 7 \
---out_embed_s 16 \
---hidden_channels 16 \
---model_path ../model_save_HetGCN_gcn3 \
+--out_embed_s 300 \
+--hidden_channels 300 \
+--model_path ../model_save_HetGCN_gcn4 \
 --data_path ../ProcessedData_HetGCN
 
 
