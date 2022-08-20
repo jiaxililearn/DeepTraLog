@@ -7,30 +7,23 @@ from torch_scatter import scatter_add
 from torch_geometric.utils import add_remaining_self_loops, degree
 
 
-class HetGCNConv_7(MessagePassing):
+class HetGCNConv_7_1(MessagePassing):
     """
     self implemented w/o existing MP lib
     """
-    def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16,
-                 num_hidden_conv_layers=1, num_src_types=2):
+    def __init__(self, in_channels, out_channels, num_node_types, hidden_channels=16, num_src_types=2):
         super().__init__()
         self.in_channels = in_channels
         self.num_node_types = num_node_types
         self.hidden_channels = hidden_channels
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.num_src_types = num_src_types
-        self.num_hidden_conv_layers = num_hidden_conv_layers
 
-        # self.k = 12
         # first het node hidden layer
-        hidden_conv_layers = []
-
-        for _ in range(num_hidden_conv_layers):
-            fc_node_content_layers = []
-            for _ in range(self.num_node_types * self.num_src_types):
-                fc_node_content_layers.append(torch.nn.Linear(in_channels, hidden_channels, bias=True))
-            hidden_conv_layers.append(torch.nn.ModuleList(fc_node_content_layers))
-        self.hidden_conv_layers = hidden_conv_layers
+        fc_node_content_layers = []
+        for _ in range(self.num_node_types * self.num_src_types):
+            fc_node_content_layers.append(torch.nn.Linear(in_channels, hidden_channels, bias=True))
+        self.fc_node_content_layers = torch.nn.ModuleList(fc_node_content_layers)
 
         # 2nd het node hidden layer
         fc_node_content_layers2 = []
@@ -48,11 +41,10 @@ class HetGCNConv_7(MessagePassing):
         """
         reset parameters from Layers and Parameters
         """
-        for hidden_layers in self.hidden_conv_layers:
-            for lin in hidden_layers:
-                lin.reset_parameters()
+        for lin in self.fc_node_content_layers:
+            lin.reset_parameters()
         self.fc_het_layer.reset_parameters()
-
+    
     def forward(self, graph_data, source_types=[0, 1]):
         """
         forward method
@@ -72,17 +64,11 @@ class HetGCNConv_7(MessagePassing):
             else:
                 het_edge_index, het_edge_weight = self._norm(het_edge_index, size=node_feature.size(0),
                                                              edge_weight=het_edge_weight)
-
-                content_h = self.hidden_conv_layers[0][ntype](node_feature)
+                content_h = self.fc_node_content_layers[ntype](node_feature)
                 content_h = self.propagate(het_edge_index, x=content_h, edge_weight=het_edge_weight)
                 content_h = self.relu(content_h)
 
-                for i in range(1, self.num_hidden_conv_layers):
-                    content_h = self.hidden_conv_layers[i][ntype](content_h)
-                    content_h = self.propagate(het_edge_index, x=content_h, edge_weight=het_edge_weight)
-                    content_h = self.relu(content_h)
-
-                # adding more layers
+                # 2nd layer het conv
                 content_h = self.fc_node_content_layers2[ntype](content_h)
                 content_h = self.propagate(het_edge_index, x=content_h, edge_weight=het_edge_weight)
                 content_h = self.relu(content_h)

@@ -2,6 +2,7 @@
 import torch
 from torch import nn
 from HetGCNConv_7 import HetGCNConv_7
+from HetGCNConv_7_1 import HetGCNConv_7_1
 
 
 class HetGCN_7(nn.Module):
