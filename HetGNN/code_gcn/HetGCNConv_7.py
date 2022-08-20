@@ -32,12 +32,6 @@ class HetGCNConv_7(MessagePassing):
             hidden_conv_layers.append(fc_node_content_layers)
         self.hidden_conv_layers = torch.nn.ModuleList(hidden_conv_layers)
 
-        # 2nd het node hidden layer
-        fc_node_content_layers2 = []
-        for _ in range(self.num_node_types * self.num_src_types):
-            fc_node_content_layers2.append(torch.nn.Linear(in_channels, hidden_channels, bias=True))
-        self.fc_node_content_layers2 = torch.nn.ModuleList(fc_node_content_layers2)
-
         self.fc_het_layer = torch.nn.Linear(hidden_channels * num_node_types * num_src_types, out_channels, bias=True)
 
         self.relu = torch.nn.LeakyReLU()
@@ -81,11 +75,6 @@ class HetGCNConv_7(MessagePassing):
                     content_h = self.hidden_conv_layers[i][ntype](content_h)
                     content_h = self.propagate(het_edge_index, x=content_h, edge_weight=het_edge_weight)
                     content_h = self.relu(content_h)
-
-                # adding more layers
-                content_h = self.fc_node_content_layers2[ntype](content_h)
-                content_h = self.propagate(het_edge_index, x=content_h, edge_weight=het_edge_weight)
-                content_h = self.relu(content_h)
             
             het_h_embeddings.append(content_h)
 
