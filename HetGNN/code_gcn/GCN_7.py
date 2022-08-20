@@ -27,7 +27,8 @@ class HetGCN_7(nn.Module):
         # node feature content encoder
         if model_sub_version == 0:
             self.het_node_conv = HetGCNConv_7(self.embed_d, self.out_embed_d, self.num_node_types,
-                                              hidden_channels=hidden_channels, num_hidden_conv_layers=num_hidden_conv_layers,
+                                              hidden_channels=hidden_channels,
+                                              num_hidden_conv_layers=num_hidden_conv_layers,
                                               num_src_types=len(source_types))
             print(self.het_node_conv)
         else:
