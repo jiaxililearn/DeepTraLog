@@ -30,7 +30,7 @@ class HetGCNConv_7(MessagePassing):
             for _ in range(self.num_node_types * self.num_src_types):
                 fc_node_content_layers.append(torch.nn.Linear(in_channels, hidden_channels, bias=True))
             hidden_conv_layers.append(torch.nn.ModuleList(fc_node_content_layers))
-        self.hidden_conv_layers = hidden_conv_layers
+        self.hidden_conv_layers = torch.nn.ModuleList(hidden_conv_layers)
 
         # 2nd het node hidden layer
         fc_node_content_layers2 = []

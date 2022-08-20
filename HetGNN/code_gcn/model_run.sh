@@ -57,5 +57,6 @@ python main.py \
 --feature_size 26 \
 --out_embed_s 26 \
 --hidden_channels 26 \
+--num_hidden_conv_layers 1 \
 --model_path ../model_save_HetGCN_gcn7 \
 --data_path ../ProcessedData_streamspot
