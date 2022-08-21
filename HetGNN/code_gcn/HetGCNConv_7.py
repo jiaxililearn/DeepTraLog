@@ -25,10 +25,14 @@ class HetGCNConv_7(MessagePassing):
         # first het node hidden layer
         hidden_conv_layers = []
 
-        for _ in range(num_hidden_conv_layers):
+        for i in range(num_hidden_conv_layers):
             fc_node_content_layers = []
             for _ in range(self.num_node_types * self.num_src_types):
-                fc_node_content_layers.append(torch.nn.Linear(in_channels, hidden_channels, bias=True))
+                if i == 0:
+                    _in_channels = in_channels
+                else:
+                    _in_channels = hidden_channels
+                fc_node_content_layers.append(torch.nn.Linear(_in_channels, hidden_channels, bias=True))
             hidden_conv_layers.append(torch.nn.ModuleList(fc_node_content_layers))
         self.hidden_conv_layers = torch.nn.ModuleList(hidden_conv_layers)
         print(self.hidden_conv_layers)
