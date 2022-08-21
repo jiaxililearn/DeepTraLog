@@ -180,6 +180,7 @@ class Train(object):
             print('iteration ' + str(iter_i) + ' ...')
 
             if self.sampling_size is None:
+                print('Using full training dataset')
                 batch_list = benign_gid_list.reshape(int(benign_gid_list.shape[0] / self.batch_s), self.batch_s)
             else:
                 print(f'Sampling {self.sampling_size} input data samples')
