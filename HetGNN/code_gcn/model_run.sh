@@ -38,8 +38,8 @@ python main.py \
 --sagemaker False \
 --num_node_types 8 \
 --num_train 375 \
---batch_s 125 \
---mini_batch_s 125 \
+--batch_s 25 \
+--mini_batch_s 25 \
 --num_eval 225 \
 --unzip False \
 --s3_stage False \
@@ -57,6 +57,6 @@ python main.py \
 --feature_size 26 \
 --out_embed_s 26 \
 --hidden_channels 26 \
---num_hidden_conv_layers 1 \
+--num_hidden_conv_layers 2 \
 --model_path ../model_save_HetGCN_gcn7 \
 --data_path ../ProcessedData_streamspot

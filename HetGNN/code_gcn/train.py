@@ -21,6 +21,7 @@ class Train(object):
     def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
                  save_model_freq, s3_stage, s3_bucket, s3_prefix, model_version, dataset_id,
                  ignore_weight=False, source_types=None, input_type='single',
+                 sampling_size=None,
                  test_set=True, fix_center=True, num_eval=None, unzip=False,
                  split_data=True, **kwargs):
         super(Train, self).__init__()
@@ -35,6 +36,8 @@ class Train(object):
         self.test_set = test_set
         self.split_data = split_data
         self.input_type = input_type
+
+        self.sampling_size = sampling_size
 
         self.source_types = None
 
@@ -175,7 +178,13 @@ class Train(object):
         for iter_i in range(self.train_iter_n):
             self.model.train()
             print('iteration ' + str(iter_i) + ' ...')
-            batch_list = benign_gid_list.reshape(int(benign_gid_list.shape[0] / self.batch_s), self.batch_s)
+
+            if self.sampling_size is None:
+                batch_list = benign_gid_list.reshape(int(benign_gid_list.shape[0] / self.batch_s), self.batch_s)
+            else:
+                print(f'Sampling {self.sampling_size} input data samples')
+                batch_list = np.random.choice(benign_gid_list, size=self.sampling_size)
+            print(f'Epoch data input size: {batch_list.shape}')
             avg_loss_list = []
 
             epoch_start_time = time.time()
