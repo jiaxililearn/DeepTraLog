@@ -6,6 +6,7 @@ python main.py \
 --batch_s 32 \
 --mini_batch_s 32 \
 --num_eval 30000 \
+--eval_size 10 \
 --unzip False \
 --s3_stage False \
 --split_data True \
@@ -13,7 +14,7 @@ python main.py \
 --test_set True \
 --save_model_freq 2 \
 --lr 0.0001 \
---train_iter_n 200 \
+--train_iter_n 500 \
 --model_version 7 \
 --model_sub_version 0 \
 --source_types 0,1,2,3,4,5,6,7 \

@@ -21,6 +21,7 @@ from train import Train
 @click.option('--out_embed_s', default=32, help='output feature size')
 @click.option('--num_hidden_conv_layers', default=1, help='hidden conv size for het node features')
 @click.option('--sampling_size', default=None, type=int, help='sampling size for each epoch. default None to use all training in each epoch')
+@click.option('--eval_size', default=None, type=int, help='evaluation size for each epoch. default None to use all the rest eval dataset in each epoch')
 @click.option('--seed', default=32, help='random seed')
 @click.option('--model_version', default=3, help='train with model version')
 @click.option('--model_sub_version', default=0, help='train with sub model version')

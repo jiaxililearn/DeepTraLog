@@ -21,7 +21,7 @@ class Train(object):
     def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
                  save_model_freq, s3_stage, s3_bucket, s3_prefix, model_version, dataset_id,
                  ignore_weight=False, source_types=None, input_type='single',
-                 sampling_size=None,
+                 sampling_size=None, eval_size=None,
                  test_set=True, fix_center=True, num_eval=None, unzip=False,
                  split_data=True, **kwargs):
         super(Train, self).__init__()
@@ -38,6 +38,7 @@ class Train(object):
         self.input_type = input_type
 
         self.sampling_size = sampling_size
+        self.eval_size = eval_size
 
         self.source_types = None
 
@@ -347,6 +348,8 @@ class Train(object):
         """
         if self.num_eval:
             eval_list = eval_list[:self.num_eval]
+        
+        eval_list_tmp = np.random.choice(eval_list, self.eval_size)
 
         self.model.eval()
         trace_info_df = pd.read_csv(f'{self.data_root_dir}/trace_info.csv', index_col=None)
@@ -355,20 +358,20 @@ class Train(object):
 
             if self.input_type == 'single':
                 pred_scores = []
-                for gid in eval_list:
+                for gid in eval_list_tmp:
                     _score = self.model.predict_score(self.dataset[gid]).cpu().detach().numpy()
                     pred_scores.append(_score)
             # else if 'batch' input type
             else:
-                pred_scores = self.model.predict_score(eval_list).cpu().detach().numpy()
+                pred_scores = self.model.predict_score(eval_list_tmp).cpu().detach().numpy()
 
             labels = []
-            for gid in eval_list:
+            for gid in eval_list_tmp:
                 if trace_info_df[trace_info_df['trace_id'] == gid]['trace_bool'].values[0]:
                     labels.append(0)
                 else:
                     labels.append(1)
-            # label = trace_info_df[trace_info_df['trace_id'].isin(eval_list)]['trace_bool'] \
+            # label = trace_info_df[trace_info_df['trace_id'].isin(eval_list_tmp)]['trace_bool'] \
             #     .apply(lambda x: 0 if x else 1).values
             
             # print(f'pred_scores: {pred_scores}')
