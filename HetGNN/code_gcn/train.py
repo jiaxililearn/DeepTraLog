@@ -181,11 +181,13 @@ class Train(object):
 
             if self.sampling_size is None:
                 print('Using full training dataset')
-                batch_list = benign_gid_list.reshape(int(benign_gid_list.shape[0] / self.batch_s), self.batch_s)
+                batch_list = benign_gid_list
             else:
                 print(f'Sampling {self.sampling_size} input data samples')
                 batch_list = np.random.choice(benign_gid_list, size=self.sampling_size)
+            batch_list = batch_list.reshape(int(benign_gid_list.shape[0] / self.batch_s), self.batch_s)
             print(f'Epoch data input size: {batch_list.shape}')
+
             avg_loss_list = []
 
             epoch_start_time = time.time()
