@@ -5,7 +5,6 @@ python main.py \
 --sampling_size 320 \
 --batch_s 32 \
 --mini_batch_s 32 \
---num_eval 30000 \
 --eval_size 10 \
 --unzip False \
 --s3_stage False \
