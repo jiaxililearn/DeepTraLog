@@ -62,11 +62,17 @@ def get_train_eval_test_gids(model_result_root_dir, testset=True):
     return gid_list
 
 
-def model_output(model, data):
-    _out = model(data).cpu().detach().numpy()
-    _out = _out.reshape((_out.shape[0], -1))
-    _score = model.predict_score(data).cpu().detach().numpy()
-    return _out, _score
+def model_output(model, data, batch_size=25):
+    concat_out = []
+    concat_score = []
+    for i in tqdm(range(0, len(data), batch_size)):
+        _data = data[i: i + batch_size]
+        _out = model(_data).cpu().detach().numpy()
+        _out = _out.reshape((_out.shape[0], -1))
+        _score = model.predict_score(_data).cpu().detach().numpy()
+        concat_out.append(_out)
+        concat_score.append(_score)
+    return np.concatenate(concat_out), np.concatenate(concat_score)
 
 def get_graph_results(data_root_dir, model, dataset, gid_list, input_type='single', name='train'):
     
