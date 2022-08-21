@@ -1,11 +1,11 @@
 python main.py \
 --sagemaker False \
 --num_node_types 8 \
---num_train 3200 \
+--num_train 65000 \
+--sampling_size 320 \
 --batch_s 32 \
 --mini_batch_s 32 \
---num_eval 1000 \
---seed 10 \
+--num_eval 30000 \
 --unzip False \
 --s3_stage False \
 --split_data True \
@@ -14,7 +14,7 @@ python main.py \
 --save_model_freq 2 \
 --lr 0.0001 \
 --train_iter_n 200 \
---model_version 4 \
+--model_version 7 \
 --model_sub_version 0 \
 --source_types 0,1,2,3,4,5,6,7 \
 --dataset_id 0 \
@@ -22,7 +22,8 @@ python main.py \
 --feature_size 7 \
 --out_embed_s 300 \
 --hidden_channels 300 \
---model_path ../model_save_HetGCN_gcn4 \
+--num_hidden_conv_layers 1 \
+--model_path ../model_save_tralog_gcn7 \
 --data_path ../ProcessedData_HetGCN
 
 
