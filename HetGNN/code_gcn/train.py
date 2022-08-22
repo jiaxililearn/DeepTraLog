@@ -349,7 +349,10 @@ class Train(object):
         if self.num_eval:
             eval_list = eval_list[:self.num_eval]
         
-        eval_list_tmp = np.random.choice(eval_list, self.eval_size)
+        if self.eval_size is not None:
+            eval_list_tmp = np.random.choice(eval_list, self.eval_size)
+        else:
+            eval_list_tmp = eval_list
 
         self.model.eval()
         trace_info_df = pd.read_csv(f'{self.data_root_dir}/trace_info.csv', index_col=None)
