@@ -2,6 +2,7 @@
 import torch
 from torch import nn
 from HetGCNConv_7 import HetGCNConv_7
+from HetGCNConv_7_1 import HetGCNConv_7_1
 
 class HetGCN_7(nn.Module):
     def __init__(self, model_path=None, dataset=None, source_types=None,
@@ -30,9 +31,16 @@ class HetGCN_7(nn.Module):
                                               hidden_channels=hidden_channels,
                                               num_hidden_conv_layers=num_hidden_conv_layers,
                                               num_src_types=len(source_types))
-            print(f'num_hidden_conv_layers: {num_hidden_conv_layers}')
+        elif model_sub_version == 1:
+            self.het_node_conv = HetGCNConv_7_1(self.embed_d, self.out_embed_d, self.num_node_types,
+                                                hidden_channels=hidden_channels,
+                                                num_hidden_conv_layers=num_hidden_conv_layers,
+                                                num_src_types=len(source_types))
+
         else:
             pass
+
+        print(f'num_hidden_conv_layers: {num_hidden_conv_layers}')
 
         # Others
         self.relu = nn.LeakyReLU()
