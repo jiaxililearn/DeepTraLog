@@ -3,6 +3,7 @@ python main.py \
 --num_node_types 8 \
 --num_edge_types 4 \
 --num_train 65000 \
+--source_types 0,1,2,3,4,5,6,7 \
 --sampling_size 320 \
 --batch_s 32 \
 --mini_batch_s 32 \
@@ -17,7 +18,6 @@ python main.py \
 --train_iter_n 500 \
 --model_version 8 \
 --model_sub_version 0 \
---source_types 0,1,2,3,4,5,6,7 \
 --dataset_id 0 \
 --input_type batch \
 --feature_size 7 \

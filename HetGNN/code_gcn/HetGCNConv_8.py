@@ -96,11 +96,11 @@ class HetGCNConv_8(MessagePassing):
 
         # max pooling
         combined_het_embedding, _ = torch.max(combined_het_embedding, dim=0)
-        # print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
+        print(f'combined_het_embedding shape: {combined_het_embedding.shape}')
         # print(f'combined_het_embedding: {combined_het_embedding}')
 
         out = self.fc_het_layer(combined_het_embedding.view(1, -1))
-        # print(f'out shape: {out.shape}')
+        print(f'out shape: {out.shape}')
         return out
 
     def get_het_edge_index(self, edge_index, edge_weight, node_types, ntype, source_types=None,
