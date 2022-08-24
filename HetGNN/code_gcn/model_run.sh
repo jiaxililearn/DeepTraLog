@@ -14,7 +14,7 @@ python main.py \
 --save_model_freq 2 \
 --lr 0.0001 \
 --train_iter_n 500 \
---model_version 7 \
+--model_version 8 \
 --model_sub_version 0 \
 --source_types 0,1,2,3,4,5,6,7 \
 --dataset_id 0 \
@@ -23,13 +23,12 @@ python main.py \
 --out_embed_s 300 \
 --hidden_channels 300 \
 --num_hidden_conv_layers 1 \
---model_path ../model_save_tralog_gcn7 \
+--model_path ../model_save_tralog_gcn8 \
 --data_path ../ProcessedData_HetGCN
 
 
 sudo update-alternatives --config gcc
 sudo ln -sfT /usr/local/cuda-10.2/ /usr/local/cuda
-
 pip install torch==1.9.1
 pip install torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geometric -f https://data.pyg.org/whl/torch-1.9.1+cu102.html
 
