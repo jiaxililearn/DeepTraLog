@@ -1,6 +1,7 @@
 python main.py \
 --sagemaker False \
 --num_node_types 8 \
+--num_edge_types 4 \
 --num_train 65000 \
 --sampling_size 320 \
 --batch_s 32 \
