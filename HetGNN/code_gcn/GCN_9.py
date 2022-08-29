@@ -30,7 +30,7 @@ class HetGCN_9(nn.Module):
 
             self.attn = nn.Sequential(
                 nn.Linear(self.embed_d, out_embed_s),
-                nn.Tanh()
+                nn.Sigmoid()
             )
 
         else:
@@ -77,9 +77,9 @@ class HetGCN_9(nn.Module):
             attn_w = self.attn(node_feature)
 
             # graph embedding
-            print(f'h: {h.shape}')
-            print(f'attn: {attn_w.shape}')
-            _out[i] = h * attn_w
+            torch.sum(h * attn_w, 1)
+
+            _out[i] = torch.sum(h * attn_w, 1)
         return _out
 
     # def graph_node_pooling(self, graph_node_het_embedding):
