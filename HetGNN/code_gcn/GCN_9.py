@@ -29,7 +29,7 @@ class HetGCN_9(nn.Module):
             self.conv3 = GCNConv(hidden_channels, out_embed_s)
 
             self.attn = nn.Sequential(
-                nn.Linear(out_embed_s, out_embed_s),
+                nn.Linear(self.embed_d, out_embed_s),
                 nn.Tanh()
             )
 
