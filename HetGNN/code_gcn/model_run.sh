@@ -10,7 +10,7 @@ python main.py \
 --eval_size 10 \
 --unzip False \
 --s3_stage False \
---split_data True \
+--split_data False \
 --ignore_weight True \
 --test_set True \
 --save_model_freq 2 \
@@ -61,3 +61,30 @@ python main.py \
 --num_hidden_conv_layers 2 \
 --model_path ../model_save_HetGCN_gcn7 \
 --data_path ../ProcessedData_streamspot
+
+
+# DeepTraLog Baseline
+python main.py \
+--sagemaker False \
+--num_train 65000 \
+--sampling_size 320 \
+--batch_s 32 \
+--mini_batch_s 32 \
+--eval_size 10 \
+--unzip False \
+--s3_stage False \
+--split_data False \
+--ignore_weight True \
+--test_set True \
+--save_model_freq 2 \
+--lr 0.0001 \
+--train_iter_n 200 \
+--model_version 9 \
+--model_sub_version 0 \
+--dataset_id 0 \
+--input_type batch \
+--feature_size 7 \
+--out_embed_s 300 \
+--hidden_channels 300 \
+--model_path ../model_save_tralog_gcn9 \
+--data_path ../ProcessedData_HetGCN
