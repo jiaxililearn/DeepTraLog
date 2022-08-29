@@ -181,6 +181,7 @@ class Train(object):
 
         self.parameters = filter(lambda p: p.requires_grad, self.model.parameters())
         self.optim = optim.Adam(self.parameters, lr=self.lr, weight_decay=0)
+        self.scheduler = torch.optim.lr_scheduler.MultiStepLR(self.optim, milestones=[60, 120], gamma=0.1)
         self.model.init_weights()
 
         print(self.model)
@@ -243,6 +244,7 @@ class Train(object):
                 self.optim.zero_grad()
                 batch_loss.backward(retain_graph=True)
                 self.optim.step()
+                self.scheduler.step()
                 print(f'\t Batch Loss: {batch_loss}; Batch Time: {time.time()-batch_start_time}s;')
 
             epoch_loss_list.append(np.mean(avg_loss_list))
