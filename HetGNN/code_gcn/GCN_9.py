@@ -78,7 +78,7 @@ class HetGCN_9(nn.Module):
 
             # graph embedding
             g_embedding = torch.sum(h * attn_w, 0).tanh()
-            print(f'g_embedding: {g_embedding.shape}')
+            # print(f'g_embedding: {g_embedding.shape}')
             _out[i] = g_embedding
         return _out
 
