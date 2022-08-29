@@ -77,6 +77,8 @@ class HetGCN_9(nn.Module):
             attn_w = self.attn(node_feature)
 
             # graph embedding
+            print(f'h: {h.shape}')
+            print(f'attn: {attn_w.shape}')
             _out[i] = h * attn_w
         return _out
 
