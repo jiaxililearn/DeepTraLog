@@ -106,7 +106,7 @@ class HetGCN_9(nn.Module):
                 a_cat = torch.cat((a_in, a_out), 1)
                 # print(f'a_cat shape: {a_cat.shape}')
                 
-                # a_stack.append(a_cat)
+                a_stack.append(a_cat)
 
             a_stack = torch.stack(a_stack).view(self.num_edge_types * a_cat.shape[0], a_cat.shape[1])
             # print(f'a_stack shape: {a_stack.shape}')
