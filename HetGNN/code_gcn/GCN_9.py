@@ -2,6 +2,7 @@
 import torch
 from torch import nn
 from torch_scatter import scatter_add
+from torch_geometric.utils import add_remaining_self_loops
 
 class HetGCN_9(nn.Module):
     def __init__(self, model_path=None, dataset=None, source_types=None,
@@ -92,6 +93,8 @@ class HetGCN_9(nn.Module):
                 out_state = self.out_fcs[etype](node_feature)
                 print(f'in_state shape: {in_state.shape}')
                 print(f'out_state shape: {out_state.shape}')
+
+                edge_type_index, _ = add_remaining_self_loops(edge_index)
 
                 a_in = scatter_add(torch.index_select(in_state, 0, edge_type_index[1]),
                                    edge_type_index[0], 0)
