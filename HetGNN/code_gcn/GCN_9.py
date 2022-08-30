@@ -95,9 +95,13 @@ class HetGCN_9(nn.Module):
                                    edge_type_index[0], 0)
                 a_out = scatter_add(torch.index_select(out_state, 0, edge_type_index[0]),
                                     edge_type_index[1], 0)
+                print(f'a_in shape: {a_in.shape}')
+                print(f'a_out shape: {a_out.shape}')
                 a_cat = torch.cat((a_in, a_out), 1)
+                print(f'a_cat shape: {a_cat.shape}')
                 a_stack.append(a_cat)
             a_stack = torch.stack(a_stack)
+            print(f'a_stack shape: {a_stack.shape}')
 
             r = self.reset_gate(a_stack)
             z = self.update_gate(a_stack)
