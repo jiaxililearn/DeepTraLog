@@ -31,8 +31,8 @@ class HetGCN_9(nn.Module):
             in_fcs = []
             out_fcs = []
             for _ in range(self.num_edge_types):
-                in_fcs.append(nn.Linear(self.embed_d, self.embed_d))
-                out_fcs.append(nn.Linear(self.embed_d, self.embed_d))
+                in_fcs.append(nn.Linear(self.embed_d, self.hidden_channels))
+                out_fcs.append(nn.Linear(self.embed_d, self.hidden_channels))
             self.in_fcs = torch.nn.ModuleList(in_fcs)
             self.out_fcs = torch.nn.ModuleList(out_fcs)
             
@@ -45,7 +45,7 @@ class HetGCN_9(nn.Module):
                 nn.Sigmoid()
             )
             self.tansform = nn.Sequential(
-                nn.Linear(self.embed_d * 3, self.hidden_channels),
+                nn.Linear(self.hidden_channels * 3, self.hidden_channels),
                 nn.Tanh()
             )
 
