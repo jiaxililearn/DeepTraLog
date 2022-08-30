@@ -49,9 +49,8 @@ class HetGCN_9(nn.Module):
             )
 
             self.out = nn.Sequential(
-                nn.Linear(self.state_dim + self.annotation_dim, self.state_dim),
-                nn.Tanh(),
-                nn.Linear(self.state_dim, 1)
+                nn.Linear(self.hidden_channels, self.out_embed_d),
+                nn.Tanh()
             )
 
         else:
