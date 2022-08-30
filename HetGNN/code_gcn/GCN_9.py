@@ -1,12 +1,12 @@
 # from tqdm import tqdm
 import torch
 from torch import nn
-from torch_geometric.nn import GCNConv
+from torch_scatter import scatter_add
 
 class HetGCN_9(nn.Module):
     def __init__(self, model_path=None, dataset=None, source_types=None,
                  feature_size=7, out_embed_s=32, random_seed=32, hidden_channels=16,
-                 model_sub_version=0, **kwargs):
+                 model_sub_version=0, num_edge_types=1, **kwargs):
         """
         DeepTraLog Paper Baseline implemented
         """
@@ -21,23 +21,44 @@ class HetGCN_9(nn.Module):
 
         self.embed_d = feature_size
         self.out_embed_d = out_embed_s
+        self.hidden_channels = hidden_channels
+
+        self.num_edge_types = num_edge_types
 
         # node feature content encoder
         if model_sub_version == 0:
-            self.conv1 = GCNConv(self.embed_d, hidden_channels)
-            self.conv2 = GCNConv(hidden_channels, hidden_channels)
-            self.conv3 = GCNConv(hidden_channels, out_embed_s)
-
-            self.attn = nn.Sequential(
-                nn.Linear(self.embed_d, out_embed_s),
+            in_fcs = []
+            out_fcs = []
+            for _ in range(self.num_edge_types):
+                in_fcs.append(nn.Linear(self.embed_d, self.self.embed_d))
+                out_fcs.append(nn.Linear(self.embed_d, self.self.embed_d))
+            self.in_fcs = torch.nn.ModuleList(in_fcs)
+            self.out_fcs = torch.nn.ModuleList(out_fcs)
+            
+            self.reset_gate = nn.Sequential(
+                nn.Linear(self.embed_d * 2, self.hidden_channels),
                 nn.Sigmoid()
+            )
+            self.update_gate = nn.Sequential(
+                nn.Linear(self.embed_d * 2, self.hidden_channels),
+                nn.Sigmoid()
+            )
+            self.tansform = nn.Sequential(
+                nn.Linear(self.embed_d * 3, self.hidden_channels),
+                nn.Tanh()
+            )
+
+            self.out = nn.Sequential(
+                nn.Linear(self.state_dim + self.annotation_dim, self.state_dim),
+                nn.Tanh(),
+                nn.Linear(self.state_dim, 1)
             )
 
         else:
             pass
 
         # Others
-        self.relu = nn.LeakyReLU()
+        self.relu = nn.Tanh()
         self.sigmoid = nn.Sigmoid()
 
     def init_weights(self):
@@ -47,7 +68,8 @@ class HetGCN_9(nn.Module):
         for m in self.modules():
             if isinstance(m, nn.Linear) or isinstance(m, nn.Parameter):
                 # nn.init.xavier_uniform_(m.weight)
-                nn.init.xavier_normal_(m.weight)
+                # nn.init.xavier_normal_(m.weight)
+                m.weight.data.normal_(0.0, 0.02)
                 if m.bias is not None:
                     m.bias.data.fill_(0.1)
 
@@ -61,34 +83,41 @@ class HetGCN_9(nn.Module):
         # print(f'x_edge_index shape: {x_edge_index.shape}')
         _out = torch.zeros(len(gid_batch), self.out_embed_d, device=self.device)
         for i, g_data in enumerate(batch_data):
-            node_feature, edge_index, _, _ = g_data
+            node_feature, edge_index, (_, edge_type), _ = g_data
+            
+            a_stack = []
+            for etype in range(self.num_edge_types):
+                edge_type_index = self.get_edge_index_by_edege_type(edge_index, edge_type, etype)
+                
+                in_state = self.in_fcs[etype](node_feature)
+                out_state = self.out_fcs[etype](node_feature)
 
-            # Node Conv
-            h = self.conv1(node_feature, edge_index)
-            h = self.relu(h)
+                a_in = scatter_add(torch.index_select(in_state, 0, edge_type_index[1]),
+                                   edge_type_index[0], 0)
+                a_out = scatter_add(torch.index_select(out_state, 0, edge_type_index[0]),
+                                    edge_type_index[1], 0)
+                a_cat = torch.cat((a_in, a_out), 1)
+                a_stack.append(a_cat)
+            a_stack = torch.stack(a_stack)
 
-            h = self.conv2(h, edge_index)
-            h = self.relu(h)
+            r = self.reset_gate(a_stack)
+            z = self.update_gate(a_stack)
 
-            h = self.conv3(h, edge_index)
-            h = self.relu(h)
+            joined_input = torch.cat((a_stack, r), 1)
+            h_hat = self.tansform(joined_input)
+            prop_output = (1 - z) + z * h_hat
 
-            # soft node Attention weight
-            attn_w = self.attn(node_feature)
+            output = self.out(prop_output)
+            output = output.sum(0)
+            print(f'output shape: {output.shape}')
 
-            # graph embedding
-            g_embedding = torch.sum(h * attn_w, 0).tanh()
-            # print(f'g_embedding: {g_embedding.shape}')
-            _out[i] = g_embedding
+            _out[i] = output
         return _out
 
-    # def graph_node_pooling(self, graph_node_het_embedding):
-    #     """
-    #     average all the node het embedding
-    #     """
-    #     if graph_node_het_embedding.shape[0] == 1:
-    #         return graph_node_het_embedding
-    #     return torch.mean(graph_node_het_embedding, 0)
+    def get_edge_index_by_edege_type(self, edge_index, edge_type_list, etype):
+        row, col = edge_index
+        edge_mask = edge_type_list == etype
+        return torch.stack([row[edge_mask], col[edge_mask]])
 
     def set_svdd_center(self, center):
         """
