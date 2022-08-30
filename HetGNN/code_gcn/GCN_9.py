@@ -30,8 +30,8 @@ class HetGCN_9(nn.Module):
             in_fcs = []
             out_fcs = []
             for _ in range(self.num_edge_types):
-                in_fcs.append(nn.Linear(self.embed_d, self.self.embed_d))
-                out_fcs.append(nn.Linear(self.embed_d, self.self.embed_d))
+                in_fcs.append(nn.Linear(self.embed_d, self.embed_d))
+                out_fcs.append(nn.Linear(self.embed_d, self.embed_d))
             self.in_fcs = torch.nn.ModuleList(in_fcs)
             self.out_fcs = torch.nn.ModuleList(out_fcs)
             

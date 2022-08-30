@@ -67,6 +67,7 @@ python main.py \
 python main.py \
 --sagemaker False \
 --num_train 65000 \
+--num_edge_types 4 \
 --sampling_size 320 \
 --batch_s 32 \
 --mini_batch_s 32 \
