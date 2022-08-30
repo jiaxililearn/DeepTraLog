@@ -91,8 +91,8 @@ class HetGCN_9(nn.Module):
                 
                 in_state = self.in_fcs[etype](node_feature)
                 out_state = self.out_fcs[etype](node_feature)
-                print(f'in_state shape: {in_state.shape}')
-                print(f'out_state shape: {out_state.shape}')
+                # print(f'in_state shape: {in_state.shape}')
+                # print(f'out_state shape: {out_state.shape}')
 
                 edge_type_index, _ = add_remaining_self_loops(edge_index)
 
@@ -100,29 +100,29 @@ class HetGCN_9(nn.Module):
                                    edge_type_index[0], 0)
                 a_out = scatter_add(torch.index_select(out_state, 0, edge_type_index[0]),
                                     edge_type_index[1], 0)
-                print(f'a_in shape: {a_in.shape}')
-                print(f'a_out shape: {a_out.shape}')
+                # print(f'a_in shape: {a_in.shape}')
+                # print(f'a_out shape: {a_out.shape}')
                 
                 a_cat = torch.cat((a_in, a_out), 1)
-                print(f'a_cat shape: {a_cat.shape}')
+                # print(f'a_cat shape: {a_cat.shape}')
                 
-                a_stack.append(a_cat)
+                # a_stack.append(a_cat)
 
             a_stack = torch.stack(a_stack).view(self.num_edge_types * a_cat.shape[0], a_cat.shape[1])
-            print(f'a_stack shape: {a_stack.shape}')
+            # print(f'a_stack shape: {a_stack.shape}')
 
             r = self.reset_gate(a_stack)
             z = self.update_gate(a_stack)
             
             joined_input = torch.cat((a_stack, r), 1)
-            print(f'joined_input shape: {joined_input.shape}')
+            # print(f'joined_input shape: {joined_input.shape}')
 
             h_hat = self.tansform(joined_input)
             prop_output = (1 - z) + z * h_hat
 
             output = self.out(prop_output)
             output = output.sum(0)
-            print(f'output shape: {output.shape}')
+            # print(f'output shape: {output.shape}')
 
             _out[i] = output
         return _out
