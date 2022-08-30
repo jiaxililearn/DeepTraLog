@@ -37,11 +37,11 @@ class HetGCN_9(nn.Module):
             self.out_fcs = torch.nn.ModuleList(out_fcs)
             
             self.reset_gate = nn.Sequential(
-                nn.Linear(self.embed_d * 2, self.hidden_channels),
+                nn.Linear(self.hidden_channels * 2, self.hidden_channels),
                 nn.Sigmoid()
             )
             self.update_gate = nn.Sequential(
-                nn.Linear(self.embed_d * 2, self.hidden_channels),
+                nn.Linear(self.hidden_channels * 2, self.hidden_channels),
                 nn.Sigmoid()
             )
             self.tansform = nn.Sequential(
