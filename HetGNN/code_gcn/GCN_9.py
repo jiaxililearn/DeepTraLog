@@ -90,6 +90,8 @@ class HetGCN_9(nn.Module):
                 
                 in_state = self.in_fcs[etype](node_feature)
                 out_state = self.out_fcs[etype](node_feature)
+                print(f'in_state shape: {in_state.shape}')
+                print(f'out_state shape: {out_state.shape}')
 
                 a_in = scatter_add(torch.index_select(in_state, 0, edge_type_index[1]),
                                    edge_type_index[0], 0)
