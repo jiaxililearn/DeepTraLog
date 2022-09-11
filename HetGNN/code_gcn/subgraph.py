@@ -28,7 +28,7 @@ class Subgraph:
         for i in range(self.node_num):
             self.adj_list[i] = set()
         for i in range(self.edge_num):
-            u, v = self.edge_index[0][i], self.edge_index[1][i]
+            u, v = self.edge_index[0][i].item(), self.edge_index[1][i].item()
             self.adj_list[u].add(v)
             self.adj_list[v].add(u)
 
