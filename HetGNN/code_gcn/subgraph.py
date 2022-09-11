@@ -43,6 +43,7 @@ class Subgraph:
         edge_types = []
 
         for i in idx:
+            print(i)
             edge = list(self.adj_list[i] & nodes)
 
             print(edge)
