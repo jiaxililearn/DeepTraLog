@@ -64,11 +64,11 @@ class PPR:
     def search_all(self, node_num, path):
         neighbor = {}
         if (
-            os.path.isfile(path + "_neighbor")
-            and os.stat(path + "_neighbor").st_size != 0
+            os.path.isfile(path + f"/ppr_neighbor{self.gid}.pt")
+            and os.stat(path + f"/ppr_neighbor{self.gid}.pt").st_size != 0
         ):
             print("Exists neighbor file")
-            neighbor = torch.load(path + "_neighbor")
+            neighbor = torch.load(path + f"/ppr_neighbor{self.gid}.pt")
         else:
             print("Extracting subgraphs")
             os.system("mkdir {}".format(path))
