@@ -9,16 +9,16 @@ from ppr import PPR
 class Subgraph:
     # Class for subgraph extraction
 
-    def __init__(self, gid, x, edge_index, path, maxsize=50, n_order=10):
+    def __init__(self, gid, data, path, maxsize=50, n_order=10):
         self.gid = gid
-        self.x = x
+        self.x, self.edge_index, (_, self.edge_type), self.node_types = data
+
         self.path = path
-        self.edge_index = edge_index
-        self.edge_num = edge_index[0].size(0)
-        self.node_num = x.size(0)
+        self.edge_num = self.edge_index[0].size(0)
+        self.node_num = self.x.size(0)
         self.maxsize = maxsize
 
-        self.ppr = PPR(gid, x, edge_index, n_order=n_order)
+        self.ppr = PPR(gid, self.x, self.edge_index, n_order=n_order)
 
         self.neighbor = {}
         self.adj_list = {}
@@ -40,13 +40,22 @@ class Subgraph:
 
         new_index = [[], []]
         nodes = set(idx)
+        edge_types = []
+
         for i in idx:
             edge = list(self.adj_list[i] & nodes)
+
+            # resolve edge types
+            cond = (self.edge_index[0] == i) & (
+                sum(self.edge_index[1] == k for k in edge).bool()
+            )
+            edge_types += self.edge_type[cond].tolist()
+
             edge = [dic[_] for _ in edge]
             # edge = [_ for _ in edge if _ > i]
             new_index[0] += len(edge) * [dic[i]]
             new_index[1] += edge
-        return torch.LongTensor(new_index)
+        return torch.LongTensor(new_index), edge_types
 
     def adjust_x(self, idx):
         # Generate node features for subgraphs
@@ -67,8 +76,8 @@ class Subgraph:
         for i in range(self.node_num):
             nodes = self.neighbor[i][: self.maxsize]
             x = self.adjust_x(nodes)
-            edge = self.adjust_edge(nodes)
-            self.subgraph[i] = Data(x, edge)
+            edge, edge_types = self.adjust_edge(nodes)
+            self.subgraph[i] = Data(x, edge, edge_types)
         torch.save(self.subgraph, self.path + f"_subgraph{self.gid}.pt")
 
     def search(self, node_list):
