@@ -15,6 +15,9 @@ class PPR:
         edge_num = edge_index.shape[1]
         node_num = x.shape[0]
 
+        x = x.cpu().numpy()
+        edge_index = edge_index.cpu().numpy()
+
         sp_adj = sp.csc_matrix(
             (np.ones(edge_num), (edge_index[0], edge_index[1])),
             shape=[node_num, node_num],

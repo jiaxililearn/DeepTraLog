@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 
 
 class HetGCNEventGraphDataset(Dataset):
-    def __init__(self, node_feature_csv, edge_index_csv=None, node_type_txt=None, transform=None, ignore_weight=False, include_edge_type=False, **kwargs):
+    def __init__(self, node_feature_csv, edge_index_csv=None, node_type_txt=None, transform=None, ignore_weight=False, include_edge_type=False, limit=None, **kwargs):
         """
         node_feature_csv: path to the node feature csv file
         het_neigh_root: path to the het neighbour list root dir
