@@ -9,7 +9,8 @@ from cytoolz import curry
 
 class PPR:
     # Node-wise personalized pagerank
-    def __init__(self, x, edge_index, maxsize=200, n_order=2, alpha=0.85):
+    def __init__(self, gid, x, edge_index, maxsize=200, n_order=2, alpha=0.85):
+        self.gid = gid
         self.n_order = n_order
         self.maxsize = maxsize
         edge_num = edge_index.shape[1]
@@ -81,7 +82,7 @@ class PPR:
             print("Finish Extracting")
             for i in range(node_num):
                 neighbor[i] = torch.load(os.path.join(path, "ppr{}".format(i)))
-            torch.save(neighbor, path + "/ppr_neighbor.pt")
-            # os.system("rm -r {}".format(path))
+            torch.save(neighbor, path + f"/ppr_neighbor{self.gid}.pt")
+            os.system("rm -r {}".format(path))
             print("Finish Writing")
         return neighbor
