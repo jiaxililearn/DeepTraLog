@@ -30,3 +30,7 @@ class SubgraphGenerator(object):
             list(
                 pool.imap_unordered(self.process_ppr, list(range(1000)), chunksize=1000)
             )
+
+if __name__ == '__main__':
+    sub = SubgraphGenerator()
+    sub.run()
