@@ -35,11 +35,11 @@ class PPR:
         for _ in range(self.n_order):
             x = (1 - alpha) * r + alpha * self.P @ x
         scores = x.data / (self.d[x.indices] + 1e-9)
+        
+        print(f'a: {x.data}')
 
-        print(f'a: {x.indices}')
 
         idx = scores.argsort()[::-1][: self.maxsize]
-        print(f'a: {idx}')
         neighbor = np.array(x.indices[idx])
 
         seed_idx = np.where(neighbor == seed)[0]
