@@ -64,11 +64,11 @@ class PPR:
     def search_all(self, node_num, path):
         neighbor = {}
         if (
-            os.path.isfile(path + f"/ppr_neighbor{self.gid}.pt")
-            and os.stat(path + f"/ppr_neighbor{self.gid}.pt").st_size != 0
+            os.path.isfile(path + f"_ppr_neighbor{self.gid}.pt")
+            and os.stat(path + f"_ppr_neighbor{self.gid}.pt").st_size != 0
         ):
             print("Exists neighbor file")
-            neighbor = torch.load(path + f"/ppr_neighbor{self.gid}.pt")
+            neighbor = torch.load(path + f"_ppr_neighbor{self.gid}.pt")
         else:
             print("Extracting subgraphs")
             os.system("mkdir {}".format(path))
@@ -82,7 +82,7 @@ class PPR:
             print("Finish Extracting")
             for i in range(node_num):
                 neighbor[i] = torch.load(os.path.join(path, "ppr{}".format(i)))
-            torch.save(neighbor, path + f"/ppr_neighbor{self.gid}.pt")
+            torch.save(neighbor, path + f"_ppr_neighbor{self.gid}.pt")
             os.system("rm -r {}".format(path))
             print("Finish Writing")
         return neighbor
