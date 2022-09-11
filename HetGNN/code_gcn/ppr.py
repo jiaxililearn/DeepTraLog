@@ -31,7 +31,8 @@ class PPR:
         x = sp.csc_matrix(
             (np.ones(1), ([seed], np.zeros(1, dtype=int))), shape=[self.P.shape[0], 1]
         )
-        print(f'a: {x.data}')
+        print(f'a: {x.toarray()}')
+        print(f'a: {x.toarray().shape}')
 
         r = x.copy()
         for _ in range(self.n_order):
