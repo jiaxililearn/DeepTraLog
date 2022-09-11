@@ -51,13 +51,13 @@ class Subgraph:
                     sum(self.edge_index[1] == k for k in edge).bool()
                 )
                 edge_types += self.edge_type[cond].tolist()
-            else:
-                print(edge)
 
             edge = [dic[_] for _ in edge]
             # edge = [_ for _ in edge if _ > i]
             new_index[0] += len(edge) * [dic[i]]
             new_index[1] += edge
+            
+            print(len(new_index[0]), len(edge_types))
         return torch.LongTensor(new_index), torch.LongTensor(edge_types)
 
     def adjust_x(self, idx):
