@@ -55,7 +55,7 @@ class Subgraph:
             # edge = [_ for _ in edge if _ > i]
             new_index[0] += len(edge) * [dic[i]]
             new_index[1] += edge
-        return torch.LongTensor(new_index), edge_types
+        return torch.LongTensor(new_index), torch.LongTensor(edge_types)
 
     def adjust_x(self, idx):
         # Generate node features for subgraphs
