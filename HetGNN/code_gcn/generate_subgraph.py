@@ -23,8 +23,8 @@ class SubgraphGenerator(object):
             include_edge_type=True,
         )
 
-    def process_ppr(self, gids):
-        for gid in tqdm(gids):
+    def process_ppr(self, gidstart, gidend):
+        for gid in tqdm(range(gidstart, gidend)):
             x, edge_index, (_, edge_type), node_types = self.dataset[gid]
             ppr = PPR(gid, x, edge_index, n_order=10)
             ppr.search_all(x.shape[0], self.ppr_path)
@@ -33,7 +33,7 @@ class SubgraphGenerator(object):
         chunk_size = 500
         num_nodes = 1000  # 132485
         threads = [
-            Thread(target=self.process_ppr, args=(list(range(i, i + chunk_size))))
+            Thread(target=self.process_ppr, args=(i, min(num_nodes, i + chunk_size)))
             for i in range(0, num_nodes, chunk_size)
         ]
 
