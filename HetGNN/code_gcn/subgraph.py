@@ -61,7 +61,6 @@ class Subgraph:
             new_index[0] += len(edge) * [dic[i]]
             new_index[1] += edge
 
-            print(len(new_index[0]), len(edge_types))
         return torch.LongTensor(new_index), torch.LongTensor(edge_types)
 
     def adjust_x(self, idx):
@@ -90,7 +89,7 @@ class Subgraph:
             nodes = self.neighbor[i][: self.maxsize]
             x, node_types = self.adjust_x(nodes)
             edge, edge_types = self.adjust_edge(nodes)
-            self.subgraph[i] = Data(x, edge).to_heterogeneous(node_type=node_types, edge_type=edge_types)
+            self.subgraph[i] = Data(x, edge, edge_types).to_heterogeneous(node_type=node_types)
         torch.save(self.subgraph, self.path + f"_subgraph{self.gid}.pt")
 
     def search(self, node_list):
