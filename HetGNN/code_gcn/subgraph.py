@@ -46,10 +46,11 @@ class Subgraph:
             edge = list(self.adj_list[i] & nodes)
 
             # resolve edge types
-            cond = (self.edge_index[0] == i) & (
-                sum(self.edge_index[1] == k for k in edge).bool()
-            )
-            edge_types += self.edge_type[cond].tolist()
+            if len(edge) > 0:
+                cond = (self.edge_index[0] == i) & (
+                    sum(self.edge_index[1] == k for k in edge).bool()
+                )
+                edge_types += self.edge_type[cond].tolist()
 
             edge = [dic[_] for _ in edge]
             # edge = [_ for _ in edge if _ > i]
