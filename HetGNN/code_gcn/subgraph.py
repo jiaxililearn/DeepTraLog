@@ -51,6 +51,8 @@ class Subgraph:
                     sum(self.edge_index[1] == k for k in edge).bool()
                 )
                 edge_types += self.edge_type[cond].tolist()
+            else:
+                print(edge)
 
             edge = [dic[_] for _ in edge]
             # edge = [_ for _ in edge if _ > i]
