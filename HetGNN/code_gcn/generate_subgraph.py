@@ -34,8 +34,8 @@ class SubgraphGenerator(object):
             subgraph.build()
 
     def run(self):
-        chunk_size = 15000
-        num_nodes = 132485
+        chunk_size = 50#15000
+        num_nodes = 100#132485
         threads = [
             Thread(target=self.process_ppr, args=(i, min(num_nodes, i + chunk_size)))
             for i in range(0, num_nodes, chunk_size)
