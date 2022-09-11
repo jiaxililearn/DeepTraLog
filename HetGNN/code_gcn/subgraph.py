@@ -89,7 +89,7 @@ class Subgraph:
             nodes = self.neighbor[i][: self.maxsize]
             x, node_types = self.adjust_x(nodes)
             edge, edge_types = self.adjust_edge(nodes)
-            self.subgraph[i] = Data(x, edge, edge_types).to_heterogeneous(node_types, edge_types, node_types, edge_types)
+            self.subgraph[i] = Data(x, edge, edge_types).to_heterogeneous(None, edge_types, None, edge_types)
         torch.save(self.subgraph, self.path + f"_subgraph{self.gid}.pt")
 
     def search(self, node_list):
