@@ -59,7 +59,8 @@ class PPR:
         if not os.path.isfile(ppr_path) or os.stat(ppr_path).st_size == 0:
             # print("Processing node {}.".format(seed))
             neighbor = self.search(seed)
-            torch.save(neighbor, ppr_path)
+            # torch.save(neighbor, ppr_path)
+            return neighbor
         else:
             print("File of node {} exists.".format(seed))
 
@@ -73,18 +74,19 @@ class PPR:
             neighbor = torch.load(path + f"_neighbor{self.gid}.pt")
         else:
             # print("Extracting subgraphs")
-            os.system("mkdir {}".format(path))
-            with mp.Pool() as pool:
-                list(
-                    pool.imap_unordered(
-                        self.process(path), list(range(node_num)), chunksize=1000
-                    )
-                )
+            # os.system("mkdir {}".format(path))
+            # with mp.Pool() as pool:
+            #     list(
+            #         pool.imap_unordered(
+            #             self.process(path), list(range(node_num)), chunksize=1000
+            #         )
+            #     )
 
             # print("Finish Extracting")
             for i in range(node_num):
-                neighbor[i] = torch.load(os.path.join(path, "ppr{}".format(i)))
+                neighbor[i] = self.process(path, i)
+                # torch.load(os.path.join(path, "ppr{}".format(i)))
             torch.save(neighbor, path + f"_neighbor{self.gid}.pt")
-            os.system("rm -r {}".format(path))
+            # os.system("rm -r {}".format(path))
             # print("Finish Writing")
         return neighbor
