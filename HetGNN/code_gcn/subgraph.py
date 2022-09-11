@@ -13,7 +13,7 @@ class Subgraph:
         self.gid = gid
         self.x = x
         self.path = path
-        self.edge_index = np.array(edge_index)
+        self.edge_index = edge_index
         self.edge_num = edge_index[0].size(0)
         self.node_num = x.size(0)
         self.maxsize = maxsize
