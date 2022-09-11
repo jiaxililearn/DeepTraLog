@@ -14,7 +14,7 @@ class SubgraphGenerator(object):
     def __init__(self):
         self.data_root_dir = "../ProcessedData_HetGCN"
         self.ppr_path = "../ProcessedData_HetGCN/ppr_neighbours/ppr"
-        self.subgraph_path = "../ProcessedData_HetGCN/ppr_subgraph/ppr"
+        self.subgraph_path = "../ProcessedData_HetGCN/ppr_subgraphs/ppr"
 
         self.dataset = HetGCNEventGraphDataset(
             node_feature_csv=f"{self.data_root_dir}/node_feature_norm.csv",
