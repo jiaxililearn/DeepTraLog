@@ -43,30 +43,36 @@ class Subgraph:
         edge_types = []
 
         for i in idx:
-            print(i)
             edge = list(self.adj_list[i] & nodes)
 
-            print(edge)
-            # resolve edge types
+            # resolve edge types after sampling
             if len(edge) > 0:
-                cond = ((self.edge_index[0] == i) & (
-                    sum(self.edge_index[1] == k for k in edge).bool()
-                )) | ((self.edge_index[1] == i) & (
-                    sum(self.edge_index[0] == k for k in edge).bool()
-                ))
+                cond = (
+                    (self.edge_index[0] == i)
+                    & (sum(self.edge_index[1] == k for k in edge).bool())
+                ) | (
+                    (self.edge_index[1] == i)
+                    & (sum(self.edge_index[0] == k for k in edge).bool())
+                )
                 edge_types += self.edge_type[cond].tolist()
 
             edge = [dic[_] for _ in edge]
             # edge = [_ for _ in edge if _ > i]
             new_index[0] += len(edge) * [dic[i]]
             new_index[1] += edge
-            
+
             print(len(new_index[0]), len(edge_types))
         return torch.LongTensor(new_index), torch.LongTensor(edge_types)
 
     def adjust_x(self, idx):
         # Generate node features for subgraphs
-        return self.x[idx]
+        node_types_ = []
+        for node in idx:
+            for ntype, node_list in enumerate(self.node_types):
+                if node in node_list:
+                    node_types_.append(ntype)
+
+        return self.x[idx], torch.LongTensor(node_types_)
 
     def build(self):
         # Extract subgraphs for all nodes
@@ -82,9 +88,9 @@ class Subgraph:
         self.process_adj_list()
         for i in range(self.node_num):
             nodes = self.neighbor[i][: self.maxsize]
-            x = self.adjust_x(nodes)
+            x, node_types = self.adjust_x(nodes)
             edge, edge_types = self.adjust_edge(nodes)
-            self.subgraph[i] = Data(x, edge, edge_types)
+            self.subgraph[i] = Data(x, edge).to_heterogeneous(node_type=node_types, edge_type=edge_types)
         torch.save(self.subgraph, self.path + f"_subgraph{self.gid}.pt")
 
     def search(self, node_list):
