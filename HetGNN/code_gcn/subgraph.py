@@ -9,11 +9,15 @@ from ppr import PPR
 class Subgraph:
     # Class for subgraph extraction
 
-    def __init__(self, gid, data, path, maxsize=50, n_order=10):
+    def __init__(self, gid, data, path, maxsize=50, n_order=10, subgraph_path=None):
         self.gid = gid
         self.x, self.edge_index, (_, self.edge_type), self.node_types = data
 
         self.path = path
+        self.subgraph_path = path
+        if subgraph_path:
+            self.subgraph_path = subgraph_path
+
         self.edge_num = self.edge_index[0].size(0)
         self.node_num = self.x.size(0)
         self.maxsize = maxsize
@@ -76,11 +80,11 @@ class Subgraph:
     def build(self):
         # Extract subgraphs for all nodes
         if (
-            os.path.isfile(self.path + f"_subgraph{self.gid}.pt")
-            and os.stat(self.path + f"_subgraph{self.gid}.pt").st_size != 0
+            os.path.isfile(self.subgraph_path + f"_subgraph{self.gid}.pt")
+            and os.stat(self.subgraph_path + f"_subgraph{self.gid}.pt").st_size != 0
         ):
             print("Exists subgraph file")
-            self.subgraph = torch.load(self.path + f"_subgraph{self.gid}.pt")
+            self.subgraph = torch.load(self.subgraph_path + f"_subgraph{self.gid}.pt")
             return
 
         self.neighbor = self.ppr.search_all(self.node_num, self.path)
@@ -90,7 +94,7 @@ class Subgraph:
             x, node_types = self.adjust_x(nodes)
             edge, edge_types = self.adjust_edge(nodes)
             self.subgraph[i] = Data(x, edge, edge_types, pos=node_types)
-        torch.save(self.subgraph, self.path + f"_subgraph{self.gid}.pt")
+        torch.save(self.subgraph, self.subgraph_path + f"_subgraph{self.gid}.pt")
 
     def search(self, node_list):
         # Extract subgraphs for nodes in the list

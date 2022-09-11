@@ -14,6 +14,7 @@ class SubgraphGenerator(object):
     def __init__(self):
         self.data_root_dir = "../ProcessedData_HetGCN"
         self.ppr_path = "../ProcessedData_HetGCN/ppr_neighbours/ppr"
+        self.subgraph_path = "../ProcessedData_HetGCN/ppr_subgraph/ppr"
 
         self.dataset = HetGCNEventGraphDataset(
             node_feature_csv=f"{self.data_root_dir}/node_feature_norm.csv",
@@ -25,13 +26,16 @@ class SubgraphGenerator(object):
 
     def process_ppr(self, gidstart, gidend):
         for gid in tqdm(range(gidstart, gidend)):
-            x, edge_index, (_, edge_type), node_types = self.dataset[gid]
-            ppr = PPR(gid, x, edge_index, n_order=10)
-            ppr.search_all(x.shape[0], self.ppr_path)
+            # x, edge_index, (_, edge_type), node_types = self.dataset[gid]
+            # ppr = PPR(gid, x, edge_index, n_order=10)
+            # ppr.search_all(x.shape[0], self.ppr_path)
+
+            subgraph = Subgraph(gid, self.dataset[gid], self.ppr_path, 100, 10, subgraph_path=self.subgraph_path)
+            subgraph.build()
 
     def run(self):
-        chunk_size = 500
-        num_nodes = 1000  # 132485
+        chunk_size = 15000
+        num_nodes = 132485
         threads = [
             Thread(target=self.process_ppr, args=(i, min(num_nodes, i + chunk_size)))
             for i in range(0, num_nodes, chunk_size)
