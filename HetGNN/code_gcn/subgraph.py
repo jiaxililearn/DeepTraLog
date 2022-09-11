@@ -45,6 +45,7 @@ class Subgraph:
         for i in idx:
             edge = list(self.adj_list[i] & nodes)
 
+            print(edge)
             # resolve edge types
             if len(edge) > 0:
                 cond = (self.edge_index[0] == i) & (
