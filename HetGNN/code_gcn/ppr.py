@@ -31,14 +31,16 @@ class PPR:
         x = sp.csc_matrix(
             (np.ones(1), ([seed], np.zeros(1, dtype=int))), shape=[self.P.shape[0], 1]
         )
-        print(f'a: {x.toarray()}')
-        print(f'a: {x.toarray().shape}')
+        print(f'x: {x.toarray()}')
+        print(f'x: {x.toarray().shape}')
 
         r = x.copy()
         for _ in range(self.n_order):
             x = (1 - alpha) * r + alpha * self.P @ x
         scores = x.data / (self.d[x.indices] + 1e-9)
         
+        print(f'x: {x.toarray()}')
+        print(f'x: {x.toarray().shape}')
         
 
 
