@@ -36,18 +36,18 @@ class PPR:
             x = (1 - alpha) * r + alpha * self.P @ x
         scores = x.data / (self.d[x.indices] + 1e-9)
 
+        print(f'a: {x.indices}')
+
         idx = scores.argsort()[::-1][: self.maxsize]
+        print(f'a: {idx}')
         neighbor = np.array(x.indices[idx])
-        print(f'a: {neighbor}')
 
         seed_idx = np.where(neighbor == seed)[0]
         if seed_idx.size == 0:
             neighbor = np.append(np.array([seed]), neighbor)
-            print(f'b: {neighbor}')
         else:
             seed_idx = seed_idx[0]
             neighbor[seed_idx], neighbor[0] = neighbor[0], neighbor[seed_idx]
-            print(f'c: {neighbor}')
 
         assert np.where(neighbor == seed)[0].size == 1
         assert np.where(neighbor == seed)[0][0] == 0
