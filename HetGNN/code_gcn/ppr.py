@@ -86,6 +86,7 @@ class PPR:
             for i in range(node_num):
                 neighbor[i] = self.process(path, i)
                 # torch.load(os.path.join(path, "ppr{}".format(i)))
+            # skip write
             torch.save(neighbor, path + f"_neighbor{self.gid}.pt")
             # os.system("rm -r {}".format(path))
             # print("Finish Writing")
