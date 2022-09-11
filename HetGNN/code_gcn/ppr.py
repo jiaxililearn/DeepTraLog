@@ -70,7 +70,7 @@ class PPR:
             print("Exists neighbor file")
             neighbor = torch.load(path + f"_neighbor{self.gid}.pt")
         else:
-            print("Extracting subgraphs")
+            # print("Extracting subgraphs")
             os.system("mkdir {}".format(path))
             with mp.Pool() as pool:
                 list(
@@ -79,10 +79,10 @@ class PPR:
                     )
                 )
 
-            print("Finish Extracting")
+            # print("Finish Extracting")
             for i in range(node_num):
                 neighbor[i] = torch.load(os.path.join(path, "ppr{}".format(i)))
             torch.save(neighbor, path + f"_neighbor{self.gid}.pt")
             os.system("rm -r {}".format(path))
-            print("Finish Writing")
+            # print("Finish Writing")
         return neighbor
