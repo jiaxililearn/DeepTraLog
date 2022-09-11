@@ -81,7 +81,7 @@ class PPR:
             print("Finish Extracting")
             for i in range(node_num):
                 neighbor[i] = torch.load(os.path.join(path, "ppr{}".format(i)))
-            torch.save(neighbor, path + "_neighbor")
-            os.system("rm -r {}".format(path))
+            torch.save(neighbor, path + "/ppr_neighbor.pt")
+            # os.system("rm -r {}".format(path))
             print("Finish Writing")
         return neighbor
