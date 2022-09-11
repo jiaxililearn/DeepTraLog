@@ -28,7 +28,7 @@ class SubgraphGenerator(object):
     def run(self):
         with mp.Pool() as pool:
             list(
-                pool.imap_unordered(self.process_ppr, list(range(1000)), chunksize=1000)
+                pool.imap_unordered(self.process_ppr, list(range(1000)), chunksize=500)
             )
 
 if __name__ == '__main__':
