@@ -1,7 +1,7 @@
 import os
 from pydoc import resolve
 import click
-from train import Train
+
 
 @click.command()
 @click.option('--lr', default=0.0001, help='learning rate')
@@ -24,6 +24,7 @@ from train import Train
 @click.option('--sampling_size', default=None, type=int, help='sampling size for each epoch. default None to use all training in each epoch')
 @click.option('--eval_size', default=None, type=int, help='evaluation size for each epoch. default None to use all the rest eval dataset in each epoch')
 @click.option('--seed', default=32, help='random seed')
+@click.option('--trainer_version', default=0, help='trainer version')
 @click.option('--model_version', default=3, help='train with model version')
 @click.option('--model_sub_version', default=0, help='train with sub model version')
 @click.option('--dataset_id', default=0, help='choose dataset used for training')
@@ -41,6 +42,11 @@ from train import Train
 def main(**args):
     args = resolve_args(args)
     print(args)
+    if args['trainer_version'] == 1:
+        from train_1 import Train1 as Train
+    else:
+        from train import Train
+
     t = Train(**args)
     t.train()
 

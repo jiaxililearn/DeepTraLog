@@ -16,6 +16,7 @@ python main.py \
 --save_model_freq 2 \
 --lr 0.0001 \
 --train_iter_n 500 \
+--trainer_version 1 \
 --model_version 8 \
 --model_sub_version 0 \
 --dataset_id 0 \
