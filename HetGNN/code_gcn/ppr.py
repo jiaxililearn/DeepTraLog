@@ -70,7 +70,7 @@ class PPR:
             os.path.isfile(path + f"_neighbor{self.gid}.pt")
             and os.stat(path + f"_neighbor{self.gid}.pt").st_size != 0
         ):
-            print("Exists neighbor file")
+            # print("Exists neighbor file")
             neighbor = torch.load(path + f"_neighbor{self.gid}.pt")
         else:
             # print("Extracting subgraphs")
