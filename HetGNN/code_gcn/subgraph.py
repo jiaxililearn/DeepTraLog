@@ -13,19 +13,19 @@ class Subgraph:
         self, gid, data=None, path=None, maxsize=100, n_order=10, subgraph_path=None
     ):
         self.gid = gid
-        self.x, self.edge_index, (_, self.edge_type), self.node_types = data
+
+        if data is not None:
+            self.x, self.edge_index, (_, self.edge_type), self.node_types = data
+            self.edge_num = self.edge_index[0].size(0)
+            self.node_num = self.x.size(0)
+            self.ppr = PPR(gid, self.x, self.edge_index, n_order=n_order)
 
         self.path = path
         self.subgraph_path = path
         if subgraph_path:
             self.subgraph_path = subgraph_path
 
-        self.edge_num = self.edge_index[0].size(0)
-        self.node_num = self.x.size(0)
         self.maxsize = maxsize
-
-        self.ppr = PPR(gid, self.x, self.edge_index, n_order=n_order)
-
         self.neighbor = {}
         self.adj_list = {}
         self.subgraph = {}
