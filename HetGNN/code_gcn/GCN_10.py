@@ -108,8 +108,8 @@ class HetGCN_10(nn.Module):
                 min(self.sample_graph_size, self.dataset[gid][0].size(0)),
             )
             batch, index = subgraph.search(sample_idx)
-
             batch = batch.to(self.device)
+            print(f'batch graph: {batch}')
             g_data = (
                 batch.x,
                 batch.edge_index,
