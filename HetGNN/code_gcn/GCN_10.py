@@ -98,8 +98,8 @@ class HetGCN_10(nn.Module):
             # sample subgraph
             subgraph = Subgraph(
                 i,
-                self.dataset[gid],
-                path=self.ppr_path,
+                data=None,
+                path=None,
                 subgraph_path=self.subgraph_path,
             )
             subgraph.build()
