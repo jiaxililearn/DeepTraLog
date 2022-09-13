@@ -65,8 +65,8 @@ class Subgraph:
                 )
                 edge_types += self.edge_type[cond].tolist()
 
-                new_row = [dic[_] for _ in row[cond]]
-                new_col = [dic[_] for _ in col[cond]]
+                new_row = [dic[_] for _ in row[cond].tolist()]
+                new_col = [dic[_] for _ in col[cond].tolist()]
             
                 # edge = [dic[_] for _ in edge]
                 # edge = [_ for _ in edge if _ > i]
