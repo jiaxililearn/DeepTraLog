@@ -93,16 +93,29 @@ class HetGCN_10(nn.Module):
         # print(f'x_edge_index shape: {x_edge_index.shape}')
         _out = torch.zeros(len(gid_batch), self.out_embed_d, device=self.device)
         for i, gid in enumerate(gid_batch):
-            
+
             # sample subgraph
-            subgraph = Subgraph(i, self.dataset[gid], path=self.ppr_path, subgraph_path=self.subgraph_path)
+            subgraph = Subgraph(
+                i,
+                self.dataset[gid],
+                path=self.ppr_path,
+                subgraph_path=self.subgraph_path,
+            )
             subgraph.build()
-            print(f'graph size: {self.dataset[gid][0].size(0)}')
-            sample_idx = random.sample(range(self.dataset[gid][0].size(0)), self.sample_graph_size)
+            print(f"graph size: {self.dataset[gid][0].size(0)}")
+            sample_idx = random.sample(
+                range(self.dataset[gid][0].size(0)),
+                min(self.sample_graph_size, self.dataset[gid][0].size(0)),
+            )
             batch, index = subgraph.search(sample_idx)
 
             batch = batch.to(self.device)
-            g_data = (batch.x, batch.edge_index, (None, batch.edge_attr), self.resolve_node_types(batch.pos))
+            g_data = (
+                batch.x,
+                batch.edge_index,
+                (None, batch.edge_attr),
+                self.resolve_node_types(batch.pos),
+            )
 
             h_node, h = self.het_node_conv(g_data, source_types=self.source_types)
             h = self.sigmoid(h)
@@ -112,9 +125,9 @@ class HetGCN_10(nn.Module):
             if accumulate_loss:
                 loss_ = self.margin_loss(h_node, h)
                 loss_list.append(loss_)
-            
+
         return _out, loss_list
-    
+
     def resolve_node_types(self, node_types):
         ntypes = [[] for _ in range(self.num_node_types)]
         for nid, nt in enumerate(node_types):
@@ -178,7 +191,7 @@ class HetGCN_10(nn.Module):
             _, score = self(g_data)
             # score = torch.mean(torch.square(_out - self.svdd_center), 1)  # mean on rows
         return score
-    
+
     def margin_loss(self, hidden1, summary1):
         """
         calc margin loss
@@ -187,10 +200,10 @@ class HetGCN_10(nn.Module):
         hidden2 = hidden1[shuf_index]
         summary2 = summary1[shuf_index]
 
-        logits_aa = torch.sigmoid(torch.sum(hidden1 * summary1, dim = -1))
-        logits_bb = torch.sigmoid(torch.sum(hidden2 * summary2, dim = -1))
-        logits_ab = torch.sigmoid(torch.sum(hidden1 * summary2, dim = -1))
-        logits_ba = torch.sigmoid(torch.sum(hidden2 * summary1, dim = -1))
+        logits_aa = torch.sigmoid(torch.sum(hidden1 * summary1, dim=-1))
+        logits_bb = torch.sigmoid(torch.sum(hidden2 * summary2, dim=-1))
+        logits_ab = torch.sigmoid(torch.sum(hidden1 * summary2, dim=-1))
+        logits_ba = torch.sigmoid(torch.sum(hidden2 * summary1, dim=-1))
 
         total_loss = 0.0
         ones = torch.ones(logits_aa.size(0)).cuda(logits_aa.device)
@@ -198,6 +211,7 @@ class HetGCN_10(nn.Module):
         total_loss += self.marginloss(logits_bb, logits_ab, ones)
 
         return total_loss
+
 
 def svdd_batch_loss(model, embed_batch, l2_lambda=0.001, fix_center=True):
     """
