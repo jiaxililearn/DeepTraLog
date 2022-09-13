@@ -62,7 +62,9 @@ class Subgraph:
                 )
                 edge_types += self.edge_type[cond].tolist()
             
-            print
+            print(f"edge length: {len(edge)}")
+            print(f"edge_types length: {len(edge_types)}")
+            print(f'i: {i}')
 
             edge = [dic[_] for _ in edge]
             # edge = [_ for _ in edge if _ > i]
