@@ -99,8 +99,9 @@ class HetGCN_10(nn.Module):
             subgraph.build()
             sample_idx = random.sample(range(self.dataset[gid][0].size(0)), self.sample_graph_size)
             batch, index = subgraph.search(sample_idx)
-            
-            g_data = (batch.x, batch.edge_index, (None, batch.edge_attr), self.resolve_node_types(batch.pos)) 
+
+            batch = batch.to(self.device)
+            g_data = (batch.x, batch.edge_index, (None, batch.edge_attr), self.resolve_node_types(batch.pos))
 
             h_node, h = self.het_node_conv(g_data, source_types=self.source_types)
             h = self.sigmoid(h)
