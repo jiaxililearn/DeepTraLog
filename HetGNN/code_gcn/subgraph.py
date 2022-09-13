@@ -73,13 +73,13 @@ class Subgraph:
                 new_index[0] += new_row
                 new_index[1] += new_col
 
-            print(f"new_index length: {len(new_index[0])}")
-            print(f"edge_types length: {len(edge_types)}")
-            print(f'i: {i}')
-            print(new_index)
-            print(edge_types)
-            if len(new_index[0]) != len(edge_types):
-                raise Exception('Not Matched')
+            # print(f"new_index length: {len(new_index[0])}")
+            # print(f"edge_types length: {len(edge_types)}")
+            # print(f'i: {i}')
+            # print(new_index)
+            # print(edge_types)
+        if len(new_index[0]) != len(edge_types):
+            raise Exception('Not Matched')
 
         return torch.LongTensor(new_index), torch.LongTensor(edge_types)
 
