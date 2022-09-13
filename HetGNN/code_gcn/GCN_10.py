@@ -97,6 +97,7 @@ class HetGCN_10(nn.Module):
             # sample subgraph
             subgraph = Subgraph(i, self.dataset[gid], path=self.ppr_path, subgraph_path=self.subgraph_path)
             subgraph.build()
+            print(f'graph size: {self.dataset[gid][0].size(0)}')
             sample_idx = random.sample(range(self.dataset[gid][0].size(0)), self.sample_graph_size)
             batch, index = subgraph.search(sample_idx)
 
