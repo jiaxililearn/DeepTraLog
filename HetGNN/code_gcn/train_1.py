@@ -105,7 +105,8 @@ class Train1(object):
             model_path=self.model_path,
             dataset=self.dataset,
             source_types=self.source_types,
-            subgraph_path=f'{self.data_root_dir}/ppr_neighbours/ppr',
+            ppr_path=f'{self.data_root_dir}/ppr_neighbours/ppr',
+            subgraph_path=f'{self.data_root_dir}/ppr_subgraphs/ppr',
             **kwargs,
         ).to(self.device)
 
