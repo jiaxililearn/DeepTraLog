@@ -69,6 +69,7 @@ class HetGCN_10(nn.Module):
         # Others
         self.relu = nn.LeakyReLU()
         self.sigmoid = nn.Sigmoid()
+        self.marginloss = nn.MarginRankingLoss(0.5)
 
     def init_weights(self):
         """
@@ -110,6 +111,7 @@ class HetGCN_10(nn.Module):
             batch, index = subgraph.search(sample_idx)
             batch = batch.to(self.device)
             print(f'batch graph: {batch}')
+
             g_data = (
                 batch.x,
                 batch.edge_index,
