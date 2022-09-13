@@ -75,6 +75,8 @@ class Subgraph:
             print(f'i: {i}')
             print(new_index)
             print(edge_types)
+            if len(new_index[0] != len(edge_types):
+                raise Exception('Not Matched')
 
         return torch.LongTensor(new_index), torch.LongTensor(edge_types)
 
