@@ -48,9 +48,11 @@ class Subgraph:
         nodes = set(idx)
         edge_types = []
 
+        tmp_edge_list = []
         for i in idx:
             edge = list(self.adj_list[i] & nodes)
-
+            
+            # TODO: resolve duplicate edge in both direction
             # resolve edge types after sampling
             if len(edge) > 0:
                 cond = (
@@ -62,10 +64,11 @@ class Subgraph:
                 )
                 edge_types += self.edge_type[cond].tolist()
             
-            edge_types = list(set(edge_types))
             print(f"edge length: {len(edge)}")
             print(f"edge_types length: {len(edge_types)}")
             print(f'i: {i}')
+            print(edge)
+            print(edge_types)
 
             edge = [dic[_] for _ in edge]
             # edge = [_ for _ in edge if _ > i]
