@@ -11,6 +11,7 @@ class HetGCN_10(nn.Module):
         self,
         model_path=None,
         dataset=None,
+        ppr_path=None,
         subgraph_path=None,
         source_types=None,
         feature_size=7,
@@ -37,6 +38,7 @@ class HetGCN_10(nn.Module):
         self.svdd_center = None
         self.model_path = model_path
         self.dataset = dataset
+        self.ppr_path = ppr_path
         self.subgraph_path = subgraph_path
         self.source_types = source_types
         self.model_sub_version = model_sub_version
@@ -93,7 +95,7 @@ class HetGCN_10(nn.Module):
         for i, gid in enumerate(gid_batch):
             
             # sample subgraph
-            subgraph = Subgraph(i, self.dataset[gid], subgraph_path=self.subgraph_path)
+            subgraph = Subgraph(i, self.dataset[gid], path=self.ppr_path, subgraph_path=self.subgraph_path)
             subgraph.build()
             sample_idx = random.sample(range(self.dataset[gid][0].size(0)), self.sample_graph_size)
             batch, index = subgraph.search(sample_idx)
