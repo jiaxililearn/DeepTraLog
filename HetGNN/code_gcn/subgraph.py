@@ -9,7 +9,9 @@ from ppr import PPR
 class Subgraph:
     # Class for subgraph extraction
 
-    def __init__(self, gid, data=None, path=None, maxsize=100, n_order=10, subgraph_path=None):
+    def __init__(
+        self, gid, data=None, path=None, maxsize=100, n_order=10, subgraph_path=None
+    ):
         self.gid = gid
         self.x, self.edge_index, (_, self.edge_type), self.node_types = data
 
@@ -59,6 +61,8 @@ class Subgraph:
                     & (sum(self.edge_index[0] == k for k in edge).bool())
                 )
                 edge_types += self.edge_type[cond].tolist()
+            
+            print
 
             edge = [dic[_] for _ in edge]
             # edge = [_ for _ in edge if _ > i]
@@ -83,7 +87,7 @@ class Subgraph:
             os.path.isfile(self.subgraph_path + f"_subgraph{self.gid}.pt")
             and os.stat(self.subgraph_path + f"_subgraph{self.gid}.pt").st_size != 0
         ):
-            print("Exists subgraph file")
+            # print("Exists subgraph file")
             self.subgraph = torch.load(self.subgraph_path + f"_subgraph{self.gid}.pt")
             return
 
