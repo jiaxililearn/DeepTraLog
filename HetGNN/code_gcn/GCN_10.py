@@ -111,6 +111,7 @@ class HetGCN_10(nn.Module):
             batch, index = subgraph.search(sample_idx)
             batch = batch.to(self.device)
             print(f'batch graph {gid}: {batch}')
+            print(f'sample_idx: {sample_idx}')
 
             g_data = (
                 batch.x,
