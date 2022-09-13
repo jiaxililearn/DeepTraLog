@@ -59,7 +59,10 @@ class Subgraph:
                 cond = (
                     (row == i)
                     & (sum(col == k for k in edge).bool())
-                ) 
+                ) | (
+                    (col == i)
+                    & (sum(row == k for k in edge).bool())
+                )
                 edge_types += self.edge_type[cond].tolist()
             
             edge = [dic[_] for _ in edge]
