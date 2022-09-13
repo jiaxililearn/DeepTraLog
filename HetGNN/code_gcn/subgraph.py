@@ -49,25 +49,29 @@ class Subgraph:
         edge_types = []
 
         tmp_edge_list = []
+        row, col = self.edge_index
         for i in idx:
             edge = list(self.adj_list[i] & nodes)
             
             # TODO: resolve duplicate edge in both direction
             # resolve edge types after sampling
             if len(edge) > 0:
-                cond = (self.edge_index[0] == i) & (sum(self.edge_index[1] == k for k in edge).bool())
+                cond = (
+                    (row == i)
+                    & (sum(col == k for k in edge).bool())
+                ) 
                 edge_types += self.edge_type[cond].tolist()
             
-            print(f"edge length: {len(edge)}")
-            print(f"edge_types length: {len(edge_types)}")
-            print(f'i: {i}')
-            print(edge)
-            print(edge_types)
-
             edge = [dic[_] for _ in edge]
             # edge = [_ for _ in edge if _ > i]
             new_index[0] += len(edge) * [dic[i]]
             new_index[1] += edge
+
+            print(f"new_index length: {len(new_index[0])}")
+            print(f"edge_types length: {len(edge_types)}")
+            print(f'i: {i}')
+            print(new_index)
+            print(edge_types)
 
         return torch.LongTensor(new_index), torch.LongTensor(edge_types)
 
