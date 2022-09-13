@@ -64,11 +64,14 @@ class Subgraph:
                     & (sum(row == k for k in edge).bool())
                 )
                 edge_types += self.edge_type[cond].tolist()
+
+                new_row = [dic[_] for _ in row[cond]]
+                new_col = [dic[_] for _ in col[cond]]
             
-            edge = [dic[_] for _ in edge]
+            # edge = [dic[_] for _ in edge]
             # edge = [_ for _ in edge if _ > i]
-            new_index[0] += len(edge) * [dic[i]]
-            new_index[1] += edge
+            new_index[0] += new_row
+            new_index[1] += new_col
 
             print(f"new_index length: {len(new_index[0])}")
             print(f"edge_types length: {len(edge_types)}")
