@@ -84,16 +84,16 @@ class HetGCN_10(nn.Module):
         forward propagate based on gid batch
         """
         if accumulate_loss:
-            total_loss = 0.0
+            loss_list = []
         else:
-            total_loss = None
+            loss_list = None
         # print(f'x_node_feature shape: {x_node_feature.shape}')
         # print(f'x_edge_index shape: {x_edge_index.shape}')
         _out = torch.zeros(len(gid_batch), self.out_embed_d, device=self.device)
         for i, gid in enumerate(gid_batch):
             
             # sample subgraph
-            subgraph = Subgraph(i, subgraph_path=self.subgraph_path)
+            subgraph = Subgraph(i, self.dataset[gid], subgraph_path=self.subgraph_path)
             subgraph.build()
             sample_idx = random.sample(range(self.dataset[gid][0].size(0)), self.sample_graph_size)
             batch, index = subgraph.search(sample_idx)
@@ -107,9 +107,9 @@ class HetGCN_10(nn.Module):
             # TODO: calc loss
             if accumulate_loss:
                 loss_ = self.margin_loss(h_node, h)
-                total_loss += loss_
+                loss_list.append(loss_)
             
-        return _out, total_loss
+        return _out, loss_list
     
     def resolve_node_types(self, node_types):
         ntypes = [[] for _ in range(self.num_node_types)]
@@ -171,11 +171,14 @@ class HetGCN_10(nn.Module):
         calc dist given graph features
         """
         with torch.no_grad():
-            _out = self(g_data)
-            score = torch.mean(torch.square(_out - self.svdd_center), 1)  # mean on rows
+            _, score = self(g_data)
+            # score = torch.mean(torch.square(_out - self.svdd_center), 1)  # mean on rows
         return score
     
     def margin_loss(self, hidden1, summary1):
+        """
+        calc margin loss
+        """
         shuf_index = torch.randperm(summary1.size(0))
         hidden2 = hidden1[shuf_index]
         summary2 = summary1[shuf_index]

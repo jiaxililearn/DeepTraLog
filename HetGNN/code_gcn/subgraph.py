@@ -9,7 +9,7 @@ from ppr import PPR
 class Subgraph:
     # Class for subgraph extraction
 
-    def __init__(self, gid, data=None, path=None, maxsize=50, n_order=10, subgraph_path=None):
+    def __init__(self, gid, data=None, path=None, maxsize=100, n_order=10, subgraph_path=None):
         self.gid = gid
         self.x, self.edge_index, (_, self.edge_type), self.node_types = data
 

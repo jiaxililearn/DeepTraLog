@@ -182,7 +182,7 @@ class Train1(object):
                     else:
                         _out_tmp, _loss = self.model(mini_k, accumulate_loss=True)
                         _out[mini_n] = _out_tmp
-                        batch_loss += _loss
+                        batch_loss += torch.sum(_loss)
                 # batch_loss = self.loss(self.model, _out, fix_center=self.fix_center)
                 avg_loss_list.append(batch_loss.tolist())
                 # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
