@@ -212,6 +212,10 @@ class HetGCN_10(nn.Module):
         logits_ab = torch.sigmoid(torch.sum(hidden1 * summary2, dim=-1))
         logits_ba = torch.sigmoid(torch.sum(hidden2 * summary1, dim=-1))
 
+        print(f'logits_aa shape: {logits_aa.shape}')
+        print(f'hidden2 shape: {hidden2.shape}')
+        print(f'summary2 shape: {summary2.shape}')
+
         total_loss = 0.0
         ones = torch.ones(logits_aa.size(0)).cuda(logits_aa.device)
         total_loss += self.marginloss(logits_aa, logits_ba, ones)
