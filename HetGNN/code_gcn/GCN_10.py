@@ -195,7 +195,7 @@ class HetGCN_10(nn.Module):
         calc dist given graph features
         """
         with torch.no_grad():
-            _, score = self(g_data)
+            _, score = self(g_data, accumulate_loss=True)
             # score = torch.mean(torch.square(_out - self.svdd_center), 1)  # mean on rows
         return score
 
@@ -212,9 +212,18 @@ class HetGCN_10(nn.Module):
         logits_ab = torch.sigmoid(torch.sum(hidden1 * summary2, dim=-1))
         logits_ba = torch.sigmoid(torch.sum(hidden2 * summary1, dim=-1))
 
-        print(f'logits_aa shape: {logits_aa.shape}')
-        print(f'hidden2 shape: {hidden2.shape}')
-        print(f'summary2 shape: {summary2.shape}')
+        # print(f'logits_aa shape: {logits_aa.shape}')
+        # print(f'hidden2 shape: {hidden2.shape}')
+        # print(f'summary2 shape: {summary2.shape}')
+        
+        print(f'hidden1: {hidden1}')
+        print(f'hidden2: {hidden2}')
+        print(f'summary1: {summary1}')
+        print(f'summary2: {summary2}')
+        print(f'logits_aa: {logits_aa}')
+        print(f'logits_bb: {logits_bb}')
+        print(f'logits_ab: {logits_ab}')
+        print(f'logits_ba: {logits_ba}')
 
         total_loss = 0.0
         ones = torch.ones(logits_aa.size(0)).cuda(logits_aa.device)
