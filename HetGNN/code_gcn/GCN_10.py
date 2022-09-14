@@ -203,9 +203,9 @@ class HetGCN_10(nn.Module):
         """
         calc margin loss
         """
-        shuf_index = torch.randperm(summary1.size(0))
-        hidden2 = hidden1[shuf_index]
-        summary2 = summary1[shuf_index]
+        shuf_index = torch.randperm(summary1.size(1))
+        hidden2 = hidden1[:, shuf_index]
+        summary2 = summary1[:, shuf_index]
 
         logits_aa = torch.sigmoid(torch.sum(hidden1 * summary1, dim=-1))
         logits_bb = torch.sigmoid(torch.sum(hidden2 * summary2, dim=-1))
