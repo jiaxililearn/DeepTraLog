@@ -197,7 +197,7 @@ class HetGCN_10(nn.Module):
         with torch.no_grad():
             _, score = self(g_data, accumulate_loss=True)
             # score = torch.mean(torch.square(_out - self.svdd_center), 1)  # mean on rows
-        return score
+        return [s.item() for s in score]
 
     def margin_loss(self, hidden1, summary1):
         """

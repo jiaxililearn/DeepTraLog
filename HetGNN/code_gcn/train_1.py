@@ -380,7 +380,7 @@ class Train1(object):
             # else if 'batch' input type
             else:
                 pred_scores = (
-                    self.model.predict_score(eval_list_tmp).cpu().detach().numpy()
+                    self.model.predict_score(eval_list_tmp)#.cpu().detach().numpy()
                 )
 
             labels = []
