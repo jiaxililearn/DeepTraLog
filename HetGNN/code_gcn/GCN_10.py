@@ -97,7 +97,7 @@ class HetGCN_10(nn.Module):
             gid = 103245
             # sample subgraph
             subgraph = Subgraph(
-                i,
+                gid,
                 data=None,
                 path=None,
                 subgraph_path=self.subgraph_path,
