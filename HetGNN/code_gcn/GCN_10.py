@@ -103,15 +103,18 @@ class HetGCN_10(nn.Module):
                 subgraph_path=self.subgraph_path,
             )
             subgraph.build()
-            # print(f"graph size: {self.dataset[gid][0].size(0)}")
             sample_idx = random.sample(
                 range(self.dataset[gid][0].size(0)),
                 min(self.sample_graph_size, self.dataset[gid][0].size(0)),
             )
-            batch, index = subgraph.search(sample_idx)
-            batch = batch.to(self.device)
-            # print(f'batch graph {gid}: {batch}')
-            # print(f'sample_idx: {sample_idx}')
+
+            try:
+                batch, index = subgraph.search(sample_idx)
+                batch = batch.to(self.device)
+            except Exception as e:
+                print(f"graph size: {self.dataset[gid][0].size(0)}")
+                print(f'batch graph {gid}: {batch}')
+                print(f'sample_idx: {sample_idx}')
 
             g_data = (
                 batch.x,
