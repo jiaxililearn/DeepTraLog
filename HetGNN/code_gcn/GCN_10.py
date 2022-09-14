@@ -216,14 +216,14 @@ class HetGCN_10(nn.Module):
         # print(f'hidden2 shape: {hidden2.shape}')
         # print(f'summary2 shape: {summary2.shape}')
         
-        print(f'hidden1: {hidden1}')
-        print(f'hidden2: {hidden2}')
-        print(f'summary1: {summary1}')
-        print(f'summary2: {summary2}')
-        print(f'logits_aa: {logits_aa}')
-        print(f'logits_bb: {logits_bb}')
-        print(f'logits_ab: {logits_ab}')
-        print(f'logits_ba: {logits_ba}')
+        # print(f'hidden1: {hidden1}')
+        # print(f'hidden2: {hidden2}')
+        # print(f'summary1: {summary1}')
+        # print(f'summary2: {summary2}')
+        # print(f'logits_aa: {logits_aa}')
+        # print(f'logits_bb: {logits_bb}')
+        # print(f'logits_ab: {logits_ab}')
+        # print(f'logits_ba: {logits_ba}')
 
         total_loss = 0.0
         ones = torch.ones(logits_aa.size(0)).cuda(logits_aa.device)
