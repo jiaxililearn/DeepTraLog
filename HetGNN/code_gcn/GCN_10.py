@@ -45,7 +45,7 @@ class HetGCN_10(nn.Module):
 
         self.embed_d = feature_size
         self.out_embed_d = out_embed_s
-        self.sample_graph_size = 100
+        self.sample_graph_size = 400
 
         self.num_node_types = num_node_types
 
