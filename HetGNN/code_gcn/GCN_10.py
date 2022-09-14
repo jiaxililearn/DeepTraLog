@@ -207,10 +207,10 @@ class HetGCN_10(nn.Module):
         hidden2 = hidden1[:, shuf_index]
         summary2 = summary1[:, shuf_index]
 
-        logits_aa = torch.sigmoid(torch.sum(hidden1 * summary1, dim=-1))
-        logits_bb = torch.sigmoid(torch.sum(hidden2 * summary2, dim=-1))
-        logits_ab = torch.sigmoid(torch.sum(hidden1 * summary2, dim=-1))
-        logits_ba = torch.sigmoid(torch.sum(hidden2 * summary1, dim=-1))
+        logits_aa = torch.sigmoid(torch.mean(hidden1 * summary1, dim=-1))
+        logits_bb = torch.sigmoid(torch.mean(hidden2 * summary2, dim=-1))
+        logits_ab = torch.sigmoid(torch.mean(hidden1 * summary2, dim=-1))
+        logits_ba = torch.sigmoid(torch.mean(hidden2 * summary1, dim=-1))
 
         # print(f'logits_aa shape: {logits_aa.shape}')
         # print(f'hidden2 shape: {hidden2.shape}')
