@@ -115,6 +115,7 @@ class HetGCN_10(nn.Module):
                 print(f"graph size: {self.dataset[gid][0].size(0)}")
                 print(f'batch graph {gid}: {batch}')
                 print(f'sample_idx: {sample_idx}')
+                raise Exception(e) from e
 
             g_data = (
                 batch.x,
