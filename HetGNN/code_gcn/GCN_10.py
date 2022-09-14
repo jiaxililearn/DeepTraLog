@@ -94,7 +94,7 @@ class HetGCN_10(nn.Module):
         # print(f'x_edge_index shape: {x_edge_index.shape}')
         _out = torch.zeros(len(gid_batch), self.out_embed_d, device=self.device)
         for i, gid in enumerate(gid_batch):
-
+            gid = 103245
             # sample subgraph
             subgraph = Subgraph(
                 i,

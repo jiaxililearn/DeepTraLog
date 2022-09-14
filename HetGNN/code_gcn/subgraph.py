@@ -102,6 +102,7 @@ class Subgraph:
             self.subgraph = torch.load(self.subgraph_path + f"_subgraph{self.gid}.pt")
             return
 
+        print(f'regen subgraph {self.gid}')
         self.neighbor = self.ppr.search_all(self.node_num, self.path)
         self.process_adj_list()
         for i in range(self.node_num):
