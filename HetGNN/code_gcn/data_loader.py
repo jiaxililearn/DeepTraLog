@@ -143,7 +143,7 @@ class HetGCNEventGraphDataset(Dataset):
             )
 
         else:
-            return graph_node_feature, edge_index, edge_weight, self.node_types[gid]
+            return graph_node_feature, edge_index, (edge_weight, None), self.node_types[gid]
 
 
 if __name__ == "__main__":
