@@ -90,3 +90,29 @@ python main.py \
 --hidden_channels 300 \
 --model_path ../model_save_tralog_gcn9 \
 --data_path ../ProcessedData_HetGCN
+
+# DeepTraLog Baseline - StreamSpot
+python main.py \
+--sagemaker False \
+--num_train 375 \
+--sampling_size 375 \
+--batch_s 25 \
+--mini_batch_s 25 \
+--eval_size 25 \
+--unzip False \
+--s3_stage False \
+--split_data False \
+--ignore_weight False \
+--test_set True \
+--save_model_freq 2 \
+--lr 0.0001 \
+--train_iter_n 200 \
+--model_version 9 \
+--model_sub_version 0 \
+--dataset_id 0 \
+--input_type batch \
+--feature_size 26 \
+--out_embed_s 32 \
+--hidden_channels 32 \
+--model_path ../model_save_streamspot_gcn9 \
+--data_path ../ProcessedData_streamspot

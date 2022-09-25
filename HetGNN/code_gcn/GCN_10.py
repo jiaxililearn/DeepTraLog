@@ -30,7 +30,6 @@ class HetGCN_10(nn.Module):
             + relational edge type
 
         Adding subgraph sampling to the self-supervised model
-        # TODO
         """
         super().__init__()
         torch.manual_seed(random_seed)
