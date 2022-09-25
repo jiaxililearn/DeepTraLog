@@ -137,7 +137,7 @@ class Train(object):
                     edge_index_csv=f'{self.data_root_dir}/edge_index.csv',
                     node_type_txt=f'{self.data_root_dir}/node_types.txt',
                     ignore_weight=ignore_weight,
-                    include_edge_type=True
+                    include_edge_type=True if kwargs['num_edge_types'] > 1 else False
                 )
 
         elif self.model_version == 5:
