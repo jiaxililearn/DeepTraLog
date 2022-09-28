@@ -44,6 +44,8 @@ def main(**args):
     print(args)
     if args['trainer_version'] == 1:
         from train_1 import Train1 as Train
+    elif args['trainer_version'] == 2:
+        from train_2 import Train2 as Train
     else:
         from train import Train
 
