@@ -16,8 +16,8 @@ python main.py \
 --save_model_freq 2 \
 --lr 0.0001 \
 --train_iter_n 500 \
---trainer_version 1 \
---model_version 10 \
+--trainer_version 2 \
+--model_version 11 \
 --model_sub_version 0 \
 --dataset_id 0 \
 --input_type batch \
@@ -25,7 +25,7 @@ python main.py \
 --out_embed_s 300 \
 --hidden_channels 300 \
 --num_hidden_conv_layers 1 \
---model_path ../model_save_tralog_gcn10 \
+--model_path ../model_save_tralog_gcn11 \
 --data_path ../ProcessedData_HetGCN
 
 
