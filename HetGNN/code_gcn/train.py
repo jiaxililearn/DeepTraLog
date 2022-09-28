@@ -199,6 +199,7 @@ class Train(object):
 
         if self.checkpoint:
             print(f'Loading checkpoint model at {self.checkpoint}')
+            print(os.listdir(self.checkpoint_path))
             self.model.load_state_dict(torch.load(f'{self.checkpoint_path}/HetGNN_{self.checkpoint}.pt'))
 
         epoch_loss_list = []
