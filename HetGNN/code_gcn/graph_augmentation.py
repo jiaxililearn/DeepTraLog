@@ -34,7 +34,7 @@ def het_edge_perturbation(g_data, num_node_types=8, method="xor"):
 
     node_feature, edge_index, (edge_weight, edge_type), node_types = g_data
     num_nodes = node_feature.size()[0]
-    new_adj_mat = torch.zeros(num_nodes, num_nodes)
+    new_adj_mat = torch.zeros(num_nodes, num_nodes).to(edge_index.device)
 
     # original dense edge types, use edge_type + 1 to avoid misunderstanding with 0
     dense_edge_with_attr = to_dense_adj(edge_index, edge_attr=edge_type + 1).view(
@@ -45,7 +45,7 @@ def het_edge_perturbation(g_data, num_node_types=8, method="xor"):
         m.sample((num_nodes, num_nodes))
         .view((num_nodes, num_nodes))
         .to(node_feature.device)
-    ).to(edge_index.device)
+    )
 
     for src_type in range(num_node_types):
         for dst_type in range(num_node_types):
