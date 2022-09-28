@@ -112,7 +112,8 @@ class HetGCN_11(nn.Module):
             h = self.sigmoid(h)
             h = self.final_logistic(h)
             _out[i] = h
-
+        print(f'combined_labels: {combined_labels.shape}')
+        print(f'_out: {_out.shape}')
         # TODO: also returns the labels
         return _out, combined_labels
 

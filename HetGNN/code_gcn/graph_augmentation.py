@@ -96,7 +96,7 @@ def het_edge_perturbation(g_data, num_node_types=8, method="xor"):
     new_edge_index, new_edge_type = dense_to_sparse(
         dense_edge_with_attr.masked_fill(~mask, 0) + new_adj_mat.masked_fill(~mask, 0)
     )
-    print(new_edge_index.shape)
+    # print(new_edge_index.shape)
 
     # default no edge weights
     new_edge_weight = None
