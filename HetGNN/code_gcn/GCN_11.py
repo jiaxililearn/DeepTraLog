@@ -62,14 +62,14 @@ class HetGCN_11(nn.Module):
         print(f"num_hidden_conv_layers: {num_hidden_conv_layers}")
 
         self.final_logistic = nn.Sequential(
-            nn.Linear(self.out_embed_d, 1, bias=True), nn.Sigmoid()
+            nn.Linear(self.out_embed_d, 1, bias=True)#, nn.Sigmoid()
         )
 
         # Others
         self.relu = nn.LeakyReLU()
         self.sigmoid = nn.Sigmoid()
         # loss
-        self.loss = torch.nn.CrossEntropyLoss()
+        self.loss = torch.nn.BCELoss()
 
     def init_weights(self):
         """
@@ -87,7 +87,6 @@ class HetGCN_11(nn.Module):
         forward propagate based on gid batch
         """
         batch_data = [self.dataset[i] for i in gid_batch]
-        # TODO: Adding edge perturbation here
 
         if train:
             print("Edge Perturbating for the batch ..")
@@ -114,7 +113,7 @@ class HetGCN_11(nn.Module):
             _out[i] = h
         # print(f'combined_labels: {combined_labels.shape}')
         # print(f'_out: {_out.shape}')
-        print(f'combined_labels: {combined_labels}')
+        # print(f'combined_labels: {combined_labels}')
         # TODO: also returns the labels
         return _out, combined_labels
 
