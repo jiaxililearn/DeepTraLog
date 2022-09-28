@@ -49,7 +49,7 @@ class Train2(object):
 
         if self.model_version == 11:
             from GCN_11 import HetGCN_11 as HetGCN
-            from GCN_11 import svdd_batch_loss
+            # from GCN_11 import svdd_batch_loss
             # TODO: Update the loss for supervised
 
             if self.dataset_id == 0:
