@@ -54,10 +54,10 @@ def het_edge_perturbation(g_data, num_node_types=8, method="xor"):
 
             src_bool = torch.Tensor(
                 [True if i in src_node_list else False for i in range(0, num_nodes)]
-            )
+            ).to(edge_index.device)
             dst_bool = torch.Tensor(
                 [True if i in dst_node_list else False for i in range(0, num_nodes)]
-            )
+            ).to(edge_index.device)
             bool_mat = torch.matmul(src_bool.view(-1, 1), dst_bool.view(1, -1)).bool()
 
             masked_adj_mat = random_het_adj_mat.masked_fill(~bool_mat, 0)
