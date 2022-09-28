@@ -21,7 +21,7 @@ class Train(object):
     def __init__(self, data_path, model_path, train_iter_n, num_train, batch_s, mini_batch_s, lr,
                  save_model_freq, s3_stage, s3_bucket, s3_prefix, model_version, dataset_id,
                  ignore_weight=False, source_types=None, input_type='single',
-                 sampling_size=None, eval_size=None,
+                 sampling_size=None, eval_size=None, checkpoint=None, checkpoint_path=None,
                  test_set=True, fix_center=True, num_eval=None, unzip=False,
                  split_data=True, **kwargs):
         super(Train, self).__init__()
@@ -36,6 +36,9 @@ class Train(object):
         self.test_set = test_set
         self.split_data = split_data
         self.input_type = input_type
+
+        self.checkpoint = checkpoint
+        self.checkpoint_path = checkpoint_path
 
         self.sampling_size = sampling_size
         self.eval_size = eval_size
@@ -194,6 +197,10 @@ class Train(object):
         print('model training ...')
         self.model.train()
 
+        if self.checkpoint:
+            print(f'Loading checkpoint model at {self.checkpoint}')
+            self.model.load_state_dict(torch.load(f'{self.checkpoint_path}/HetGNN_{self.checkpoint}.pt'))
+
         epoch_loss_list = []
         eval_list = []
 
@@ -202,8 +209,10 @@ class Train(object):
             benign_gid_list, eval_gid_list, test_gid_list = self.train_eval_test_split(test_set=self.test_set)
         else:
             benign_gid_list, eval_gid_list, test_gid_list = self.read_train_eval_test_sets()
+        
+        iter_start = self.checkpoint if self.checkpoint else 0
 
-        for iter_i in range(self.train_iter_n):
+        for iter_i in range(iter_start, self.train_iter_n):
             self.model.train()
             print('iteration ' + str(iter_i) + ' ...')
 

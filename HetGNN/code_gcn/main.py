@@ -27,6 +27,8 @@ import click
 @click.option('--trainer_version', default=0, help='trainer version')
 @click.option('--model_version', default=3, help='train with model version')
 @click.option('--model_sub_version', default=0, help='train with sub model version')
+@click.option('--checkpoint', default=None, type=int, help='model checkpoint to load')
+@click.option('--checkpoint_path', default=None, type=str, help='model checkpoint path')
 @click.option('--dataset_id', default=0, help='choose dataset used for training')
 @click.option('--fix_center', default=True, type=bool, help='if fix the svdd center on first batch pass')
 @click.option('--test_set', default=True, type=bool, help='if create test dataset from input')
@@ -56,6 +58,7 @@ def resolve_args(args):
     if args['sagemaker']:
         args['model_path'] = os.environ['SM_MODEL_DIR']
         args['data_path'] = os.environ['SM_CHANNEL_TRAIN']
+        args['checkpoint_path'] = os.environ['SM_CHANNEL_MODEL']
     return args
 
 if __name__ == '__main__':
