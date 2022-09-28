@@ -7,7 +7,7 @@ from torch_scatter import scatter_add
 from torch_geometric.utils import add_remaining_self_loops, degree
 
 
-class HetGCNConv_8(MessagePassing):
+class HetGCNConv_11(MessagePassing):
     """
     self implemented
     """
