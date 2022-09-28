@@ -141,6 +141,8 @@ class Train2(object):
                         _out[mini_n], _out_labels[mini_n] = self.model(mini_k)
 
                 # TODO: Resolve the loss function issue
+                print(f'_out: {_out}')
+                print(f'_out_labels: {_out_labels}')
                 batch_loss = self.loss(_out.view(-1,), _out_labels.view(-1,))
                 avg_loss_list.append(batch_loss.tolist())
                 # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
