@@ -45,7 +45,7 @@ def het_edge_perturbation(g_data, num_node_types=8, method="xor"):
         m.sample((num_nodes, num_nodes))
         .view((num_nodes, num_nodes))
         .to(node_feature.device)
-    )
+    ).to(edge_index.device)
 
     for src_type in range(num_node_types):
         for dst_type in range(num_node_types):
