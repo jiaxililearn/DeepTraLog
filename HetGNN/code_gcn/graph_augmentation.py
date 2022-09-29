@@ -7,7 +7,7 @@ from torch_geometric.utils import (
 
 
 def create_het_edge_perturbation(
-    batch_data, num_node_types=8, num_edge_types=1, method="xor"
+    batch_data, num_node_types=8, num_edge_types=1, method="xor", perturbation_prob=0.0002
 ):
     """
     generate the same number of 'fake' abnormal graphs as the input batch
@@ -20,16 +20,16 @@ def create_het_edge_perturbation(
                 g_data,
                 num_node_types=num_node_types,
                 method=method,
+                perturbation_prob=perturbation_prob
             )
         )
     return new_batch
 
 
-def het_edge_perturbation(g_data, num_node_types=8, method="xor"):
+def het_edge_perturbation(g_data, num_node_types=8, method="xor", perturbation_prob=0.0002):
     """
     perturbate a graph with random dropping/adding edges
     """
-    perturbation_prob = 0.0002
     m = torch.distributions.Bernoulli(torch.tensor([perturbation_prob]))
 
     node_feature, edge_index, (edge_weight, edge_type), node_types = g_data

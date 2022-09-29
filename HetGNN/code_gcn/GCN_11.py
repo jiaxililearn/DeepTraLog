@@ -20,6 +20,7 @@ class HetGCN_11(nn.Module):
         num_hidden_conv_layers=1,
         model_sub_version=0,
         num_edge_types=1,
+        edge_perturbation_p=0.002,
         **kwargs,
     ):
         """
@@ -38,6 +39,8 @@ class HetGCN_11(nn.Module):
         self.dataset = dataset
         self.source_types = source_types
         self.model_sub_version = model_sub_version
+
+        self.edge_perturbation_p = edge_perturbation_p
 
         self.embed_d = feature_size
         self.out_embed_d = out_embed_s
@@ -91,7 +94,7 @@ class HetGCN_11(nn.Module):
         if train:
             print("Edge Perturbating for the batch ..")
             # het_edge_perturbation(args)
-            synthetic_data = create_het_edge_perturbation(batch_data)
+            synthetic_data = create_het_edge_perturbation(batch_data, perturbation_prob=self.edge_perturbation_p)
 
             combined_data = batch_data + synthetic_data
             combined_labels = (
