@@ -68,7 +68,6 @@ python main.py \
 python main.py \
 --sagemaker False \
 --num_train 65000 \
---num_edge_types 4 \
 --sampling_size 320 \
 --batch_s 32 \
 --mini_batch_s 32 \
@@ -81,17 +80,18 @@ python main.py \
 --save_model_freq 2 \
 --lr 0.0001 \
 --train_iter_n 200 \
---model_version 9 \
+--model_version 12 \
 --model_sub_version 0 \
 --dataset_id 0 \
 --input_type batch \
 --feature_size 7 \
 --out_embed_s 300 \
 --hidden_channels 300 \
---model_path ../model_save_tralog_gcn9 \
+--num_hidden_conv_layers 3 \
+--model_path ../model_save_tralog_gcn12 \
 --data_path ../ProcessedData_HetGCN
 
-# DeepTraLog Baseline - StreamSpot
+# StreamSpot Baseline
 python main.py \
 --sagemaker False \
 --num_train 375 \
@@ -114,5 +114,6 @@ python main.py \
 --feature_size 26 \
 --out_embed_s 32 \
 --hidden_channels 32 \
---model_path ../model_save_streamspot_gcn9 \
+--num_hidden_conv_layers 3 \
+--model_path ../model_save_streamspot_gcn12 \
 --data_path ../ProcessedData_streamspot
