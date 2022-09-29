@@ -59,7 +59,8 @@ def resolve_args(args):
     if args['sagemaker']:
         args['model_path'] = os.environ['SM_MODEL_DIR']
         args['data_path'] = os.environ['SM_CHANNEL_TRAIN']
-        args['checkpoint_path'] = os.environ['SM_CHANNEL_MODEL']
+        if args['checkpoint']:
+            args['checkpoint_path'] = os.environ['SM_CHANNEL_MODEL']
     return args
 
 if __name__ == '__main__':
