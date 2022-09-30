@@ -37,7 +37,7 @@ def het_edge_perturbation(g_data, num_node_types=8, method="xor", perturbation_p
     new_adj_mat = torch.zeros(num_nodes, num_nodes).to(edge_index.device)
 
     if edge_type is None:
-        edge_type = torch.zeros(edge_index.shape[1], )
+        edge_type = torch.zeros(edge_index.shape[1], ).to(edge_index.device)
 
     # original dense edge types, use edge_type + 1 to avoid misunderstanding with 0
     dense_edge_with_attr = to_dense_adj(edge_index, edge_attr=edge_type + 1).view(
