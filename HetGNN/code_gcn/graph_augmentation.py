@@ -72,7 +72,7 @@ def het_edge_perturbation_from_prior(
                 # print(f"src_node_list: {src_node_list}")
                 # print(f"dst_node_list: {dst_node_list}")
 
-                num_edges = int(edge_ratio * total_num_edges)
+                num_edges = int(edge_ratio * total_num_edges) + 1
 
                 sampled_edge_index = torch.tensor(
                     [
@@ -88,9 +88,9 @@ def het_edge_perturbation_from_prior(
     new_edge_index = torch.cat(new_edge_index, dim=1).long().view(2, -1)
     new_edge_type = torch.cat(new_edge_type).int().view(-1,)
 
-    print(f'new_edge_index: {new_edge_index.shape}')
-    print(f'new_edge_type: {new_edge_type.shape}')
-    print(f'num_edge_types: {num_edge_types}')
+    # print(f'new_edge_index: {new_edge_index.shape}')
+    # print(f'new_edge_type: {new_edge_type.shape}')
+    # print(f'num_edge_types: {num_edge_types}')
 
     generated_adj_matrix = to_dense_adj(
         new_edge_index, edge_attr=new_edge_type + 1, max_num_nodes=size
