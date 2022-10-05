@@ -25,7 +25,7 @@ python main.py \
 --out_embed_s 300 \
 --hidden_channels 300 \
 --num_hidden_conv_layers 1 \
---model_path ../model_save_tralog_gcn11 \
+--model_path ../model_save_tralog_gcn11_ratio \
 --data_path ../ProcessedData_HetGCN
 
 
@@ -40,7 +40,7 @@ python main.py \
 --sagemaker False \
 --num_node_types 8 \
 --num_train 375 \
---source_types 0,1,2,3,4,5,6,7 \
+--source_types 0,1 \
 --sampling_size 375 \
 --batch_s 25 \
 --mini_batch_s 25 \

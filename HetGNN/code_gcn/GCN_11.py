@@ -94,7 +94,7 @@ class HetGCN_11(nn.Module):
         if train:
             print("Edge Perturbating for the batch ..")
             # het_edge_perturbation(args)
-            synthetic_data = create_het_edge_perturbation(batch_data, perturbation_prob=self.edge_perturbation_p)
+            synthetic_data = create_het_edge_perturbation(batch_data, prior_dist=self.dataset.edge_ratio_dict)
 
             combined_data = batch_data + synthetic_data
             combined_labels = (

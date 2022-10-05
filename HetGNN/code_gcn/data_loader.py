@@ -18,6 +18,7 @@ class HetGCNEventGraphDataset(Dataset):
         ignore_weight=False,
         include_edge_type=False,
         ppr_zip_root_dir=None,
+        edge_ratio_csv=None,
         **kwargs,
     ):
         """
@@ -58,6 +59,26 @@ class HetGCNEventGraphDataset(Dataset):
             print("unzipping ppr subgraphs ..")
             with ZipFile(f"{ppr_zip_root_dir}/ppr_subgraphs.zip", "r") as zip_obj:
                 zip_obj.extractall(path=ppr_zip_root_dir)
+
+        if edge_ratio_csv:
+            print("reading edge ratio ...")
+            edge_ratio = pd.read_csv(edge_ratio_csv)
+            edge_ratio = edge_ratio[~edge_ratio.trace_bool][
+                ["edge_type", "src_dst_type", "percent_in_all"]
+            ]
+
+            edge_ratio_dict = {}
+            for idx, row in edge_ratio.iterrows():
+                edge_type = int(row["edge_type"])
+                src_dst_type = str(row["src_dst_type"])
+                percent_in_all = float(row["percent_in_all"])
+
+                if edge_type not in edge_ratio_dict.keys():
+                    edge_ratio_dict[edge_type] = {}
+
+                edge_ratio_dict[edge_type][src_dst_type] = percent_in_all
+
+            self.edge_ratio_dict = edge_ratio_dict
 
         # self.node_type_to_id = {chr(97 + i): i for i in range(self.num_node_type)}
 
@@ -143,7 +164,12 @@ class HetGCNEventGraphDataset(Dataset):
             )
 
         else:
-            return graph_node_feature, edge_index, (edge_weight, None), self.node_types[gid]
+            return (
+                graph_node_feature,
+                edge_index,
+                (edge_weight, None),
+                self.node_types[gid],
+            )
 
 
 if __name__ == "__main__":

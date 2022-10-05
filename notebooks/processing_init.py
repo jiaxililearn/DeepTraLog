@@ -74,6 +74,34 @@ def model_output(model, data, batch_size=25):
         concat_score.append(_score)
     return np.concatenate(concat_out), np.concatenate(concat_score)
 
+
+def model_score_output(model, data, batch_size=25):
+    concat_score = []
+    for i in tqdm(range(0, len(data), batch_size)):
+        _data = data[i: i + batch_size]
+        _score = model.predict_score(_data).cpu().detach().numpy()
+        concat_score.append(_score)
+    return np.concatenate(concat_score)
+
+
+def get_graph_score_results(data_root_dir, model, dataset, gid_list, input_type='single', name='train'):
+    if input_type == 'batch':
+        g_scores = model_score_output(model, gid_list).flatten()
+
+#     print(g_scores)
+    
+    resultdf = pd.DataFrame()
+    resultdf['scores'] = g_scores
+    resultdf['trace_id'] = gid_list
+    resultdf['dataset'] = name
+    trace_info_df = load_trace_info(data_root_dir)
+
+    resultdf = resultdf.merge(trace_info_df, on='trace_id', how='inner')
+    px.histogram(resultdf, x='scores', color='error_trace_type', title=f'{name} Scores').show()
+
+    return resultdf
+
+
 def get_graph_results(data_root_dir, model, dataset, gid_list, input_type='single', name='train'):
     
     if input_type == 'batch':

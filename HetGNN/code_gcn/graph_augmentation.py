@@ -7,7 +7,12 @@ from torch_geometric.utils import (
 
 
 def create_het_edge_perturbation(
-    batch_data, num_node_types=8, num_edge_types=1, method="xor", perturbation_prob=0.0002
+    batch_data,
+    num_node_types=8,
+    num_edge_types=1,
+    method="xor",
+    prior_dist=None,
+    perturbation_prob=0.0002,
 ):
     """
     generate the same number of 'fake' abnormal graphs as the input batch
@@ -15,18 +20,99 @@ def create_het_edge_perturbation(
     new_batch = []
     for i in range(len(batch_data)):
         g_data = random.choice(batch_data)
+        # new_batch.append(
+        #     het_edge_perturbation(
+        #         g_data,
+        #         num_node_types=num_node_types,
+        #         method=method,
+        #         perturbation_prob=perturbation_prob
+        #     )
+        # )
         new_batch.append(
-            het_edge_perturbation(
-                g_data,
-                num_node_types=num_node_types,
-                method=method,
-                perturbation_prob=perturbation_prob
+            het_edge_perturbation_from_prior(
+                g_data, prior_dist, num_node_types=num_node_types, method=method
             )
         )
     return new_batch
 
 
-def het_edge_perturbation(g_data, num_node_types=8, method="xor", perturbation_prob=0.0002):
+def het_edge_perturbation_from_prior(
+    g_data, prior_dist, num_node_types=8, method="xor"
+):
+    """
+    create edge perturbation based on prior distributions
+    """
+    node_feature, edge_index, (edge_weight, edge_type), node_types = g_data
+    device = edge_index.device
+
+    size = node_feature.shape[0]
+
+    total_num_edges = edge_index.shape[1]
+    num_edge_types = len(prior_dist.keys())
+
+    new_edge_index = []
+    new_edge_type = []
+
+    for etype in range(num_edge_types):
+        for src_type in range(num_node_types):
+            for dst_type in range(num_node_types):
+                src_dst_type = f"{src_type}_{dst_type}"
+
+                try:
+                    edge_ratio = prior_dist[etype][src_dst_type]
+                except Exception as e:
+                    # print(f"could not found key {src_dst_type} in edge type {etype}")
+                    continue
+
+                src_node_list = node_types[src_type]
+                dst_node_list = node_types[dst_type]
+
+                if len(src_node_list) == 0 or len(dst_node_list) == 0:
+                    continue
+                # print(f"src_node_list: {src_node_list}")
+                # print(f"dst_node_list: {dst_node_list}")
+
+                num_edges = int(edge_ratio * total_num_edges)
+
+                sampled_edge_index = torch.tensor(
+                    [
+                        random.choices(src_node_list, k=num_edges),
+                        random.choices(dst_node_list, k=num_edges),
+                    ]
+                ).to(device)
+                sampled_edge_type = torch.tensor([etype] * num_edges).to(device)
+
+                new_edge_index.append(sampled_edge_index)
+                new_edge_type.append(sampled_edge_type)
+
+    new_edge_index = torch.concat(new_edge_index, dim=1)
+    new_edge_type = torch.concat(new_edge_type)
+
+    generated_adj_matrix = to_dense_adj(
+        new_edge_index, edge_attr=new_edge_type + 1
+    ).view(size, -1)
+
+    origin_adj_matrix = to_dense_adj(edge_index, edge_attr=edge_type + 1).view(size, -1)
+
+    mask = torch.logical_xor(origin_adj_matrix, generated_adj_matrix)
+
+    new_adj_matrix = origin_adj_matrix.masked_fill(
+        ~mask, 0
+    ) + generated_adj_matrix.masked_fill(~mask, 0)
+
+    new_edge_index, new_edge_type = dense_to_sparse(new_adj_matrix)
+    new_edge_type -= 1
+    return (
+        node_feature,
+        new_edge_index,
+        (None, new_edge_type),
+        node_types,
+    )  # ignores edge weight for now. TODO
+
+
+def het_edge_perturbation(
+    g_data, num_node_types=8, method="xor", perturbation_prob=0.0002
+):
     """
     perturbate a graph with random dropping/adding edges
     """
@@ -37,7 +123,9 @@ def het_edge_perturbation(g_data, num_node_types=8, method="xor", perturbation_p
     new_adj_mat = torch.zeros(num_nodes, num_nodes).to(edge_index.device)
 
     if edge_type is None:
-        edge_type = torch.zeros(edge_index.shape[1], ).to(edge_index.device)
+        edge_type = torch.zeros(
+            edge_index.shape[1],
+        ).to(edge_index.device)
 
     # original dense edge types, use edge_type + 1 to avoid misunderstanding with 0
     dense_edge_with_attr = to_dense_adj(edge_index, edge_attr=edge_type + 1).view(
