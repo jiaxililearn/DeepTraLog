@@ -85,8 +85,8 @@ def het_edge_perturbation_from_prior(
                 new_edge_index.append(sampled_edge_index)
                 new_edge_type.append(sampled_edge_type)
 
-    new_edge_index = torch.concat(new_edge_index, dim=1)
-    new_edge_type = torch.concat(new_edge_type)
+    new_edge_index = torch.cat(new_edge_index, dim=1)
+    new_edge_type = torch.cat(new_edge_type)
 
     generated_adj_matrix = to_dense_adj(
         new_edge_index, edge_attr=new_edge_type + 1
