@@ -89,10 +89,10 @@ def het_edge_perturbation_from_prior(
     new_edge_type = torch.cat(new_edge_type).int().view(-1,)
 
     generated_adj_matrix = to_dense_adj(
-        new_edge_index, edge_attr=new_edge_type + 1
+        new_edge_index, edge_attr=new_edge_type + 1, max_num_nodes=size
     ).view(size, -1)
 
-    origin_adj_matrix = to_dense_adj(edge_index, edge_attr=edge_type + 1).view(size, -1)
+    origin_adj_matrix = to_dense_adj(edge_index, edge_attr=edge_type + 1, max_num_nodes=size).view(size, -1)
 
     mask = torch.logical_xor(origin_adj_matrix, generated_adj_matrix)
 
