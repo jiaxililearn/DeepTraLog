@@ -90,6 +90,7 @@ def het_edge_perturbation_from_prior(
 
     print(f'new_edge_index: {new_edge_index.shape}')
     print(f'new_edge_type: {new_edge_type.shape}')
+    print(f'num_edge_types: {num_edge_types}')
 
     generated_adj_matrix = to_dense_adj(
         new_edge_index, edge_attr=new_edge_type + 1, max_num_nodes=size
