@@ -30,6 +30,7 @@ import click
 @click.option('--checkpoint', default=None, type=int, help='model checkpoint to load')
 @click.option('--checkpoint_path', default=None, type=str, help='model checkpoint path')
 @click.option('--edge_perturbation_p', default=0.001, type=float, help='probability of edge perturbation')
+@click.option('--edge_ratio_percentile', default=0.95, type=float, help='percentile used for edge perturbation')
 @click.option('--dataset_id', default=0, help='choose dataset used for training')
 @click.option('--fix_center', default=True, type=bool, help='if fix the svdd center on first batch pass')
 @click.option('--test_set', default=True, type=bool, help='if create test dataset from input')

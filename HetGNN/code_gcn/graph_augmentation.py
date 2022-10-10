@@ -37,7 +37,7 @@ def create_het_edge_perturbation(
 
 
 def het_edge_perturbation_from_prior(
-    g_data, prior_dist, num_node_types=8, method="xor"
+    g_data, prior_dist, num_node_types=8, method="xor", size=None
 ):
     """
     create edge perturbation based on prior distributions
@@ -45,7 +45,8 @@ def het_edge_perturbation_from_prior(
     node_feature, edge_index, (edge_weight, edge_type), node_types = g_data
     device = edge_index.device
 
-    size = node_feature.shape[0]
+    if size is None:
+        size = node_feature.shape[0]
 
     total_num_edges = edge_index.shape[1]
     num_edge_types = len(prior_dist.keys())
@@ -111,7 +112,7 @@ def het_edge_perturbation_from_prior(
         new_edge_index,
         (None, new_edge_type),
         node_types,
-    )  # ignores edge weight for now. TODO
+    )  # ignores edge weight for now. TODO: need to add support for CMU data
 
 
 def het_edge_perturbation(
@@ -200,6 +201,9 @@ def het_edge_perturbation(
     new_edge_type -= 1
     return node_feature, new_edge_index, (new_edge_weight, new_edge_type), node_types
 
+
+def create_het_node_insertion():
+    pass
 
 # class GraphAugementor:
 #     """

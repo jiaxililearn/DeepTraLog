@@ -23,7 +23,7 @@ class Train2(object):
                  ignore_weight=False, source_types=None, input_type='single',
                  sampling_size=None, eval_size=None,
                  test_set=True, fix_center=True, num_eval=None, unzip=False,
-                 split_data=True, **kwargs):
+                 split_data=True, edge_ratio_percentile=0.95, **kwargs):
         super().__init__()
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
@@ -59,7 +59,8 @@ class Train2(object):
                     node_type_txt=f'{self.data_root_dir}/node_types.txt',
                     edge_ratio_csv=f'{self.data_root_dir}/edge_ratio.csv',
                     ignore_weight=ignore_weight,
-                    include_edge_type=True if kwargs['num_edge_types'] > 1 else False
+                    include_edge_type=True if kwargs['num_edge_types'] > 1 else False,
+                    edge_ratio_percentile=edge_ratio_percentile
                 )
 
         self.num_train_benign = num_train
