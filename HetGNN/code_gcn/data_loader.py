@@ -63,9 +63,12 @@ class HetGCNEventGraphDataset(Dataset):
         if edge_ratio_csv:
             print("reading edge ratio ...")
             edge_ratio = pd.read_csv(edge_ratio_csv)
-            edge_ratio = edge_ratio[~edge_ratio.trace_bool][
+            edge_ratio = edge_ratio[edge_ratio.trace_bool][
                 ["edge_type", "src_dst_type", "percent_in_all"]
             ]
+
+            # taking the normal graph at 95% quantile
+            edge_ratio = edge_ratio[edge_ratio['level_3'] == 0.95]
 
             edge_ratio_dict = {}
             for idx, row in edge_ratio.iterrows():
