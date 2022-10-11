@@ -221,7 +221,7 @@ def create_het_node_insertion(
     # num_node_types=8,
     # num_edge_types=4,
     subgraph_ratio=0.01,
-    perturb_iteration=1,
+    insertion_iteration=1,
     method="target_to_source",
 ):
     """
@@ -232,7 +232,7 @@ def create_het_node_insertion(
     for i in range(len(batch_data)):
         g_data = random.choice(batch_data)
 
-        for iter_ in range(perturb_iteration):
+        for iter_ in range(insertion_iteration):
             g_data = het_node_insertion(g_data, subgraph_ratio=subgraph_ratio, method=method)
         new_batch.append(g_data)
     return new_batch
