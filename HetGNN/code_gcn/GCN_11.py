@@ -176,6 +176,7 @@ class HetGCN_11(nn.Module):
     def svdd_cross_entropy_loss(self, embed_batch, outputs, labels, l2_lambda=0.001, fix_center=True):
         """
         Compute combination of SVDD Loss and cross entropy loss on batch
+        TODO: Add weight average
         """
 
         _batch_out = embed_batch
@@ -210,8 +211,7 @@ class HetGCN_11(nn.Module):
         svdd_loss = loss_ + l2_lambda * l2_norm
         bce_loss = self.loss(outputs, labels)
 
-        print(f'\tBatch SVDD Loss: {svdd_loss};')
-        print(f'\tBatch BCE Loss: {bce_loss};')
+        print(f'\t Batch SVDD Loss: {svdd_loss}; Batch BCE Loss: {bce_loss};')
 
         loss = svdd_loss + bce_loss
         return loss
