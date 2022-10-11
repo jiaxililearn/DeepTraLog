@@ -99,7 +99,7 @@ class HetGCN_11(nn.Module):
         batch_data = [self.dataset[i] for i in gid_batch]
 
         if train:
-            print(f"{self.augment_func} for the batch ..")
+            print(f"{self.augment_func.__name__} for the batch ..")
             # het_edge_perturbation(args)
             synthetic_data = self.augment_func(batch_data)
 
@@ -210,8 +210,8 @@ class HetGCN_11(nn.Module):
         svdd_loss = loss_ + l2_lambda * l2_norm
         bce_loss = self.loss(outputs, labels)
 
-        print(f'Batch SVDD Loss: {svdd_loss}')
-        print(f'Batch BCE Loss: {bce_loss}')
+        print(f'\tBatch SVDD Loss: {svdd_loss};')
+        print(f'\tBatch BCE Loss: {bce_loss};')
 
         loss = svdd_loss + bce_loss
         return loss
