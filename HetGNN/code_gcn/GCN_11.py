@@ -53,7 +53,7 @@ class HetGCN_11(nn.Module):
         self.subgraph_ratio = subgraph_ratio
         self.insertion_iteration = insertion_iteration
         self.augmentation_method = augmentation_method
-        self.augmentation_func = augmentations[augmentation_method]
+        self.augmentation_func = augmentations()[augmentation_method]
 
         # node feature content encoder
         if model_sub_version == 0:
