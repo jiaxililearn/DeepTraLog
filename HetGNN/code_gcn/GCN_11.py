@@ -117,10 +117,12 @@ class HetGCN_11(nn.Module):
         # print(f'x_edge_index shape: {x_edge_index.shape}')
         _out = torch.zeros(len(combined_data), 1, device=self.device)
         _out_h = torch.zeros(len(gid_batch), self.out_embed_d, device=self.device)
-        for i, g_data in enumerate(combined_data):
+        for i, (g_data, g_label) in enumerate(zip(combined_data, combined_labels)):
             h = self.het_node_conv(g_data, source_types=self.source_types)
             h = self.sigmoid(h)
-            _out_h[i] = h
+
+            if g_label == 0:
+                _out_h[i] = h
 
             h = self.final_logistic(h)
             _out[i] = h
