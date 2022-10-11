@@ -100,7 +100,7 @@ class HetGCN_11(nn.Module):
         batch_data = [self.dataset[i] for i in gid_batch]
 
         if train:
-            print("Edge Perturbating for the batch ..")
+            print(f"{self.augmentation_method} for the batch ..")
             # het_edge_perturbation(args)
             synthetic_data = self.augmentation_func(batch_data, **self.resolve_additional_augmentation_args())
 
