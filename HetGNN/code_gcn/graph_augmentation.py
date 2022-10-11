@@ -40,7 +40,7 @@ class GraphAugmentator:
         """
         new_batch = []
         for i in range(len(batch_data)):
-            g_data = random.choice(self.batch_data)
+            g_data = random.choice(batch_data)
             new_batch.append(
                 self.het_edge_perturbation_from_prior(
                     g_data,
@@ -243,7 +243,7 @@ class GraphAugmentator:
         """
         new_batch = []
         for i in range(len(batch_data)):
-            g_data = random.choice(self.batch_data)
+            g_data = random.choice(batch_data)
 
             for iter_ in range(self.insertion_iteration):
                 g_data = self.het_node_insertion(
