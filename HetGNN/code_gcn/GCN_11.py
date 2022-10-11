@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import torch
 from torch import nn
 from HetGCNConv_11 import HetGCNConv_11
-from graph_augmentation import augmentations
+# from graph_augmentation import GraphAugmentator
 
 
 class HetGCN_11(nn.Module):
@@ -20,10 +20,8 @@ class HetGCN_11(nn.Module):
         num_hidden_conv_layers=1,
         model_sub_version=0,
         num_edge_types=1,
-        edge_perturbation_p=0.002,
-        augmentation_method=None,
-        insertion_iteration=None,
-        subgraph_ratio=None,
+        augment_func=None,
+        # edge_perturbation_p=0.002,
         **kwargs,
     ):
         """
@@ -43,17 +41,18 @@ class HetGCN_11(nn.Module):
         self.source_types = source_types
         self.model_sub_version = model_sub_version
 
-        self.edge_perturbation_p = edge_perturbation_p
+        # self.edge_perturbation_p = edge_perturbation_p
 
         self.embed_d = feature_size
         self.out_embed_d = out_embed_s
 
         self.num_node_types = num_node_types
 
-        self.subgraph_ratio = subgraph_ratio
-        self.insertion_iteration = insertion_iteration
-        self.augmentation_method = augmentation_method
-        self.augmentation_func = augmentations()[augmentation_method]
+        # self.subgraph_ratio = subgraph_ratio
+        # self.insertion_iteration = insertion_iteration
+        # self.augmentation_method = augmentation_method
+        # self.augmentation_func = augmentations()[augmentation_method]
+        self.augment_func = augment_func
 
         # node feature content encoder
         if model_sub_version == 0:
@@ -100,9 +99,9 @@ class HetGCN_11(nn.Module):
         batch_data = [self.dataset[i] for i in gid_batch]
 
         if train:
-            print(f"{self.augmentation_method} for the batch ..")
+            print(f"{self.augment_func} for the batch ..")
             # het_edge_perturbation(args)
-            synthetic_data = self.augmentation_func(batch_data, **self.resolve_additional_augmentation_args())
+            synthetic_data = self.augment_func(batch_data)
 
             combined_data = batch_data + synthetic_data
             combined_labels = (
@@ -117,25 +116,19 @@ class HetGCN_11(nn.Module):
         # print(f'x_node_feature shape: {x_node_feature.shape}')
         # print(f'x_edge_index shape: {x_edge_index.shape}')
         _out = torch.zeros(len(combined_data), 1, device=self.device)
+        _out_h = torch.zeros(len(gid_batch), self.out_embed_d, device=self.device)
         for i, g_data in enumerate(combined_data):
             h = self.het_node_conv(g_data, source_types=self.source_types)
             h = self.sigmoid(h)
+            _out_h[i] = h
+
             h = self.final_logistic(h)
             _out[i] = h
         # print(f'combined_labels: {combined_labels.shape}')
         # print(f'_out: {_out.shape}')
         # print(f'combined_labels: {combined_labels}')
         # TODO: also returns the labels
-        return _out, combined_labels
-
-    def resolve_additional_augmentation_args(self):
-        if self.augmentation_method == 'edge_perturbation':
-            return dict(prior_dist=self.dataset.edge_ratio_dict)
-        elif self.augmentation_method == 'node_insertion':
-            return dict(
-                subgraph_ratio=self.subgraph_ratio,
-                insertion_iteration=self.insertion_iteration
-            )
+        return _out, combined_labels, _out_h
 
     # def graph_node_pooling(self, graph_node_het_embedding):
     #     """
@@ -145,21 +138,21 @@ class HetGCN_11(nn.Module):
     #         return graph_node_het_embedding
     #     return torch.mean(graph_node_het_embedding, 0)
 
-    # def set_svdd_center(self, center):
-    #     """
-    #     set svdd center
-    #     """
-    #     self.svdd_center = center
+    def set_svdd_center(self, center):
+        """
+        set svdd center
+        """
+        self.svdd_center = center
 
-    # def load_svdd_center(self):
-    #     """
-    #     load existing svdd center
-    #     """
-    #     self.set_svdd_center(
-    #         torch.load(
-    #             f"{self.model_path}/HetGNN_SVDD_Center.pt", map_location=self.device
-    #         )
-    #     )
+    def load_svdd_center(self):
+        """
+        load existing svdd center
+        """
+        self.set_svdd_center(
+            torch.load(
+                f"{self.model_path}/HetGNN_SVDD_Center.pt", map_location=self.device
+            )
+        )
 
     def load_checkpoint(self, checkpoint):
         """
@@ -178,42 +171,45 @@ class HetGCN_11(nn.Module):
             scores, _ = self(g_data, train=False)
         return scores
 
+    def svdd_cross_entropy_loss(self, embed_batch, outputs, labels, l2_lambda=0.001, fix_center=True):
+        """
+        Compute combination of SVDD Loss and cross entropy loss on batch
+        """
 
-# def svdd_batch_loss(model, embed_batch, l2_lambda=0.001, fix_center=True):
-#     """
-#     Compute SVDD Loss on batch
-#     """
-#     # TODO
-#     out_embed_d = model.out_embed_d
+        _batch_out = embed_batch
+        _batch_out_resahpe = _batch_out.view(
+            _batch_out.size()[0] * _batch_out.size()[1], self.out_embed_d
+        )
 
-#     _batch_out = embed_batch
-#     _batch_out_resahpe = _batch_out.view(
-#         _batch_out.size()[0] * _batch_out.size()[1], out_embed_d
-#     )
+        if fix_center:
+            if self.svdd_center is None:
+                with torch.no_grad():
+                    print("Set initial center ..")
+                    hypersphere_center = torch.mean(_batch_out_resahpe, 0)
+                    self.set_svdd_center(hypersphere_center)
+                    torch.save(
+                        hypersphere_center, f"{self.model_path}/HetGNN_SVDD_Center.pt"
+                    )
+            else:
+                hypersphere_center = self.svdd_center
+                #  with torch.no_grad():
+                #     hypersphere_center = (model.svdd_center + torch.mean(_batch_out_resahpe, 0)) / 2
+                #     model.set_svdd_center(hypersphere_center)
+        else:
+            with torch.no_grad():
+                print("compute batch center ..")
+                hypersphere_center = torch.mean(_batch_out_resahpe, 0)
 
-#     if fix_center:
-#         if model.svdd_center is None:
-#             with torch.no_grad():
-#                 print("Set initial center ..")
-#                 hypersphere_center = torch.mean(_batch_out_resahpe, 0)
-#                 model.set_svdd_center(hypersphere_center)
-#                 torch.save(
-#                     hypersphere_center, f"{model.model_path}/HetGNN_SVDD_Center.pt"
-#                 )
-#         else:
-#             hypersphere_center = model.svdd_center
-#             #  with torch.no_grad():
-#             #     hypersphere_center = (model.svdd_center + torch.mean(_batch_out_resahpe, 0)) / 2
-#             #     model.set_svdd_center(hypersphere_center)
-#     else:
-#         with torch.no_grad():
-#             print("compute batch center ..")
-#             hypersphere_center = torch.mean(_batch_out_resahpe, 0)
+        dist = torch.square(_batch_out_resahpe - hypersphere_center)
+        loss_ = torch.mean(torch.sum(dist, 1))
 
-#     dist = torch.square(_batch_out_resahpe - hypersphere_center)
-#     loss_ = torch.mean(torch.sum(dist, 1))
+        l2_norm = sum(p.pow(2.0).sum() for p in self.parameters()) / 2
 
-#     l2_norm = sum(p.pow(2.0).sum() for p in model.parameters()) / 2
+        svdd_loss = loss_ + l2_lambda * l2_norm
+        bce_loss = self.loss(outputs, labels)
 
-#     loss = loss_ + l2_lambda * l2_norm
-#     return loss
+        print(f'Batch SVDD Loss: {svdd_loss}')
+        print(f'Batch BCE Loss: {bce_loss}')
+
+        loss = svdd_loss + bce_loss
+        return loss
