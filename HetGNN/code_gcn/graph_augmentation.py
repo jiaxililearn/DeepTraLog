@@ -254,15 +254,19 @@ def het_node_insertion(
     device = edge_index.device
 
     sampled_nodes = random.sample(
-        range(node_features.shape[0]), int(node_features.shape[0] * subgraph_ratio)
+        range(node_features.shape[0]), int(node_features.shape[0] * subgraph_ratio) + 1
     )
 
-    _, sub_edge_index, _, sub_edge_mask = k_hop_subgraph(
-        node_idx=sampled_nodes,
-        num_hops=1,
-        edge_index=edge_index,
-        flow=method,
-    )
+    try:
+        _, sub_edge_index, _, sub_edge_mask = k_hop_subgraph(
+            node_idx=sampled_nodes,
+            num_hops=1,
+            edge_index=edge_index,
+            flow=method,
+        )
+    except Exception as e:
+        print(f"sampled_nodes: {sampled_nodes}")
+        raise Exception from e
 
     row, col = edge_index
     retained_edges = torch.stack([row[~sub_edge_mask], col[~sub_edge_mask]]).to(
