@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 import torch
 from torch import nn
 from HetGCNConv_11 import HetGCNConv_11
-from graph_augmentation import create_het_edge_perturbation
+from graph_augmentation import augmentations
 
 
 class HetGCN_11(nn.Module):
@@ -21,6 +21,9 @@ class HetGCN_11(nn.Module):
         model_sub_version=0,
         num_edge_types=1,
         edge_perturbation_p=0.002,
+        augmentation_method=None,
+        insertion_iteration=None,
+        subgraph_ratio=None,
         **kwargs,
     ):
         """
@@ -46,6 +49,11 @@ class HetGCN_11(nn.Module):
         self.out_embed_d = out_embed_s
 
         self.num_node_types = num_node_types
+
+        self.subgraph_ratio = subgraph_ratio
+        self.insertion_iteration = insertion_iteration
+        self.augmentation_method = augmentation_method
+        self.augmentation_func = augmentations[augmentation_method]
 
         # node feature content encoder
         if model_sub_version == 0:
@@ -94,7 +102,7 @@ class HetGCN_11(nn.Module):
         if train:
             print("Edge Perturbating for the batch ..")
             # het_edge_perturbation(args)
-            synthetic_data = create_het_edge_perturbation(batch_data, prior_dist=self.dataset.edge_ratio_dict)
+            synthetic_data = self.augmentation_func(batch_data, **self.resolve_additional_augmentation_args)
 
             combined_data = batch_data + synthetic_data
             combined_labels = (
@@ -119,6 +127,15 @@ class HetGCN_11(nn.Module):
         # print(f'combined_labels: {combined_labels}')
         # TODO: also returns the labels
         return _out, combined_labels
+
+    def resolve_additional_augmentation_args(self):
+        if self.augmentation_method == 'edge_perturbation':
+            return dict(prior_dist=self.dataset.edge_ratio_dict)
+        elif self.augmentation_method == 'node_insertion':
+            return dict(
+                subgraph_ratio=self.subgraph_ratio,
+                insertion_iteration=self.insertion_iteration
+            )
 
     # def graph_node_pooling(self, graph_node_het_embedding):
     #     """

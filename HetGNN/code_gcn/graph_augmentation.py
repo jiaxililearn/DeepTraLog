@@ -1,10 +1,16 @@
 import random
+import copy
 import torch
-from torch_geometric.utils import (
-    dense_to_sparse,
-    to_dense_adj,
-)
+from torch_geometric.utils import dense_to_sparse, to_dense_adj, k_hop_subgraph
 
+def augmentations():
+    """
+    augmentation functions summary
+    """
+    return {
+        'edge_perturbation': create_het_edge_perturbation,
+        'node_insertion': create_het_node_insertion
+    }
 
 def create_het_edge_perturbation(
     batch_data,
@@ -87,7 +93,13 @@ def het_edge_perturbation_from_prior(
                 new_edge_type.append(sampled_edge_type)
 
     new_edge_index = torch.cat(new_edge_index, dim=1).long().view(2, -1)
-    new_edge_type = torch.cat(new_edge_type).int().view(-1,)
+    new_edge_type = (
+        torch.cat(new_edge_type)
+        .int()
+        .view(
+            -1,
+        )
+    )
 
     # print(f'new_edge_index: {new_edge_index.shape}')
     # print(f'new_edge_type: {new_edge_type.shape}')
@@ -97,7 +109,9 @@ def het_edge_perturbation_from_prior(
         new_edge_index, edge_attr=new_edge_type + 1, max_num_nodes=size
     ).view(size, -1)
 
-    origin_adj_matrix = to_dense_adj(edge_index, edge_attr=edge_type + 1, max_num_nodes=size).view(size, -1)
+    origin_adj_matrix = to_dense_adj(
+        edge_index, edge_attr=edge_type + 1, max_num_nodes=size
+    ).view(size, -1)
 
     mask = torch.logical_xor(origin_adj_matrix, generated_adj_matrix)
 
@@ -202,8 +216,159 @@ def het_edge_perturbation(
     return node_feature, new_edge_index, (new_edge_weight, new_edge_type), node_types
 
 
-def create_het_node_insertion():
-    pass
+def create_het_node_insertion(
+    batch_data,
+    # num_node_types=8,
+    # num_edge_types=4,
+    subgraph_ratio=0.01,
+    perturb_iteration=1,
+    method="target_to_source",
+):
+    """
+    create node insertion
+    TODO: Add node deletion
+    """
+    new_batch = []
+    for i in range(len(batch_data)):
+        g_data = random.choice(batch_data)
+
+        for iter_ in range(perturb_iteration):
+            g_data = het_node_insertion(g_data, subgraph_ratio=subgraph_ratio, method=method)
+        new_batch.append(g_data)
+    return new_batch
+
+
+def het_node_insertion(
+    g_data,
+    # num_node_types=8,
+    # num_edge_types=4,
+    subgraph_ratio=0.01,
+    method="target_to_source",
+    size=None,
+):
+    """
+    add / removing node from the graphs
+    It will also remove/add edges to the graph with the associated node
+    """
+    node_features, edge_index, (edge_weight, edge_type), node_types = g_data
+    device = edge_index.device
+
+    sampled_nodes = random.sample(
+        range(node_features.shape[0]), int(node_features.shape[0] * subgraph_ratio)
+    )
+
+    _, sub_edge_index, _, sub_edge_mask = k_hop_subgraph(
+        node_idx=sampled_nodes,
+        num_hops=1,
+        edge_index=edge_index,
+        flow=method,
+    )
+
+    row, col = edge_index
+    retained_edges = torch.stack([row[~sub_edge_mask], col[~sub_edge_mask]]).to(
+        edge_index.device
+    )
+    retained_edge_types = edge_type[~sub_edge_mask]
+
+    new_node_list = []
+
+    # rewiring edge to new node
+    last_node_id = node_features.shape[0] - 1
+    for ntype, ntype_list in enumerate(node_types):
+        if len(ntype_list) == 0:
+            # print(f"skip node type {ntype}")
+            continue
+        _mask = sum(sub_edge_index[1] == i for i in ntype_list).bool()
+
+        # skip if no node matched
+        if _mask.sum() == 0:
+            # print("skip mask")
+            continue
+
+        new_node_id = last_node_id + 1
+        new_node_list.append((new_node_id, ntype))
+        sub_edge_index[1] = sub_edge_index[1].masked_fill_(_mask, new_node_id)
+
+        last_node_id = new_node_id
+    new_edge_index = torch.cat([retained_edges, sub_edge_index], dim=1)
+
+    # add new node to node feature matrix and node type list
+    new_node_types = copy.deepcopy(node_types)
+    new_node_features = [node_features]
+    for new_node_id, new_node_type in new_node_list:
+        new_node_feature = node_features[
+            sample_one_node_from_list(node_types[new_node_type])
+        ].view(1, -1)
+        new_node_types[new_node_type].append(new_node_id)
+
+        new_node_features.append(new_node_feature)
+    new_node_features = torch.cat(new_node_features, dim=0)
+
+    # add new edge type to the existing
+    added_edge_types = edge_type[sub_edge_mask]
+    new_edge_types = torch.cat([retained_edge_types, added_edge_types])
+
+    return (
+        new_node_features,
+        new_edge_index,
+        (None, new_edge_types),
+        new_node_types,
+    )  # default edge weight to None. TODO: update for CMU dataset
+
+    # for etype in range(num_edge_types):
+    #     for src_type in range(num_node_types):
+    #         for dst_type in range(num_node_types):
+
+    #             src_node_list = node_types[src_type]
+    #             dst_node_list = node_types[dst_type]
+
+    #             if len(src_node_list) == 0 or len(dst_node_list) == 0:
+    #                 continue
+
+
+# def add_one_node(node_features, edge_index, etype, src_node_list, dst_node_list, num_nodes, subgraph_ratio):
+#     """
+#     add a new node to the graph
+#     """
+#     sampled_nodes = random.sample(
+#         src_node_list,
+#         int(len(src_node_list) * subgraph_ratio)
+#     )
+
+#     # sample a subgraph to exclude from the orignal graph
+#     sub_nodes, sub_edge_index, _, sub_edge_mask = k_hop_subgraph(
+#         node_idx=sampled_nodes,
+#         num_hops=1,
+#         edge_index=edge_index,
+#         flow='target_to_source'
+#     )
+
+#     # get a random node feature from the existing het neighbour list
+#     new_node_feature = node_features[sample_one_node_from_list(dst_node_list)]
+#     new_node_id = node_features.shape[0]
+
+#     # rewiring the edge to the new node
+#     row, col = edge_index
+#     retained_edges = torch.stack([row[~sub_edge_mask], col[~sub_edge_mask]]).to(edge_index.device)
+#     new_edges = sub_edge_index.index_fill(0, torch.tensor([1], device=edge_index.device), new_node_id)
+
+#     new_edge_index = torch.cat(
+#         [retained_edges, new_edges],
+#         dim=1
+#     )
+
+#     # adding new node to graph node feature
+#     new_node_features = torch.cat([node_features, new_node_feature], dim=0)
+
+#     return new_node_features, new_edge_index
+
+
+def sample_one_node_from_list(node_list):
+    """
+    random sample a het node
+    """
+    return random.choice(node_list)
+
 
 # class GraphAugementor:
 #     """
