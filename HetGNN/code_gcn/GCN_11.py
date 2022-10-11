@@ -102,7 +102,7 @@ class HetGCN_11(nn.Module):
         if train:
             print("Edge Perturbating for the batch ..")
             # het_edge_perturbation(args)
-            synthetic_data = self.augmentation_func(batch_data, **self.resolve_additional_augmentation_args)
+            synthetic_data = self.augmentation_func(batch_data, **self.resolve_additional_augmentation_args())
 
             combined_data = batch_data + synthetic_data
             combined_labels = (
