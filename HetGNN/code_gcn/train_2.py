@@ -148,6 +148,7 @@ class Train2(object):
         self.model.train()
 
         epoch_loss_list = []
+        batch_loss_list = []
         eval_list = []
 
         # random split train eval test data or read from existing files
@@ -220,6 +221,7 @@ class Train2(object):
                         -1,
                     ),
                 )
+                batch_loss_list.append(batch_loss)
                 avg_loss_list.append(batch_loss.tolist())
                 # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
                 # print(f'Model Output: {_out}')
@@ -250,6 +252,12 @@ class Train2(object):
                 with open(f"{self.model_path}/train_loss.txt", "w") as fout:
                     for lo in epoch_loss_list:
                         fout.write(f"{lo}\n")
+
+                # save current all batch losses
+                with open(f"{self.model_path}/train_batch_loss.txt", "a") as fout:
+                    for lo in batch_loss_list:
+                        fout.write(f"{lo}\n")
+                    batch_loss_list = []
 
                 with open(f"{self.model_path}/eval_metrics.txt", "w") as fout:
                     for roc_auc, ap in eval_list:
