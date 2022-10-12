@@ -111,7 +111,7 @@ class HetGCN_11(nn.Module):
             )
         else:
             combined_data = batch_data
-            combined_labels = None
+            combined_labels = torch.tensor([0 for _ in batch_data]).to(self.device).view(-1, 1)
 
         # print(f'x_node_feature shape: {x_node_feature.shape}')
         # print(f'x_edge_index shape: {x_edge_index.shape}')
@@ -169,8 +169,11 @@ class HetGCN_11(nn.Module):
         """
         calc dist given graph features
         """
+        # TODO: using svdd score for eval. Will test with combined
         with torch.no_grad():
-            scores, _ = self(g_data, train=False)
+            bce_scores, _, embed = self(g_data, train=False)
+            svdd_score = torch.mean(torch.square(embed - self.svdd_center), 1)
+            scores = svdd_score
         return scores
 
     def svdd_cross_entropy_loss(self, embed_batch, outputs, labels, l2_lambda=0.001, weight=[1, 1], fix_center=True):
