@@ -393,6 +393,7 @@ class GraphAugmentator:
             src_edge_indices.shape[0] * swap_pct + 1,
             dst_edge_indices.shape[0] * swap_pct + 1,
         ))
+        print(num_edge_swap)
 
         swap_src = torch.multinomial(src_edge_indices.float(), num_edge_swap).long()
         swap_dst = torch.multinomial(dst_edge_indices.float(), num_edge_swap).long()
