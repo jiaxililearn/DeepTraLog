@@ -382,7 +382,7 @@ class GraphAugmentator:
         if unique_edge_types.shape[0] < 2:
             return False
         sampled_indices = torch.multinomial(unique_edge_types, 2)
-        swap_edge_types = torch.index_select(unique_edge_types, 1, sampled_indices)
+        swap_edge_types = torch.index_select(unique_edge_types, 0, sampled_indices)
 
         # TODO: From here
         src_edge_indices = (edge_type == swap_edge_types[0]).nonzero()
