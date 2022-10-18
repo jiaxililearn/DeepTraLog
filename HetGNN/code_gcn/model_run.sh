@@ -25,11 +25,13 @@ python main.py \
 --out_embed_s 300 \
 --hidden_channels 300 \
 --num_hidden_conv_layers 1 \
---augmentation_method node_insertion \
+--augmentation_method all \
 --edge_ratio_percentile 0.75 \
 --subgraph_ratio 0.01 \
 --insertion_iteration 1 \
---model_path ../model_save_tralog_gcn11_insertion \
+--swap_node_pct 0.1 \
+--swap_edge_pct 0.1 \
+--model_path ../model_save_tralog_gcn11_all \
 --data_path ../ProcessedData_HetGCN
 
 
@@ -75,8 +77,8 @@ python main.py \
 --sagemaker False \
 --num_train 65000 \
 --sampling_size 320 \
---batch_s 32 \
---mini_batch_s 32 \
+--batch_s 160 \
+--mini_batch_s 160 \
 --eval_size 10 \
 --unzip False \
 --s3_stage False \

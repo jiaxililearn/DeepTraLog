@@ -34,6 +34,8 @@ import click
 @click.option('--edge_ratio_percentile', default=0.95, type=float, help='percentile used for edge perturbation')
 @click.option('--subgraph_ratio', default=0.01, type=float, help='subgraph size to sample when node insertion')
 @click.option('--insertion_iteration', default=1, type=int, help='num of iteration to insert new nodes')
+@click.option('--swap_node_pct', default=0.05, type=int, help='percentage of nodes to be swapped')
+@click.option('--swap_edge_pct', default=0.05, type=int, help='percentage of edges to be swapped')
 @click.option('--dataset_id', default=0, help='choose dataset used for training')
 @click.option('--fix_center', default=True, type=bool, help='if fix the svdd center on first batch pass')
 @click.option('--test_set', default=True, type=bool, help='if create test dataset from input')

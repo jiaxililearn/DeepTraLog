@@ -14,15 +14,29 @@ class GraphAugmentator:
         subgraph_ratio=0.01,
         insertion_iteration=1,
         node_insertion_method="target_to_source",
+        swap_edge_pct=0.05,
+        swap_node_pct=0.05,
         **kwarg,
     ):
         self.num_node_types = num_node_types
         self.num_edge_types = num_edge_types
         self.edge_perturbation_method = edge_perturbation_method
         self.prior_dist = prior_dist
+        
         self.subgraph_ratio = subgraph_ratio
+        
         self.insertion_iteration = insertion_iteration
         self.node_insertion_method = node_insertion_method
+
+        self.swap_node_pct = swap_node_pct
+        self.swap_edge_pct = swap_edge_pct
+
+        self.func_list = [
+            self.create_het_node_insertion,
+            self.create_het_edge_perturbation,
+            self.create_node_type_swap,
+            self.create_edge_type_swap
+        ]
 
     def get_augment_func(self, augmentation_method):
         """
@@ -31,8 +45,20 @@ class GraphAugmentator:
         augment_func_dict = {
             "node_insertion": self.create_het_node_insertion,
             "edge_perturbation": self.create_het_edge_perturbation,
+            "all": self.create_all_augmentations
         }
         return augment_func_dict[augmentation_method]
+    
+    def create_all_augmentations(self, batch_data):
+        """
+        create all augmentations at random
+        """
+        new_batch = []
+        for i in range(len(batch_data)):
+            g_data = random.choice(batch_data)
+            func = random.choice(self.func_list)
+            new_batch.extend(func([g_data]))
+        return new_batch
 
     def create_het_edge_perturbation(self, batch_data):
         """
@@ -334,6 +360,110 @@ class GraphAugmentator:
             (None, new_edge_types),
             new_node_types,
         )  # default edge weight to None. TODO: update for CMU dataset
+
+    def create_edge_type_swap(self, batch_data):
+        """
+        generate edge swap
+        """
+        new_batch = []
+        for i in range(len(batch_data)):
+            g_data = random.choice(batch_data)
+            new_batch.append(self.edge_type_swap(g_data, swap_pct=self.swap_edge_pct))
+        return new_batch
+
+    def edge_type_swap(self, g_data, swap_pct=0.05):
+        """
+        swap edge types
+        """
+        node_features, edge_index, (edge_weight, edge_type), node_types = g_data
+        unique_edge_types = torch.unique(edge_type)
+
+        # skip if no enough edge types
+        if unique_edge_types.shape[0] < 2:
+            return False
+        sampled_indices = torch.multinomial(unique_edge_types, 2)
+        swap_edge_types = torch.index_select(unique_edge_types, 1, sampled_indices)
+
+        # TODO: From here
+        src_edge_indices = (edge_type == swap_edge_types[0]).nonzero()
+        dst_edge_indices = (edge_type == swap_edge_types[1]).nonzero()
+        
+        num_edge_swap = int(min(
+            src_edge_indices.shape[0] * swap_pct + 1,
+            dst_edge_indices.shape[0] * swap_pct + 1,
+        ))
+
+        swap_src = torch.multinomial(src_edge_indices, 1, num_edge_swap)
+        swap_dst = torch.multinomial(dst_edge_indices, 1, num_edge_swap)
+
+        new_edge_type = copy.deepcopy(edge_type)
+
+        for a_edge, b_edge in zip(swap_src, swap_dst):
+            new_edge_type = self.swap_values(new_edge_type, a_edge, b_edge)
+        
+        return node_features, edge_index, (edge_weight, new_edge_type), node_types
+    
+    def swap_values(self, values, src_idx, dst_idx):
+        tmp = values[src_idx]
+        values[src_idx] = values[dst_idx]
+        values[dst_idx] = tmp
+        return values
+
+    def create_node_type_swap(self, batch_data):
+        """
+        create node swap
+        """
+        new_batch = []
+        for i in range(len(batch_data)):
+            g_data = random.choice(batch_data)
+            new_batch.append(self.node_type_swap(g_data, swap_pct=self.swap_node_pct))
+        return new_batch
+
+    def node_type_swap(self, g_data, swap_pct=0.05):
+        """
+        Swap node types if valid
+        """
+        node_features, edge_index, (edge_weight, edge_type), node_types = g_data
+        valid_node_types = [
+            idx
+            for idx, node_type_list in enumerate(node_types)
+            if len(node_type_list) > 0
+        ]
+        if len(valid_node_types) >= 2:
+            swap_node_types = random.sample(valid_node_types, 2)
+        else:
+            return False
+        num_node_swap = int(min(
+            len(node_types[swap_node_types[0]]) * swap_pct + 1,
+            len(node_types[swap_node_types[1]]) * swap_pct + 1,
+        ))
+
+        swap_nodes = [
+            random.sample(node_types[swap_node_types[0]], num_node_swap),
+            random.sample(node_types[swap_node_types[1]], num_node_swap)
+        ]
+
+        new_node_types = copy.deepcopy(node_types)
+
+        self.remove_from_list(new_node_types[swap_node_types[0]], swap_nodes[0])
+        self.add_to_list(new_node_types[swap_node_types[0]], swap_nodes[1])
+        self.remove_from_list(new_node_types[swap_node_types[1]], swap_nodes[1])
+        self.add_to_list(new_node_types[swap_node_types[1]], swap_nodes[0])
+
+        return node_features, edge_index, (edge_weight, edge_type), new_node_types
+
+    def remove_from_list(self, src_list, removal):
+        """
+        remove from list
+        """
+        for i in removal:
+            src_list.remove(i)
+
+    def add_to_list(self, src_list, addition):
+        """
+        add to list
+        """
+        src_list.extend(addition)
 
 
 def sample_one_node_from_list(node_list):

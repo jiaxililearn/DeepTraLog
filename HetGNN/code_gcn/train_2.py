@@ -44,6 +44,8 @@ class Train2(object):
         augmentation_method=None,
         insertion_iteration=None,
         subgraph_ratio=None,
+        swap_node_pct=None,
+        swap_edge_pct=None,
         test_set=True,
         fix_center=True,
         num_eval=None,
@@ -116,7 +118,9 @@ class Train2(object):
             prior_dist=self.dataset.edge_ratio_dict,
             subgraph_ratio=subgraph_ratio,
             insertion_iteration=insertion_iteration,
-            node_insertion_method="target_to_source"
+            node_insertion_method="target_to_source",
+            swap_node_pct=swap_node_pct,
+            swap_edge_pct=swap_edge_pct
         )
 
         self.augment_func = augmentor.get_augment_func(augmentation_method)
