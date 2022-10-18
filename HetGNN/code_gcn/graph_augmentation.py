@@ -377,7 +377,7 @@ class GraphAugmentator:
         """
         node_features, edge_index, (edge_weight, edge_type), node_types = g_data
         unique_edge_types = torch.unique(edge_type)
-
+        # TODO: handle case when cannot augment the data
         # skip if no enough edge types
         if unique_edge_types.shape[0] < 2:
             return False
@@ -387,6 +387,7 @@ class GraphAugmentator:
         # TODO: From here
         src_edge_indices = (edge_type == swap_edge_types[0]).nonzero()
         dst_edge_indices = (edge_type == swap_edge_types[1]).nonzero()
+        print(src_edge_indices)
         
         num_edge_swap = int(min(
             src_edge_indices.shape[0] * swap_pct + 1,
