@@ -414,18 +414,20 @@ class Train2(object):
         with torch.no_grad():
 
             if self.input_type == "single":
-                pred_scores = []
-                for gid in eval_list_tmp:
-                    _score = (
-                        self.model.predict_score(self.dataset[gid])
-                        .cpu()
-                        .detach()
-                        .numpy()
-                    )
-                    pred_scores.append(_score)
+                # single mode deprecated
+                pass
+                # pred_scores = []
+                # for gid in eval_list_tmp:
+                #     _score = (
+                #         self.model.predict_score(self.dataset[gid])
+                #         .cpu()
+                #         .detach()
+                #         .numpy()
+                #     )
+                #     pred_scores.append(_score)
             # else if 'batch' input type
             else:
-                pred_scores = (
+                pred_scores, bce_scores = (
                     self.model.predict_score(eval_list_tmp).cpu().detach().numpy()
                 )
 
@@ -451,6 +453,15 @@ class Train2(object):
             )
             ap = auc(recall, precision)
 
+            bce_fpr, bce_tpr, _ = roc_curve(labels, bce_scores)
+            bce_roc_auc = auc(bce_fpr, bce_tpr)
+
+            bce_precision, bce_recall, _ = precision_recall_curve(
+                labels, bce_scores
+            )
+            bce_ap = auc(bce_recall, bce_precision)
+
             print(f"\tAUC:{roc_auc}; Avg Precision:{ap};")
+            print(f"\tAUC BCE:{bce_roc_auc}; Avg Precision BCE:{bce_ap};")
 
         return roc_auc, ap

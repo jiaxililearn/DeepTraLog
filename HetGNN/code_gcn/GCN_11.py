@@ -174,7 +174,7 @@ class HetGCN_11(nn.Module):
             bce_scores, _, embed = self(g_data, train=False)
             svdd_score = torch.mean(torch.square(embed - self.svdd_center), 1)
             scores = svdd_score
-        return scores
+        return scores, bce_scores
 
     def svdd_cross_entropy_loss(self, embed_batch, outputs, labels, l2_lambda=0.001, weight=[1, 1], fix_center=True):
         """
