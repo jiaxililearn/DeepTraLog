@@ -404,7 +404,7 @@ class GraphAugmentator:
         new_edge_type = copy.deepcopy(edge_type)
 
         for a_edge, b_edge in zip(swap_src, swap_dst):
-            new_edge_type = self.swap_values(new_edge_type, a_edge, b_edge)
+            self.swap_values(new_edge_type, a_edge, b_edge)
         
         print(f'new_edge_type shape: {new_edge_type.shape}')
         return node_features, edge_index, (edge_weight, new_edge_type.view(-1,)), node_types
