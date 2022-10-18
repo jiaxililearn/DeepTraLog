@@ -380,6 +380,8 @@ class GraphAugmentator:
         """
         node_features, edge_index, (edge_weight, edge_type), node_types = g_data
         unique_edge_types = torch.unique(edge_type.view(1, -1))
+
+        print(f'edge_type shape: {edge_type.shape}')
         # TODO: handle case when cannot augment the data
         # skip if no enough edge types
         if unique_edge_types.shape[0] < 2:
@@ -404,13 +406,14 @@ class GraphAugmentator:
         for a_edge, b_edge in zip(swap_src, swap_dst):
             new_edge_type = self.swap_values(new_edge_type, a_edge, b_edge)
         
+        print(f'new_edge_type shape: {new_edge_type.shape}')
         return node_features, edge_index, (edge_weight, new_edge_type.view(-1, 1)), node_types
     
     def swap_values(self, values, src_idx, dst_idx):
         tmp = values[src_idx]
         values[src_idx] = values[dst_idx]
         values[dst_idx] = tmp
-        return values
+        # return values
 
     def create_node_type_swap(self, batch_data):
         """
