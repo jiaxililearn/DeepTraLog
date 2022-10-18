@@ -376,7 +376,7 @@ class GraphAugmentator:
         swap edge types
         """
         node_features, edge_index, (edge_weight, edge_type), node_types = g_data
-        unique_edge_types = torch.unique(edge_type)
+        unique_edge_types = torch.unique(edge_type.view(1, -1))
         # TODO: handle case when cannot augment the data
         # skip if no enough edge types
         if unique_edge_types.shape[0] < 2:
@@ -385,25 +385,23 @@ class GraphAugmentator:
         swap_edge_types = torch.index_select(unique_edge_types, 0, sampled_indices)
 
         # TODO: From here
-        src_edge_indices = (edge_type == swap_edge_types[0]).nonzero()
-        dst_edge_indices = (edge_type == swap_edge_types[1]).nonzero()
-        print(src_edge_indices)
+        src_edge_indices = (edge_type.view(1, -1) == swap_edge_types[0]).nonzero()
+        dst_edge_indices = (edge_type.view(1, -1) == swap_edge_types[1]).nonzero()
         
         num_edge_swap = int(min(
             src_edge_indices.shape[0] * swap_pct + 1,
             dst_edge_indices.shape[0] * swap_pct + 1,
         ))
-        print(num_edge_swap)
 
         swap_src = torch.multinomial(src_edge_indices.float(), num_edge_swap).long()
         swap_dst = torch.multinomial(dst_edge_indices.float(), num_edge_swap).long()
 
-        new_edge_type = copy.deepcopy(edge_type)
+        new_edge_type = copy.deepcopy(edge_type).view(1, -1)
 
         for a_edge, b_edge in zip(swap_src, swap_dst):
             new_edge_type = self.swap_values(new_edge_type, a_edge, b_edge)
         
-        return node_features, edge_index, (edge_weight, new_edge_type), node_types
+        return node_features, edge_index, (edge_weight, new_edge_type.view(-1, 1)), node_types
     
     def swap_values(self, values, src_idx, dst_idx):
         tmp = values[src_idx]
