@@ -453,6 +453,7 @@ class Train2(object):
             )
             ap = auc(recall, precision)
 
+            # bce eval metrics
             bce_fpr, bce_tpr, _ = roc_curve(labels, bce_scores)
             bce_roc_auc = auc(bce_fpr, bce_tpr)
 

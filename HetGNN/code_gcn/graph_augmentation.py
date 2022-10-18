@@ -393,8 +393,8 @@ class GraphAugmentator:
             dst_edge_indices.shape[0] * swap_pct + 1,
         ))
 
-        swap_src = torch.multinomial(src_edge_indices, 1, num_edge_swap)
-        swap_dst = torch.multinomial(dst_edge_indices, 1, num_edge_swap)
+        swap_src = torch.multinomial(src_edge_indices, num_edge_swap)
+        swap_dst = torch.multinomial(dst_edge_indices, num_edge_swap)
 
         new_edge_type = copy.deepcopy(edge_type)
 
