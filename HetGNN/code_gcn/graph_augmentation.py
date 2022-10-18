@@ -37,8 +37,8 @@ class GraphAugmentator:
         self.func_list = [
             self.create_het_node_insertion,
             self.create_het_edge_perturbation,
-            self.create_node_type_swap
-            # self.create_edge_type_swap
+            self.create_node_type_swap,
+            self.create_edge_type_swap
         ]
 
     def get_augment_func(self, augmentation_method):
