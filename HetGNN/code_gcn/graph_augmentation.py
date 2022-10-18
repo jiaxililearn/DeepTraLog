@@ -3,6 +3,9 @@ import copy
 import torch
 from torch_geometric.utils import dense_to_sparse, to_dense_adj, k_hop_subgraph
 
+# RuntimeError: CUDA error: device-side assert triggered
+# CUDA kernel errors might be asynchronously reported at some other API call,so the stacktrace below might be incorrect.
+# For debugging consider passing CUDA_LAUNCH_BLOCKING=1.
 
 class GraphAugmentator:
     def __init__(
@@ -33,9 +36,9 @@ class GraphAugmentator:
 
         self.func_list = [
             self.create_het_node_insertion,
-            self.create_het_edge_perturbation,
-            self.create_node_type_swap,
-            self.create_edge_type_swap
+            self.create_het_edge_perturbation
+            # self.create_node_type_swap,
+            # self.create_edge_type_swap
         ]
 
     def get_augment_func(self, augmentation_method):
