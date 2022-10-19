@@ -387,19 +387,19 @@ class GraphAugmentator:
         if unique_edge_types.shape[0] < 2:
             return False
         sampled_indices = torch.multinomial(unique_edge_types.float(), 2).long()
-        swap_edge_types = torch.index_select(unique_edge_types, 0, sampled_indices)
+        swap_edge_types = torch.index_select(unique_edge_types, 0, sampled_indices).long()
 
         print(f'swap_edge_types: {swap_edge_types}')
         # TODO: From here
-        src_edge_indices = (edge_type == swap_edge_types[0]).view(-1,).nonzero()
-        dst_edge_indices = (edge_type == swap_edge_types[1]).view(-1,).nonzero()
+        src_edge_indices = (edge_type == swap_edge_types[0]).nonzero().view(-1,)
+        dst_edge_indices = (edge_type == swap_edge_types[1]).nonzero().view(-1,)
         
         num_edge_swap = int(min(
             src_edge_indices.shape[0] * swap_pct + 1,
             dst_edge_indices.shape[0] * swap_pct + 1,
         ))
         print(f'src_edge_indices: {src_edge_indices}')
-        print(f'src_edge_indices: {dst_edge_indices}')
+        print(f'dst_edge_indices: {dst_edge_indices}')
 
         swap_src = torch.multinomial(src_edge_indices.float(), num_edge_swap).long()
         swap_dst = torch.multinomial(dst_edge_indices.float(), num_edge_swap).long()
