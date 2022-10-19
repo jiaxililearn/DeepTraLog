@@ -66,7 +66,7 @@ class GraphAugmentator:
             new_batch.extend(func([g_data]))
             i += 1
 
-            if i % len(batch_data) * 10 == 0:
+            if i % (len(batch_data) * 10) == 0:
                 print(f'Tried to produce augmentation {i} times.')
         return new_batch
 
