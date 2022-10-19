@@ -33,12 +33,12 @@ class Train2(object):
         save_model_freq,
         s3_stage,
         s3_bucket,
-        s3_prefix,
         model_version,
         dataset_id,
         ignore_weight=False,
         source_types=None,
         input_type="single",
+        s3_prefix=None,
         sampling_size=None,
         eval_size=None,
         augmentation_method=None,
@@ -108,19 +108,19 @@ class Train2(object):
 
         self.save_model_freq = save_model_freq
         self.s3_bucket = s3_bucket
-        self.s3_prefix = s3_prefix
+        self.s3_prefix = f"application/anomaly_detection/deeptralog/HetGNN/experiments/model_save_tralog_gcn{model_version}_{augmentation_method}_erp{edge_ratio_percentile}_sgr{subgraph_ratio}_ii{insertion_iteration}_snpct{swap_node_pct}_sepct{swap_edge_pct}"
         self.s3_stage = s3_stage
 
         augmentor = GraphAugmentator(
-            num_node_types=kwargs['num_node_types'],
-            num_edge_types=kwargs['num_edge_types'],
+            num_node_types=kwargs["num_node_types"],
+            num_edge_types=kwargs["num_edge_types"],
             edge_perturbation_method="xor",
             prior_dist=self.dataset.edge_ratio_dict,
             subgraph_ratio=subgraph_ratio,
             insertion_iteration=insertion_iteration,
             node_insertion_method="target_to_source",
             swap_node_pct=swap_node_pct,
-            swap_edge_pct=swap_edge_pct
+            swap_edge_pct=swap_edge_pct,
         )
 
         self.augment_func = augmentor.get_augment_func(augmentation_method)
@@ -196,7 +196,10 @@ class Train2(object):
                     int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
                 ).to(self.device)
                 _out_h = torch.zeros(
-                    int(self.batch_s / self.mini_batch_s), self.mini_batch_s, self.out_embed_d).to(self.device)
+                    int(self.batch_s / self.mini_batch_s),
+                    self.mini_batch_s,
+                    self.out_embed_d,
+                ).to(self.device)
 
                 mini_batch_list = k.reshape(
                     int(len(k) / self.mini_batch_s), self.mini_batch_s
@@ -211,7 +214,9 @@ class Train2(object):
                         #     _out[mini_n][i] = self.model(self.dataset[gid])
                     # else if 'batch' input type
                     else:
-                        _out[mini_n], _out_labels[mini_n], _out_h[mini_n] = self.model(mini_k)
+                        _out[mini_n], _out_labels[mini_n], _out_h[mini_n] = self.model(
+                            mini_k
+                        )
 
                 # TODO: Resolve the loss function issue
                 # print(f'_out: {_out}')
@@ -428,7 +433,10 @@ class Train2(object):
             # else if 'batch' input type
             else:
                 pred_scores, bce_scores = self.model.predict_score(eval_list_tmp)
-                pred_scores, bce_scores = pred_scores.cpu().detach().numpy(), bce_scores.cpu().detach().numpy()
+                pred_scores, bce_scores = (
+                    pred_scores.cpu().detach().numpy(),
+                    bce_scores.cpu().detach().numpy(),
+                )
 
             labels = []
             for gid in eval_list_tmp:
@@ -456,9 +464,7 @@ class Train2(object):
             bce_fpr, bce_tpr, _ = roc_curve(labels, bce_scores)
             bce_roc_auc = auc(bce_fpr, bce_tpr)
 
-            bce_precision, bce_recall, _ = precision_recall_curve(
-                labels, bce_scores
-            )
+            bce_precision, bce_recall, _ = precision_recall_curve(labels, bce_scores)
             bce_ap = auc(bce_recall, bce_precision)
 
             print(f"\tAUC:{roc_auc}; Avg Precision:{ap};")
