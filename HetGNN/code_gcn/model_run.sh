@@ -31,6 +31,7 @@ python main.py \
 --insertion_iteration 1 \
 --swap_node_pct 0.1 \
 --swap_edge_pct 0.1 \
+--svdd_loss_weight 0.8 \
 --model_path ../model_save_tralog_gcn11_all \
 --data_path ../ProcessedData_HetGCN
 

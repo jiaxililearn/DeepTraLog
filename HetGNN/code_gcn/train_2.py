@@ -427,9 +427,8 @@ class Train2(object):
                 #     pred_scores.append(_score)
             # else if 'batch' input type
             else:
-                pred_scores, bce_scores = (
-                    self.model.predict_score(eval_list_tmp).cpu().detach().numpy()
-                )
+                pred_scores, bce_scores = self.model.predict_score(eval_list_tmp)
+                pred_scores, bce_scores = pred_scores.cpu().detach().numpy(), bce_scores.cpu().detach().numpy()
 
             labels = []
             for gid in eval_list_tmp:
