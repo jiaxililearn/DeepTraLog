@@ -108,7 +108,7 @@ class Train2(object):
 
         self.save_model_freq = save_model_freq
         self.s3_bucket = s3_bucket
-        self.s3_prefix = f"application/anomaly_detection/deeptralog/HetGNN/experiments/model_save_tralog_gcn{model_version}_{augmentation_method}_erp{edge_ratio_percentile}_sgr{subgraph_ratio}_ii{insertion_iteration}_snpct{swap_node_pct}_sepct{swap_edge_pct}"
+        self.s3_prefix = f"application/anomaly_detection/deeptralog/HetGNN/experiments/model_save_tralog_gcn{model_version}_{augmentation_method}_erp{edge_ratio_percentile}_sgr{subgraph_ratio}_ii{insertion_iteration}_snpct{swap_node_pct}_sepct{swap_edge_pct}_svdd{kwargs['svdd_loss_weight']}"
         self.s3_stage = s3_stage
 
         augmentor = GraphAugmentator(
