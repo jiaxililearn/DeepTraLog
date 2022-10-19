@@ -281,6 +281,10 @@ class Train2(object):
                     )
 
                 self.early_stopping(roc_auc)
+                if self.early_stopping.early_stop:
+                    print(f'Early Stopping at epoch: {iter_i}')
+                    break
+
             print("iteration " + str(iter_i) + " finish.")
 
     def train_eval_test_split(self, test_set=True):
