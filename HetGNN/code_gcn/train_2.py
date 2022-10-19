@@ -144,6 +144,8 @@ class Train2(object):
         self.loss = self.model.svdd_cross_entropy_loss
         print(self.model)
 
+        self.early_stopping = EarlyStopping(tolerance=3)
+
     def train(self):
         """
         model training method
@@ -277,6 +279,8 @@ class Train2(object):
                     self.sync_model_path_to_s3(
                         s3_bucket=self.s3_bucket, s3_prefix=self.s3_prefix
                     )
+
+                self.early_stopping(roc_auc)
             print("iteration " + str(iter_i) + " finish.")
 
     def train_eval_test_split(self, test_set=True):
@@ -471,3 +475,23 @@ class Train2(object):
             print(f"\tAUC BCE:{bce_roc_auc}; Avg Precision BCE:{bce_ap};")
 
         return roc_auc, ap
+
+class EarlyStopping():
+    """
+    stop if performance exceeds the tolerance
+    """
+    def __init__(self, tolerance=3):
+
+        self.tolerance = tolerance
+        self.counter = 0
+        self.previous_score = -1
+        self.early_stop = False
+
+    def __call__(self, eval_score):
+        if eval_score < self.previous_score:
+            self.counter += 1
+            if self.counter >= self.tolerance:
+                self.early_stop = True
+        else:
+            self.counter = 0
+        self.previous_score = eval_score
