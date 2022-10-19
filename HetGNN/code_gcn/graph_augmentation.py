@@ -58,10 +58,16 @@ class GraphAugmentator:
         create all augmentations at random
         """
         new_batch = []
-        for i in range(len(batch_data)):
+        # for i in range(len(batch_data)):
+        i = 0
+        while len(new_batch) < len(batch_data):
             g_data = random.choice(batch_data)
             func = random.choice(self.func_list)
             new_batch.extend(func([g_data]))
+            i += 1
+
+            if i % len(batch_data) * 10 == 0:
+                print(f'Tried to produce augmentation {i} times.')
         return new_batch
 
     def create_het_edge_perturbation(self, batch_data):
@@ -372,7 +378,9 @@ class GraphAugmentator:
         new_batch = []
         for i in range(len(batch_data)):
             g_data = random.choice(batch_data)
-            new_batch.append(self.edge_type_swap(g_data, swap_pct=self.swap_edge_pct))
+            new_data = self.edge_type_swap(g_data, swap_pct=self.swap_edge_pct)
+            if new_data is not False:
+                new_batch.append(new_data)
         return new_batch
 
     def edge_type_swap(self, g_data, swap_pct=0.05):
@@ -397,7 +405,7 @@ class GraphAugmentator:
         ).long()
 
         # print(f'swap_edge_types: {swap_edge_types}')
-        # TODO: From here
+
         src_edge_indices = (
             (edge_type == swap_edge_types[0])
             .nonzero()
@@ -459,7 +467,9 @@ class GraphAugmentator:
         new_batch = []
         for i in range(len(batch_data)):
             g_data = random.choice(batch_data)
-            new_batch.append(self.node_type_swap(g_data, swap_pct=self.swap_node_pct))
+            new_data = self.node_type_swap(g_data, swap_pct=self.swap_node_pct)
+            if new_data is not False:
+                new_batch.append(new_data)
         return new_batch
 
     def node_type_swap(self, g_data, swap_pct=0.05):
