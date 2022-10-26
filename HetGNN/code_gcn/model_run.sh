@@ -26,13 +26,13 @@ python main.py \
 --hidden_channels 300 \
 --num_hidden_conv_layers 1 \
 --augmentation_method all \
---edge_ratio_percentile 0.9 \
+--edge_ratio_percentile 0.95 \
 --edge_mutate_prob 0.1 \
 --edge_addition_pct 0.1 \
 --replace_edges True \
 --swap_node_pct 0.1 \
 --swap_edge_pct 0.1 \
---svdd_loss_weight 0.8 \
+--bce_loss_weight 0 \
 --model_path ../model_save_tralog_gcn11_all \
 --data_path ../ProcessedData_HetGCN
 

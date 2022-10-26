@@ -21,7 +21,7 @@ class HetGCN_11(nn.Module):
         model_sub_version=0,
         num_edge_types=1,
         augment_func=None,
-        svdd_loss_weight=0.5,
+        bce_loss_weight=0.5,
         # edge_perturbation_p=0.002,
         **kwargs,
     ):
@@ -55,7 +55,7 @@ class HetGCN_11(nn.Module):
         # self.augmentation_func = augmentations()[augmentation_method]
         self.augment_func = augment_func
 
-        self.svdd_loss_weight = svdd_loss_weight
+        self.bce_loss_weight = bce_loss_weight
 
         # node feature content encoder
         if model_sub_version == 0:
@@ -122,7 +122,7 @@ class HetGCN_11(nn.Module):
         _out_h = torch.zeros(len(gid_batch), self.out_embed_d, device=self.device)
         for i, (g_data, g_label) in enumerate(zip(combined_data, combined_labels)):
             h = self.het_node_conv(g_data, source_types=self.source_types)
-            h = self.sigmoid(h)
+            h = self.relu(h)
 
             if g_label == 0:
                 _out_h[i] = h
@@ -219,5 +219,5 @@ class HetGCN_11(nn.Module):
 
         print(f'\t Batch SVDD Loss: {svdd_loss}; Batch BCE Loss: {bce_loss};')
 
-        loss = 2.0 * (svdd_loss * self.svdd_loss_weight + bce_loss * (1 - self.svdd_loss_weight))
+        loss = svdd_loss + bce_loss * self.bce_loss_weight
         return loss
