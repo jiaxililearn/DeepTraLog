@@ -49,6 +49,13 @@ class GraphAugmentator:
             self.create_edge_type_swap,
         ]
 
+        self.ga_dict = {
+            self.create_het_edge_perturbation.__name__: 1,
+            self.create_edge_addition.__name__: 2,
+            self.create_node_type_swap.__name__: 3,
+            self.create_edge_type_swap.__name__: 4,
+        }
+
     def get_augment_func(self, augmentation_method):
         """
         getting augmentation functions
@@ -65,18 +72,23 @@ class GraphAugmentator:
         create all augmentations at random
         """
         new_batch = []
+        new_batch_ga = []
         # for i in range(len(batch_data)):
         i = 0
         while len(new_batch) < len(batch_data):
             g_data = random.choice(batch_data)
             func = random.choice(self.func_list)
             print(f'+ Apply GA Method: {func.__name__} ..')
-            new_batch.extend(func([g_data]))
+            new_g_data = func([g_data])
+            if len(new_g_data) > 0:
+                new_batch.extend(new_g_data)
+                new_batch_ga.append(self.ga_dict[func.__name__])
+                # TODO: adding ga dict for other GA methods
             i += 1
 
             if i % (len(batch_data) * 10) == 0:
                 print(f"Tried to produce augmentation {i} times.")
-        return new_batch
+        return new_batch, new_batch_ga
 
     def create_het_edge_perturbation(self, batch_data):
         """

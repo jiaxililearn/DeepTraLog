@@ -1,8 +1,10 @@
 # from tqdm import tqdm
+from enum import unique
 from sklearn.model_selection import train_test_split
 import torch
 from torch import nn
 from HetGCNConv_11 import HetGCNConv_11
+
 # from graph_augmentation import GraphAugmentator
 
 
@@ -104,7 +106,7 @@ class HetGCN_11(nn.Module):
         if train:
             print(f"{self.augment_func.__name__} for the batch ..")
             # het_edge_perturbation(args)
-            synthetic_data = self.augment_func(batch_data)
+            synthetic_data, synthetic_method = self.augment_func(batch_data)
 
             combined_data = batch_data + synthetic_data
             combined_labels = (
@@ -112,9 +114,12 @@ class HetGCN_11(nn.Module):
                 .to(self.device)
                 .view(-1, 1)
             )
+            combined_methods = [0 for _ in batch_data] + synthetic_method
         else:
             combined_data = batch_data
-            combined_labels = torch.tensor([0 for _ in batch_data]).to(self.device).view(-1, 1)
+            combined_labels = (
+                torch.tensor([0 for _ in batch_data]).to(self.device).view(-1, 1)
+            )
 
         # print(f'x_node_feature shape: {x_node_feature.shape}')
         # print(f'x_edge_index shape: {x_edge_index.shape}')
@@ -133,7 +138,7 @@ class HetGCN_11(nn.Module):
         # print(f'_out: {_out.shape}')
         # print(f'combined_labels: {combined_labels}')
         # TODO: also returns the labels
-        return _out, combined_labels, _out_h
+        return _out, (combined_labels, combined_methods), _out_h
 
     # def graph_node_pooling(self, graph_node_het_embedding):
     #     """
@@ -179,7 +184,9 @@ class HetGCN_11(nn.Module):
             scores = svdd_score
         return scores, bce_scores
 
-    def svdd_cross_entropy_loss(self, embed_batch, outputs, labels, l2_lambda=0.001, fix_center=True):
+    def svdd_cross_entropy_loss(
+        self, embed_batch, outputs, labels, ga_methods, l2_lambda=0.001, fix_center=True
+    ):
         """
         Compute combination of SVDD Loss and cross entropy loss on batch
         TODO: Add weight average
@@ -215,9 +222,23 @@ class HetGCN_11(nn.Module):
         l2_norm = sum(p.pow(2.0).sum() for p in self.parameters()) / 2
 
         svdd_loss = loss_ + l2_lambda * l2_norm
-        bce_loss = self.loss(outputs, labels)
 
-        print(f'\t Batch SVDD Loss: {svdd_loss}; Batch BCE Loss: {bce_loss};')
+        # TODO bce_loss for different GA Methods
+        # ga_methods
+        ga_losses = {}
+        for ga_method in ga_methods.unique():
+            if ga_method == 0:  # 0 if input batch data
+                continue
+            ga_mask = ga_methods == ga_method
+            ga_outputs = outputs[ga_mask]
+            ga_labels = labels[ga_mask]
+            ga_bce_loss = self.loss(ga_outputs, ga_labels)
+            ga_losses[ga_method] = ga_bce_loss
+
+        bce_loss = torch.tensor(ga_losses.values()).flatten().to(self.device).sum()
+
+        print(f"\t\t GA Method Loss: {ga_losses}")
+        print(f"\t Batch SVDD Loss: {svdd_loss}; Batch BCE Loss: {bce_loss};")
 
         loss = svdd_loss + bce_loss * self.bce_loss_weight
         return loss

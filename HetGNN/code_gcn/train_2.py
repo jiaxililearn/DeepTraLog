@@ -198,9 +198,15 @@ class Train2(object):
                 _out = torch.zeros(
                     int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
                 ).to(self.device)
+
                 _out_labels = torch.zeros(
                     int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
                 ).to(self.device)
+
+                _out_ga_methods = torch.zeros(
+                    int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
+                ).to(self.device)
+
                 _out_h = torch.zeros(
                     int(self.batch_s / self.mini_batch_s),
                     self.mini_batch_s,
@@ -220,7 +226,7 @@ class Train2(object):
                         #     _out[mini_n][i] = self.model(self.dataset[gid])
                     # else if 'batch' input type
                     else:
-                        _out[mini_n], _out_labels[mini_n], _out_h[mini_n] = self.model(
+                        _out[mini_n], (_out_labels[mini_n], _out_ga_methods[mini_n]), _out_h[mini_n] = self.model(
                             mini_k
                         )
 
@@ -235,6 +241,7 @@ class Train2(object):
                     _out_labels.view(
                         -1,
                     ),
+                    _out_ga_methods.view(-1)
                 )
                 batch_loss_list.append(batch_loss.item())
                 avg_loss_list.append(batch_loss.tolist())
