@@ -78,7 +78,7 @@ class GraphAugmentator:
         while len(new_batch) < len(batch_data):
             g_data = random.choice(batch_data)
             func = random.choice(self.func_list)
-            print(f'+ Apply GA Method: {func.__name__} ..')
+            # print(f'+ Apply GA Method: {func.__name__} ..')
             new_g_data = func([g_data])
             if len(new_g_data) > 0:
                 new_batch.extend(new_g_data)

@@ -237,6 +237,7 @@ class HetGCN_11(nn.Module):
             ga_bce_loss = self.loss(ga_outputs, ga_labels)
             ga_losses[ga_method.item()] = ga_bce_loss
 
+        # TODO: individual loss weights for different GA methods
         bce_loss = torch.tensor(list(ga_losses.values()), dtype=torch.float).flatten().to(self.device).sum()
 
         print(f"\t\t GA Method Loss: {ga_losses}")
