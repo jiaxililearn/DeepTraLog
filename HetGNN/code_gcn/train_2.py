@@ -46,6 +46,8 @@ class Train2(object):
         subgraph_ratio=None,
         swap_node_pct=None,
         swap_edge_pct=None,
+        edge_addition_pct=0.1,
+        replace_edges=False,
         test_set=True,
         fix_center=True,
         num_eval=None,
@@ -121,6 +123,8 @@ class Train2(object):
             node_insertion_method="target_to_source",
             swap_node_pct=swap_node_pct,
             swap_edge_pct=swap_edge_pct,
+            edge_addition_pct=edge_addition_pct,
+            replace_edges=replace_edges
         )
 
         self.augment_func = augmentor.get_augment_func(augmentation_method)
