@@ -4,7 +4,7 @@ python main.py \
 --num_edge_types 4 \
 --num_train 65000 \
 --source_types 0,1,2,3,4,5,6,7 \
---sampling_size 320 \
+--sampling_size 160 \
 --batch_s 32 \
 --mini_batch_s 32 \
 --eval_size 10 \
@@ -15,7 +15,7 @@ python main.py \
 --test_set True \
 --save_model_freq 2 \
 --lr 0.0001 \
---train_iter_n 500 \
+--train_iter_n 200 \
 --trainer_version 2 \
 --model_version 11 \
 --model_sub_version 0 \
