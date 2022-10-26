@@ -114,7 +114,11 @@ class HetGCN_11(nn.Module):
                 .to(self.device)
                 .view(-1, 1)
             )
-            combined_methods = [0 for _ in batch_data] + synthetic_method
+            combined_methods = (
+                torch.tensor([0 for _ in batch_data] + synthetic_method)
+                .to(self.device)
+                .view(-1, 1)
+            )
         else:
             combined_data = batch_data
             combined_labels = (
@@ -223,8 +227,6 @@ class HetGCN_11(nn.Module):
 
         svdd_loss = loss_ + l2_lambda * l2_norm
 
-        # TODO bce_loss for different GA Methods
-        # ga_methods
         ga_losses = {}
         for ga_method in ga_methods.unique():
             if ga_method == 0:  # 0 if input batch data
