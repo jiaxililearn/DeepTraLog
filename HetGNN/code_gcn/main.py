@@ -32,6 +32,7 @@ import click
 @click.option('--edge_perturbation_p', default=0.001, type=float, help='probability of edge perturbation')
 @click.option('--augmentation_method', default='edge_perturbation', type=str, help='subgraph size to sample when node insertion')
 @click.option('--edge_ratio_percentile', default=0.95, type=float, help='percentile used for edge perturbation')
+@click.option('--edge_mutate_prob', default=0.1, type=float, help='probability if an edge should be mutated')
 @click.option('--subgraph_ratio', default=0.01, type=float, help='subgraph size to sample when node insertion')
 @click.option('--insertion_iteration', default=1, type=int, help='num of iteration to insert new nodes')
 @click.option('--swap_node_pct', default=0.05, type=float, help='percentage of nodes to be swapped')

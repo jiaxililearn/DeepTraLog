@@ -26,7 +26,8 @@ python main.py \
 --hidden_channels 300 \
 --num_hidden_conv_layers 1 \
 --augmentation_method all \
---edge_ratio_percentile 0.75 \
+--edge_ratio_percentile 0.9 \
+--edge_mutate_prob 0.1 \
 --subgraph_ratio 0.01 \
 --insertion_iteration 1 \
 --swap_node_pct 0.1 \
