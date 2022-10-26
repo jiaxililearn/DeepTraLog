@@ -332,7 +332,7 @@ class GraphAugmentator:
                 num_add = int(_num_edges * edge_addition_pct) + 1
                 _edge_types = edge_type[edge_mask].unique()
 
-                _add_edge_types = torch.multinomial(_edge_types.float(), num_add).long()
+                _add_edge_types = torch.multinomial(_edge_types.float(), num_add, replacement=True).long()
                 _add_src_node_id = random.choices(src_type_list, k=num_add)
                 _add_dst_node_id = random.choices(dst_type_list, k=num_add)
 
