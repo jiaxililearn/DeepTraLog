@@ -329,6 +329,8 @@ class GraphAugmentator:
                 dst_mask = sum(col == i for i in dst_type_list).bool()
                 edge_mask = src_mask & dst_mask
                 _num_edges = edge_mask.sum()
+                print(f'_num_edges: {_num_edges}')
+
                 num_add = int(_num_edges * edge_addition_pct) + 1
                 _edge_types = edge_type[edge_mask].unique()
 
