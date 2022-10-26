@@ -329,7 +329,7 @@ class GraphAugmentator:
                 dst_mask = sum(col == i for i in dst_type_list).bool()
                 edge_mask = src_mask & dst_mask
                 _num_edges = edge_mask.sum()
-                
+
                 # skip when no edges in this src_dst types
                 if _num_edges == 0:
                     continue
@@ -345,7 +345,7 @@ class GraphAugmentator:
                     device
                 )
 
-                add_edge_types.append(_add_edge_types)
+                add_edge_types.append(torch.tensor(_add_edge_types))
                 add_edge_index.append(_add_edge_index)
 
         add_edge_index = torch.cat(add_edge_index, dim=1)
