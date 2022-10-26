@@ -355,9 +355,6 @@ class GraphAugmentator:
             add_edge_index, edge_attr=add_edge_types + 1, max_num_nodes=size
         ).view(size, -1)
 
-        # resolve duplicated edges
-        xor_mask = torch.logical_xor(origin_adj_matrix, add_adj_matrix)
-
         if replace_edges:
             # TODO: remove original edge:
             add_src = add_edge_index[0]
@@ -372,10 +369,12 @@ class GraphAugmentator:
                 offset_dst_idx = random.choice(_dst_node_ids)
                 _src_node_neigh[offset_dst_idx] = 0
 
-        else:
-            new_adj_matrix = (
-                add_adj_matrix.masked_fill(~xor_mask, 0) + origin_adj_matrix
-            )
+        # resolve duplicated edges
+        xor_mask = torch.logical_xor(origin_adj_matrix, add_adj_matrix)
+
+        new_adj_matrix = (
+            add_adj_matrix.masked_fill(~xor_mask, 0) + origin_adj_matrix
+        )
 
         new_edge_index, new_edge_type = dense_to_sparse(new_adj_matrix)
         new_edge_type -= 1
