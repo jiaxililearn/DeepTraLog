@@ -114,7 +114,7 @@ class GraphAugmentator:
         create edge perturbation based on prior distributions
         """
         node_feature, edge_index, (edge_weight, edge_type), node_types = g_data
-        device = edge_index.device
+        device = "cpu"  # edge_index.device
 
         if size is None:
             size = node_feature.shape[0]
@@ -175,7 +175,7 @@ class GraphAugmentator:
         ).view(size, -1)
 
         origin_adj_matrix = to_dense_adj(
-            edge_index, edge_attr=edge_type + 1, max_num_nodes=size
+            edge_index.cpu(), edge_attr=edge_type.cpu() + 1, max_num_nodes=size
         ).view(size, -1)
 
         # create a probability matrix to decide if permute the edge
@@ -185,7 +185,7 @@ class GraphAugmentator:
         edge_mutate_mask = m.sample((size, size))
 
         masked_generated_adj_matrix = generated_adj_matrix * edge_mutate_mask
-        masked_generated_adj_matrix = masked_generated_adj_matrix.to(device)
+        # masked_generated_adj_matrix = masked_generated_adj_matrix.to(device)
 
         mask = torch.logical_xor(origin_adj_matrix, masked_generated_adj_matrix)
 
@@ -197,8 +197,8 @@ class GraphAugmentator:
         new_edge_type -= 1
         return (
             node_feature,
-            new_edge_index,
-            (None, new_edge_type),
+            new_edge_index.to(edge_index.device),
+            (None, new_edge_type.to(edge_index.device)),
             node_types,
         )  # ignores edge weight for now. TODO: need to add support for CMU data
 
@@ -323,13 +323,13 @@ class GraphAugmentator:
         """
         node_features, edge_index, (edge_weight, edge_type), node_types = g_data
 
-        device = edge_index.device
+        device = "cpu"  # edge_index.device
         size = node_features.shape[0]
         origin_adj_matrix = to_dense_adj(
-            edge_index, edge_attr=edge_type + 1, max_num_nodes=size
+            edge_index.cpu(), edge_attr=edge_type.cpu() + 1, max_num_nodes=size
         ).view(size, -1)
 
-        row, col = edge_index
+        row, col = edge_index.cpu()
         add_edge_types = []
         add_edge_index = []
         for src_type, src_type_list in enumerate(node_types):
@@ -348,7 +348,7 @@ class GraphAugmentator:
                     continue
 
                 num_add = int(_num_edges * edge_addition_pct) + 1
-                _edge_types = edge_type[edge_mask].unique()
+                _edge_types = edge_type.cpu()[edge_mask].unique()
 
                 _add_edge_types = random.choices(_edge_types, k=num_add)
                 _add_src_node_id = random.choices(src_type_list, k=num_add)
@@ -362,9 +362,13 @@ class GraphAugmentator:
         add_edge_index = torch.cat(add_edge_index, dim=1)
         add_edge_types = torch.cat(add_edge_types)
 
-        add_adj_matrix = to_dense_adj(
-            add_edge_index, edge_attr=add_edge_types + 1, max_num_nodes=size
-        ).view(size, -1).to(device)
+        add_adj_matrix = (
+            to_dense_adj(
+                add_edge_index, edge_attr=add_edge_types + 1, max_num_nodes=size
+            )
+            .view(size, -1)
+            .to(device)
+        )
 
         if replace_edges:
             # TODO: remove original edge:
@@ -383,15 +387,18 @@ class GraphAugmentator:
         # resolve duplicated edges
         xor_mask = torch.logical_xor(origin_adj_matrix, add_adj_matrix)
 
-        new_adj_matrix = (
-            add_adj_matrix.masked_fill(~xor_mask, 0) + origin_adj_matrix
-        )
+        new_adj_matrix = add_adj_matrix.masked_fill(~xor_mask, 0) + origin_adj_matrix
 
         new_edge_index, new_edge_type = dense_to_sparse(new_adj_matrix)
         new_edge_type -= 1
 
         # TODO: default edge weight to None. need to add for CMU dataset
-        return node_features, new_edge_index, (None, new_edge_type), node_types
+        return (
+            node_features,
+            new_edge_index.to(edge_index.device),
+            (None, new_edge_type.to(edge_index.device)),
+            node_types,
+        )
 
     def create_edge_type_swap(self, batch_data):
         """
@@ -433,14 +440,14 @@ class GraphAugmentator:
             .nonzero()
             .view(
                 -1,
-            )
+            ).cpu()
         )
         dst_edge_indices = (
             (edge_type == swap_edge_types[1])
             .nonzero()
             .view(
                 -1,
-            )
+            ).cpu()
         )
 
         num_edge_swap = int(
@@ -458,7 +465,7 @@ class GraphAugmentator:
         # print(f'swap_src: {swap_src}')
         # print(f'swap_dst: {swap_dst}')
 
-        new_edge_type = copy.deepcopy(edge_type)
+        new_edge_type = copy.deepcopy(edge_type.cpu())
 
         for a_edge, b_edge in zip(swap_src, swap_dst):
             self.swap_values(new_edge_type, a_edge, b_edge)
@@ -471,7 +478,7 @@ class GraphAugmentator:
                 edge_weight,
                 new_edge_type.view(
                     -1,
-                ),
+                ).to(edge_type.device),
             ),
             node_types,
         )
