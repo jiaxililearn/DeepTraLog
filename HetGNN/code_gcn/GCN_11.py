@@ -124,6 +124,9 @@ class HetGCN_11(nn.Module):
             combined_labels = (
                 torch.tensor([0 for _ in batch_data]).to(self.device).view(-1, 1)
             )
+            combined_methods = (
+                torch.tensor([0 for _ in batch_data]).to(self.device).view(-1, 1)
+            )
 
         # print(f'x_node_feature shape: {x_node_feature.shape}')
         # print(f'x_edge_index shape: {x_edge_index.shape}')
