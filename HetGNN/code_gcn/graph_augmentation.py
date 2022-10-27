@@ -157,13 +157,13 @@ class GraphAugmentator:
                     new_edge_index.append(sampled_edge_index)
                     new_edge_type.append(sampled_edge_type)
 
-        new_edge_index = torch.cat(new_edge_index, dim=1).long().view(2, -1).to(device)
+        new_edge_index = torch.cat(new_edge_index, dim=1).long().view(2, -1)
         new_edge_type = (
             torch.cat(new_edge_type)
             .int()
             .view(
                 -1,
-            ).to(device)
+            )
         )
 
         # print(f'new_edge_index: {new_edge_index.shape}')
@@ -182,9 +182,10 @@ class GraphAugmentator:
         m = torch.distributions.bernoulli.Bernoulli(
             torch.tensor([self.edge_mutate_prob])
         )
-        edge_mutate_mask = m.sample((size, size)).to(device)
+        edge_mutate_mask = m.sample((size, size))
 
         masked_generated_adj_matrix = generated_adj_matrix * edge_mutate_mask
+        masked_generated_adj_matrix = masked_generated_adj_matrix.to(device)
 
         mask = torch.logical_xor(origin_adj_matrix, masked_generated_adj_matrix)
 
@@ -358,12 +359,12 @@ class GraphAugmentator:
                 add_edge_types.append(torch.tensor(_add_edge_types))
                 add_edge_index.append(_add_edge_index)
 
-        add_edge_index = torch.cat(add_edge_index, dim=1).to(device)
-        add_edge_types = torch.cat(add_edge_types).to(device)
+        add_edge_index = torch.cat(add_edge_index, dim=1)
+        add_edge_types = torch.cat(add_edge_types)
 
         add_adj_matrix = to_dense_adj(
             add_edge_index, edge_attr=add_edge_types + 1, max_num_nodes=size
-        ).view(size, -1)
+        ).view(size, -1).to(device)
 
         if replace_edges:
             # TODO: remove original edge:
