@@ -104,7 +104,7 @@ class HetGCN_11(nn.Module):
         batch_data = [self.dataset[i] for i in gid_batch]
 
         if train:
-            print(f"{self.augment_func.__name__} for the batch ..")
+            # print(f"{self.augment_func.__name__} for the batch ..")
             # het_edge_perturbation(args)
             synthetic_data, synthetic_method = self.augment_func(batch_data)
 
@@ -228,6 +228,7 @@ class HetGCN_11(nn.Module):
         svdd_loss = loss_ + l2_lambda * l2_norm
 
         ga_losses = {}
+        bce_loss = 0.0
         for ga_method in ga_methods.unique():
             if ga_method == 0:  # 0 if input batch data
                 continue
@@ -235,10 +236,11 @@ class HetGCN_11(nn.Module):
             ga_outputs = outputs[ga_mask]
             ga_labels = labels[ga_mask]
             ga_bce_loss = self.loss(ga_outputs, ga_labels)
-            ga_losses[ga_method.item()] = ga_bce_loss
+            ga_losses[ga_method.item()] = ga_bce_loss.item()
+            bce_loss += ga_bce_loss
 
         # TODO: individual loss weights for different GA methods
-        bce_loss = torch.tensor(list(ga_losses.values()), dtype=torch.float).flatten().to(self.device).sum()
+        # bce_loss = torch.tensor(list(ga_losses.values()), dtype=torch.float).flatten().to(self.device).sum()
 
         print(f"\t\t GA Method Loss: {ga_losses}")
         print(f"\t Batch SVDD Loss: {svdd_loss}; Batch BCE Loss: {bce_loss};")
