@@ -295,8 +295,9 @@ class Train2(object):
                 if self.early_stopping.early_stop:
                     print(f'Early Stopping at epoch: {iter_i}')
                     break
-
+            
             print("iteration " + str(iter_i) + " finish.")
+            torch.cuda.empty_cache()
 
     def train_eval_test_split(self, test_set=True):
         """
