@@ -151,19 +151,19 @@ class GraphAugmentator:
                             random.choices(src_node_list, k=num_edges),
                             random.choices(dst_node_list, k=num_edges),
                         ]
-                    ).to(device)
-                    sampled_edge_type = torch.tensor([etype] * num_edges).to(device)
+                    )
+                    sampled_edge_type = torch.tensor([etype] * num_edges)
 
                     new_edge_index.append(sampled_edge_index)
                     new_edge_type.append(sampled_edge_type)
 
-        new_edge_index = torch.cat(new_edge_index, dim=1).long().view(2, -1)
+        new_edge_index = torch.cat(new_edge_index, dim=1).long().view(2, -1).to(device)
         new_edge_type = (
             torch.cat(new_edge_type)
             .int()
             .view(
                 -1,
-            )
+            ).to(device)
         )
 
         # print(f'new_edge_index: {new_edge_index.shape}')
