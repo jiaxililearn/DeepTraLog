@@ -353,15 +353,13 @@ class GraphAugmentator:
                 _add_src_node_id = random.choices(src_type_list, k=num_add)
                 _add_dst_node_id = random.choices(dst_type_list, k=num_add)
 
-                _add_edge_index = torch.tensor([_add_src_node_id, _add_dst_node_id]).to(
-                    device
-                )
+                _add_edge_index = torch.tensor([_add_src_node_id, _add_dst_node_id])
 
-                add_edge_types.append(torch.tensor(_add_edge_types).to(device))
+                add_edge_types.append(torch.tensor(_add_edge_types))
                 add_edge_index.append(_add_edge_index)
 
-        add_edge_index = torch.cat(add_edge_index, dim=1)
-        add_edge_types = torch.cat(add_edge_types)
+        add_edge_index = torch.cat(add_edge_index, dim=1).to(device)
+        add_edge_types = torch.cat(add_edge_types).to(device)
 
         add_adj_matrix = to_dense_adj(
             add_edge_index, edge_attr=add_edge_types + 1, max_num_nodes=size
