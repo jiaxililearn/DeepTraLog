@@ -1,5 +1,6 @@
 import random
 import copy
+import math
 import torch
 from torch_geometric.utils import dense_to_sparse, to_dense_adj, k_hop_subgraph
 
@@ -21,6 +22,7 @@ class GraphAugmentator:
         swap_edge_pct=0.05,
         swap_node_pct=0.05,
         edge_mutate_prob=0.1,
+        add_method='rare',
         edge_addition_pct=0.1,
         replace_edges=False,
         **kwarg,
@@ -39,6 +41,7 @@ class GraphAugmentator:
         self.swap_node_pct = swap_node_pct
         self.swap_edge_pct = swap_edge_pct
 
+        self.add_method = add_method
         self.edge_addition_pct = edge_addition_pct
         self.replace_edges = replace_edges
 
@@ -313,11 +316,21 @@ class GraphAugmentator:
                     g_data,
                     edge_addition_pct=self.edge_addition_pct,
                     replace_edges=self.replace_edges,
+                    add_method=self.add_method
                 )
             )
         return new_batch
 
-    def edge_addition(self, g_data, edge_addition_pct, replace_edges=False):
+    def edge_addition(self, g_data, edge_addition_pct, replace_edges, add_method='rare'):
+        """
+        Edge addition based on different method
+        """
+        if add_method == 'rare':
+            return self.edge_addition_with_rare_freq(g_data, edge_addition_pct, replace_edges)
+        elif add_method == 'simple':
+            return self.edge_addition_simple(g_data, edge_addition_pct, replace_edges)
+
+    def edge_addition_simple(self, g_data, edge_addition_pct, replace_edges=False):
         """
         add edge to the graph
         """
@@ -400,6 +413,104 @@ class GraphAugmentator:
             node_types,
         )
 
+    def edge_addition_with_rare_freq(
+        self,
+        g_data,
+        edge_addition_pct,
+        replace_edges=False
+    ):
+        """
+        TODO: Add new edges between nodes based on rare, common possibility
+        """
+        node_features, edge_index, (edge_weight, edge_type), node_types = g_data
+        device = "cpu"  # edge_index.device
+
+        size = node_features.shape[0]
+        num_edges = edge_index.shape[1]
+
+        num_sample = math.ceil(num_edges * edge_addition_pct)
+
+        origin_adj_matrix = to_dense_adj(
+            edge_index.cpu(), edge_attr=edge_type.cpu() + 1, max_num_nodes=size
+        ).view(size, -1)
+
+        row, col = edge_index
+        edge_prob = {}
+
+        # count number of edges for every type
+        for etype in range(self.num_edge_types):
+            for src_type in range(self.num_node_types):
+                for dst_type in range(self.num_node_types):
+                    src_het_mask = sum(row == i for i in node_types[src_type]).bool()
+                    dst_het_mask = sum(col == i for i in node_types[dst_type]).bool()
+                    edge_mask = edge_type == etype
+                    cmask = src_het_mask & dst_het_mask & edge_mask
+                    _num_edges = cmask.sum().item()
+                    edge_prob[(etype, src_type, dst_type)] = (
+                        1 / _num_edges if _num_edges > 0 else 0.0
+                    )
+
+        sum_all = sum(edge_prob.values())
+        for k, v in edge_prob.items():
+            edge_prob[k] = v / sum_all
+
+        sample_edge_list = random.choices(
+            edge_prob.keys(), weights=edge_prob.values(), k=num_sample
+        )
+
+        src_id_list = []
+        dst_id_list = []
+        add_edge_types = []
+        for etype, src_type, dst_type in sample_edge_list:
+            src_id = random.choice(node_types[src_type])
+            dst_id = random.choice(node_types[dst_type])
+            while dst_id == src_id:
+                dst_id = random.choice(node_types[dst_type])
+
+            add_edge_types.append(etype)
+            src_id_list.append(src_id)
+            dst_id_list.append(dst_id)
+        add_edge_index = torch.tensor([src_id_list, dst_id_list])
+        add_edge_types = torch.tensor(add_edge_types)
+
+        add_adj_matrix = (
+            to_dense_adj(
+                add_edge_index, edge_attr=add_edge_types + 1, max_num_nodes=size
+            )
+            .view(size, -1)
+            .to(device)
+        )
+
+        if replace_edges:
+            # TODO: remove original edge:
+            add_src = add_edge_index[0]
+            for _src_id in add_src:
+                _src_node_neigh = origin_adj_matrix[_src_id]
+                _dst_node_ids = _src_node_neigh.nonzero().flatten()
+
+                if _dst_node_ids.shape[0] == 0:
+                    continue
+
+                # remove a random edge from this neighbourhood
+                offset_dst_idx = random.choice(_dst_node_ids)
+                _src_node_neigh[offset_dst_idx] = 0
+
+        # resolve duplicated edges
+        xor_mask = torch.logical_xor(origin_adj_matrix, add_adj_matrix)
+
+        new_adj_matrix = add_adj_matrix.masked_fill(~xor_mask, 0) + origin_adj_matrix
+
+        new_edge_index, new_edge_type = dense_to_sparse(new_adj_matrix)
+        new_edge_type -= 1
+
+        # TODO: default edge weight to None. need to add for CMU dataset
+        return (
+            node_features,
+            new_edge_index.to(edge_index.device),
+            (None, new_edge_type.to(edge_index.device)),
+            node_types,
+        )
+
     def create_edge_type_swap(self, batch_data):
         """
         generate edge swap
@@ -440,14 +551,16 @@ class GraphAugmentator:
             .nonzero()
             .view(
                 -1,
-            ).cpu()
+            )
+            .cpu()
         )
         dst_edge_indices = (
             (edge_type == swap_edge_types[1])
             .nonzero()
             .view(
                 -1,
-            ).cpu()
+            )
+            .cpu()
         )
 
         num_edge_swap = int(

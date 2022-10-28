@@ -46,6 +46,7 @@ class Train2(object):
         subgraph_ratio=None,
         swap_node_pct=None,
         swap_edge_pct=None,
+        add_method=None,
         edge_addition_pct=None,
         replace_edges=None,
         test_set=True,
@@ -123,6 +124,7 @@ class Train2(object):
             node_insertion_method="target_to_source",
             swap_node_pct=swap_node_pct,
             swap_edge_pct=swap_edge_pct,
+            add_method=add_method,
             edge_addition_pct=edge_addition_pct,
             replace_edges=replace_edges
         )
