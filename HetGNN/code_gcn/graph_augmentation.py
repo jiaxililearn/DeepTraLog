@@ -449,6 +449,10 @@ class GraphAugmentator:
                     edge_mask = edge_type == etype
                     cmask = src_het_mask & dst_het_mask & edge_mask
                     _num_edges = cmask.sum().item()
+
+                    if _num_edges == 0:
+                        continue
+
                     edge_prob[(etype, src_type, dst_type)] = (
                         1 / _num_edges if _num_edges > 0 else 0.0
                     )
@@ -467,8 +471,6 @@ class GraphAugmentator:
         for etype, src_type, dst_type in sample_edge_list:
             src_id = random.choice(node_types[src_type])
             dst_id = random.choice(node_types[dst_type])
-            while dst_id == src_id:
-                dst_id = random.choice(node_types[dst_type])
 
             add_edge_types.append(etype)
             src_id_list.append(src_id)
