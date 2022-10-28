@@ -458,7 +458,7 @@ class GraphAugmentator:
             edge_prob[k] = v / sum_all
 
         sample_edge_list = random.choices(
-            edge_prob.keys(), weights=edge_prob.values(), k=num_sample
+            list(edge_prob.keys()), weights=list(edge_prob.values()), k=num_sample
         )
 
         src_id_list = []
