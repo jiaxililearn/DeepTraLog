@@ -441,6 +441,9 @@ class GraphAugmentator:
         for etype in range(self.num_edge_types):
             for src_type in range(self.num_node_types):
                 for dst_type in range(self.num_node_types):
+                    if len(node_types[dst_type]) == 0 or len(node_types[src_type]) == 0:
+                        continue
+
                     src_het_mask = sum(row == i for i in node_types[src_type]).bool()
                     dst_het_mask = sum(col == i for i in node_types[dst_type]).bool()
                     edge_mask = edge_type == etype

@@ -6,7 +6,7 @@ python main.py \
 --source_types 0,1,2,3,4,5,6,7 \
 --sampling_size 160 \
 --batch_s 32 \
---mini_batch_s 32 \
+--mini_batch_s 8 \
 --eval_size 10 \
 --unzip False \
 --s3_stage False \
@@ -28,6 +28,7 @@ python main.py \
 --augmentation_method all \
 --edge_ratio_percentile 0.95 \
 --edge_mutate_prob 0.1 \
+--add_method rare \
 --edge_addition_pct 0.1 \
 --replace_edges True \
 --swap_node_pct 0.1 \
