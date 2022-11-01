@@ -24,6 +24,7 @@ class HetGCN_11(nn.Module):
         num_edge_types=1,
         augment_func=None,
         bce_loss_weight=0.5,
+        eval_method='both',
         # edge_perturbation_p=0.002,
         **kwargs,
     ):
@@ -58,6 +59,7 @@ class HetGCN_11(nn.Module):
         self.augment_func = augment_func
 
         self.bce_loss_weight = bce_loss_weight
+        self.eval_method = eval_method
 
         # node feature content encoder
         if model_sub_version == 0:
@@ -188,7 +190,12 @@ class HetGCN_11(nn.Module):
         with torch.no_grad():
             bce_scores, _, embed = self(g_data, train=False)
             svdd_score = torch.mean(torch.square(embed - self.svdd_center), 1)
-            scores = svdd_score
+            if self.eval_method == 'svdd':
+                scores = svdd_score
+            elif self.eval_method == 'bce':
+                scores = bce_scores
+            elif self.eval_method == 'both':
+                scores = bce_scores * svdd_score
         return scores, bce_scores
 
     def svdd_cross_entropy_loss(

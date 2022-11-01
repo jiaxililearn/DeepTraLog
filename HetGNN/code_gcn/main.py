@@ -41,6 +41,7 @@ import click
 @click.option('--swap_node_pct', default=0.05, type=float, help='percentage of nodes to be swapped')
 @click.option('--swap_edge_pct', default=0.05, type=float, help='percentage of edges to be swapped')
 @click.option('--bce_loss_weight', default=0.5, type=float, help='weight of the bce weight')
+@click.option('--eval_method', default='svdd', type=str, help='method used to do the eval for the model. svdd | bce | both')
 @click.option('--dataset_id', default=0, help='choose dataset used for training')
 @click.option('--fix_center', default=True, type=bool, help='if fix the svdd center on first batch pass')
 @click.option('--test_set', default=True, type=bool, help='if create test dataset from input')
