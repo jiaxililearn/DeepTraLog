@@ -195,7 +195,7 @@ class HetGCN_11(nn.Module):
             elif self.eval_method == 'bce':
                 scores = bce_scores
             elif self.eval_method == 'both':
-                scores = bce_scores * svdd_score
+                scores = bce_scores.view(-1, ) * svdd_score.view(-1, )
         return scores, bce_scores
 
     def svdd_cross_entropy_loss(
