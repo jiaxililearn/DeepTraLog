@@ -182,7 +182,7 @@ class HetGCN_11(nn.Module):
             torch.load(checkpoint_model_path, map_location=self.device)
         )
 
-    def predict_score(self, g_data):
+    def predict_score(self, g_data, verbose=False):
         """
         calc dist given graph features
         """
@@ -196,6 +196,8 @@ class HetGCN_11(nn.Module):
                 scores = bce_scores
             elif self.eval_method == 'both':
                 scores = bce_scores.view(-1, ) * svdd_score.view(-1, )
+        if verbose:
+            return svdd_score, bce_scores
         return scores, bce_scores
 
     def svdd_cross_entropy_loss(
