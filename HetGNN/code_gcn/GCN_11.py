@@ -1,4 +1,5 @@
 # from tqdm import tqdm
+import numpy as np
 from enum import unique
 from sklearn.model_selection import train_test_split
 import torch
@@ -23,8 +24,9 @@ class HetGCN_11(nn.Module):
         model_sub_version=0,
         num_edge_types=1,
         augment_func=None,
+        weighted_loss=None,
         bce_loss_weight=0.5,
-        eval_method='both',
+        eval_method="both",
         # edge_perturbation_p=0.002,
         **kwargs,
     ):
@@ -58,6 +60,7 @@ class HetGCN_11(nn.Module):
         # self.augmentation_func = augmentations()[augmentation_method]
         self.augment_func = augment_func
 
+        self.weighted_loss = weighted_loss
         self.bce_loss_weight = bce_loss_weight
         self.eval_method = eval_method
 
@@ -86,7 +89,12 @@ class HetGCN_11(nn.Module):
         self.relu = nn.LeakyReLU()
         self.sigmoid = nn.Sigmoid()
         # loss
-        self.loss = torch.nn.BCELoss()
+        if self.weighted_loss == 'bce':
+            print('using bce loss')
+            self.loss = torch.nn.BCELoss()
+        elif self.weighted_loss == 'deviation':
+            print('using deviation loss')
+            self.loss = self.deviation_loss
 
     def init_weights(self):
         """
@@ -190,12 +198,14 @@ class HetGCN_11(nn.Module):
         with torch.no_grad():
             bce_scores, _, embed = self(g_data, train=False)
             svdd_score = torch.mean(torch.square(embed - self.svdd_center), 1)
-            if self.eval_method == 'svdd':
+            if self.eval_method == "svdd":
                 scores = svdd_score
-            elif self.eval_method == 'bce':
+            elif self.eval_method == "bce":
                 scores = bce_scores
-            elif self.eval_method == 'both':
-                scores = bce_scores.view(-1, ) * svdd_score.view(-1, )
+            elif self.eval_method == "both":
+                scores = bce_scores.view(-1,) * svdd_score.view(
+                    -1,
+                )
         if verbose:
             return svdd_score, bce_scores
         return scores, bce_scores
@@ -259,3 +269,17 @@ class HetGCN_11(nn.Module):
 
         loss = svdd_loss + bce_loss * self.bce_loss_weight
         return loss
+
+    def deviation_loss(self, y_true, y_pred):  # TODO: apply this with svdd to replace bce
+        """
+        z-score-based deviation loss
+        """
+        confidence_margin = 5.0
+        ## size=5000 is the setting of l in algorithm 1 in the paper
+        ref = torch.tensor(
+            np.random.normal(loc=0.0, scale=1.0, size=5000), dtype="float32"
+        )
+        dev = (y_pred - torch.mean(ref)) / torch.std(ref)
+        inlier_loss = torch.abs(dev)
+        outlier_loss = torch.abs(torch.maximum(confidence_margin - dev, 0.0))
+        return torch.mean((1 - y_true) * inlier_loss + y_true * outlier_loss)

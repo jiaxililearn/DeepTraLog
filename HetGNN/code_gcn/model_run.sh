@@ -33,6 +33,7 @@ python main.py \
 --replace_edges True \
 --swap_node_pct 0.1 \
 --swap_edge_pct 0.1 \
+--weighted_loss deviation \
 --bce_loss_weight 0 \
 --eval_method both \
 --model_path ../model_save_tralog_gcn11_all \
