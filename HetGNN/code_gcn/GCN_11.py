@@ -281,5 +281,5 @@ class HetGCN_11(nn.Module):
         )
         dev = (y_pred - torch.mean(ref)) / torch.std(ref)
         inlier_loss = torch.abs(dev)
-        outlier_loss = torch.abs(torch.maximum(confidence_margin - dev, 0.0))
+        outlier_loss = torch.abs(torch.maximum(confidence_margin - dev, torch.tensor(0.0)))
         return torch.mean((1 - y_true) * inlier_loss + y_true * outlier_loss)
