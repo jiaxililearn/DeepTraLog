@@ -277,7 +277,7 @@ class HetGCN_11(nn.Module):
         confidence_margin = 5.0
         ## size=5000 is the setting of l in algorithm 1 in the paper
         ref = torch.tensor(
-            np.random.normal(loc=0.0, scale=1.0, size=5000), dtype="float32"
+            np.random.normal(loc=0.0, scale=1.0, size=5000), dtype=torch.float32
         )
         dev = (y_pred - torch.mean(ref)) / torch.std(ref)
         inlier_loss = torch.abs(dev)
