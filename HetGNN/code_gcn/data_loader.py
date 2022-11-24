@@ -20,6 +20,8 @@ class HetGCNEventGraphDataset(Dataset):
         ppr_zip_root_dir=None,
         edge_ratio_csv=None,
         edge_ratio_percentile=None,
+        trace_info_csv=None,
+        n_known_abnormal=None,
         **kwargs,
     ):
         """
@@ -30,6 +32,7 @@ class HetGCNEventGraphDataset(Dataset):
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.include_edge_weight = False
         self.include_edge_type = include_edge_type
+        self.n_known_abnormal = n_known_abnormal
 
         print("reading node features..")
         self.node_feature_df = pd.read_csv(node_feature_csv).sort_values(
@@ -82,6 +85,13 @@ class HetGCNEventGraphDataset(Dataset):
                 edge_ratio_dict[edge_type][src_dst_type] = percent_in_all
 
             self.edge_ratio_dict = edge_ratio_dict
+        
+        # Load trace info for known abnormal graphs
+        if n_known_abnormal > 0:
+            trace_info_df = pd.read_csv(trace_info_csv, index_col=None)
+            self.known_attack_gid_list = trace_info_df[trace_info_df["trace_bool"] == False][
+                "trace_id"
+            ].sample(n_known_abnormal).values
 
         # self.node_type_to_id = {chr(97 + i): i for i in range(self.num_node_type)}
 

@@ -55,6 +55,9 @@ class Train2(object):
         unzip=False,
         split_data=True,
         edge_ratio_percentile=0.95,
+        main_loss=None,
+        known_abnormal_ratio=None,
+        job_prefix=None,
         **kwargs,
     ):
         super().__init__()
@@ -74,6 +77,9 @@ class Train2(object):
         self.eval_size = eval_size
 
         self.source_types = None
+        self.main_loss = main_loss
+        self.n_known_abnormal = max(int(sampling_size * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
+        self.batch_n_known_abnormal = max(int(batch_s * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
 
         if source_types is not None:
             self.source_types = [int(i) for i in source_types.split(",")]
@@ -95,6 +101,8 @@ class Train2(object):
                     ignore_weight=ignore_weight,
                     include_edge_type=True if kwargs["num_edge_types"] > 1 else False,
                     edge_ratio_percentile=edge_ratio_percentile,
+                    n_known_abnormal=self.n_known_abnormal,
+                    trace_info_csv=f'{self.data_root_dir}/trace_info.csv',
                 )
 
         self.num_train_benign = num_train
@@ -111,7 +119,7 @@ class Train2(object):
 
         self.save_model_freq = save_model_freq
         self.s3_bucket = s3_bucket
-        self.s3_prefix = f"application/anomaly_detection/deeptralog/HetGNN/experiments/model_save_tralog_gcn{model_version}_{augmentation_method}_erp{edge_ratio_percentile}_sgr{subgraph_ratio}_ii{insertion_iteration}_snpct{swap_node_pct}_sepct{swap_edge_pct}_bce{kwargs['bce_loss_weight']}"
+        self.s3_prefix = f"application/anomaly_detection/deeptralog/HetGNN/experiments/model_gcn_{job_prefix}_{model_version}_{augmentation_method}_erp{edge_ratio_percentile}_sgr{subgraph_ratio}_ii{insertion_iteration}_snpct{swap_node_pct}_sepct{swap_edge_pct}_bce{kwargs['bce_loss_weight']}"
         self.s3_stage = s3_stage
 
         augmentor = GraphAugmentator(
@@ -126,7 +134,7 @@ class Train2(object):
             swap_edge_pct=swap_edge_pct,
             add_method=add_method,
             edge_addition_pct=edge_addition_pct,
-            replace_edges=replace_edges
+            replace_edges=replace_edges,
         )
 
         self.augment_func = augmentor.get_augment_func(augmentation_method)
@@ -136,6 +144,8 @@ class Train2(object):
             dataset=self.dataset,
             source_types=self.source_types,
             augment_func=self.augment_func,
+            main_loss=main_loss,
+            batch_n_known_abnormal=self.batch_n_known_abnormal,
             **kwargs,
         ).to(self.device)
 
@@ -197,23 +207,42 @@ class Train2(object):
             for batch_n, k in tqdm(enumerate(batch_list)):
                 batch_start_time = time.time()
 
-                _out = torch.zeros(
-                    int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
-                ).to(self.device)
-
-                _out_labels = torch.zeros(
-                    int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
-                ).to(self.device)
-
-                _out_ga_methods = torch.zeros(
-                    int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
-                ).to(self.device)
-
-                _out_h = torch.zeros(
-                    int(self.batch_s / self.mini_batch_s),
-                    self.mini_batch_s,
-                    self.out_embed_d,
-                ).to(self.device)
+                if self.main_loss == "semi-svdd":
+                    _out = torch.zeros(
+                        int(self.batch_s / self.mini_batch_s),
+                        self.mini_batch_s * 2 + self.batch_n_known_abnormal,
+                        1,
+                    ).to(self.device)
+                    _out_labels = torch.zeros(
+                        int(self.batch_s / self.mini_batch_s),
+                        self.mini_batch_s * 2 + self.batch_n_known_abnormal,
+                        1,
+                    ).to(self.device)
+                    _out_ga_methods = torch.zeros(
+                        int(self.batch_s / self.mini_batch_s),
+                        self.mini_batch_s * 2 + self.batch_n_known_abnormal,
+                        1,
+                    ).to(self.device)
+                    _out_h = torch.zeros(
+                        int(self.batch_s / self.mini_batch_s),
+                        self.mini_batch_s * 2 + self.batch_n_known_abnormal,
+                        self.out_embed_d,
+                    ).to(self.device)
+                else:
+                    _out = torch.zeros(
+                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
+                    ).to(self.device)
+                    _out_labels = torch.zeros(
+                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
+                    ).to(self.device)
+                    _out_ga_methods = torch.zeros(
+                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
+                    ).to(self.device)
+                    _out_h = torch.zeros(
+                        int(self.batch_s / self.mini_batch_s),
+                        self.mini_batch_s,
+                        self.out_embed_d,
+                    ).to(self.device)
 
                 mini_batch_list = k.reshape(
                     int(len(k) / self.mini_batch_s), self.mini_batch_s
@@ -228,9 +257,11 @@ class Train2(object):
                         #     _out[mini_n][i] = self.model(self.dataset[gid])
                     # else if 'batch' input type
                     else:
-                        _out[mini_n], (_out_labels[mini_n], _out_ga_methods[mini_n]), _out_h[mini_n] = self.model(
-                            mini_k
-                        )
+                        (
+                            _out[mini_n],
+                            (_out_labels[mini_n], _out_ga_methods[mini_n]),
+                            _out_h[mini_n],
+                        ) = self.model(mini_k)
 
                 # TODO: Resolve the loss function issue
                 # print(f'_out: {_out}')
@@ -243,7 +274,7 @@ class Train2(object):
                     _out_labels.view(
                         -1,
                     ),
-                    _out_ga_methods.view(-1)
+                    _out_ga_methods.view(-1),
                 )
                 batch_loss_list.append(batch_loss.item())
                 avg_loss_list.append(batch_loss.tolist())
@@ -295,9 +326,9 @@ class Train2(object):
 
                 self.early_stopping(roc_auc)
                 if self.early_stopping.early_stop:
-                    print(f'Early Stopping at epoch: {iter_i}')
+                    print(f"Early Stopping at epoch: {iter_i}")
                     break
-            
+
             print("iteration " + str(iter_i) + " finish.")
             torch.cuda.empty_cache()
 
@@ -494,10 +525,12 @@ class Train2(object):
 
         return roc_auc, ap
 
-class EarlyStopping():
+
+class EarlyStopping:
     """
     stop if performance exceeds the tolerance
     """
+
     def __init__(self, tolerance=3):
 
         self.tolerance = tolerance

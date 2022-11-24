@@ -24,6 +24,8 @@ class HetGCN_11(nn.Module):
         model_sub_version=0,
         num_edge_types=1,
         augment_func=None,
+        main_loss=None,
+        batch_n_known_abnormal=None,
         weighted_loss=None,
         bce_loss_weight=0.5,
         eval_method="both",
@@ -61,8 +63,10 @@ class HetGCN_11(nn.Module):
         self.augment_func = augment_func
 
         self.weighted_loss = weighted_loss
+        self.main_loss = main_loss
         self.bce_loss_weight = bce_loss_weight
         self.eval_method = eval_method
+        self.batch_n_known_abnormal = batch_n_known_abnormal
 
         # node feature content encoder
         if model_sub_version == 0:
@@ -89,11 +93,11 @@ class HetGCN_11(nn.Module):
         self.relu = nn.LeakyReLU()
         self.sigmoid = nn.Sigmoid()
         # loss
-        if self.weighted_loss == 'bce':
-            print('using bce loss')
+        if self.weighted_loss == "bce":
+            print("using bce loss")
             self.loss = torch.nn.BCELoss()
-        elif self.weighted_loss == 'deviation':
-            print('using deviation loss')
+        elif self.weighted_loss == "deviation":
+            print("using deviation loss")
             self.loss = self.deviation_loss
 
     def init_weights(self):
@@ -118,14 +122,41 @@ class HetGCN_11(nn.Module):
             # het_edge_perturbation(args)
             synthetic_data, synthetic_method = self.augment_func(batch_data)
 
-            combined_data = batch_data + synthetic_data
-            combined_labels = (
-                torch.tensor([0 for _ in batch_data] + [1 for _ in synthetic_data])
-                .to(self.device)
-                .view(-1, 1)
-            )
+            if self.main_loss == "semi-svdd":
+                abnormal_data = np.random.choice(
+                    self.dataset.known_attack_gid_list,
+                    self.batch_n_known_abnormal,
+                    False,
+                )  # TODO: get a small set of known abnormal graphs. Start from here
+            else:  # ie. svdd
+                abnormal_data = []
+
+            combined_data = batch_data + synthetic_data + abnormal_data
+
+            if self.main_loss == "semi-svdd":
+                combined_labels = (
+                    torch.tensor(
+                        [1 for _ in batch_data]
+                        + [0 for _ in synthetic_data]
+                        + [-1 for _ in abnormal_data]
+                    )
+                    .to(self.device)
+                    .view(-1, 1)
+                )
+            else:
+                combined_labels = (
+                    torch.tensor([0 for _ in batch_data] + [1 for _ in synthetic_data])
+                    .to(self.device)
+                    .view(-1, 1)
+                )
+
+            # ga_methods. 0 - known normal graph, -1 - known abnormal graph, others - ga
             combined_methods = (
-                torch.tensor([0 for _ in batch_data] + synthetic_method)
+                torch.tensor(
+                    [0 for _ in batch_data]
+                    + synthetic_method
+                    + [-1 for _ in abnormal_data]
+                )
                 .to(self.device)
                 .view(-1, 1)
             )
@@ -141,20 +172,29 @@ class HetGCN_11(nn.Module):
         # print(f'x_node_feature shape: {x_node_feature.shape}')
         # print(f'x_edge_index shape: {x_edge_index.shape}')
         _out = torch.zeros(len(combined_data), 1, device=self.device)
-        _out_h = torch.zeros(len(gid_batch), self.out_embed_d, device=self.device)
+        if self.main_loss == "semi-svdd":
+            _out_h = torch.zeros(
+                len(combined_data), self.out_embed_d, device=self.device
+            )
+        else:
+            _out_h = torch.zeros(len(gid_batch), self.out_embed_d, device=self.device)
+
         for i, (g_data, g_label) in enumerate(zip(combined_data, combined_labels)):
             h = self.het_node_conv(g_data, source_types=self.source_types)
             h = self.relu(h)
 
-            if g_label == 0:
+            if self.main_loss == "semi-svdd":
                 _out_h[i] = h
+            else:
+                if g_label == 0:
+                    _out_h[i] = h
 
             h = self.final_logistic(h)
             _out[i] = h
         # print(f'combined_labels: {combined_labels.shape}')
         # print(f'_out: {_out.shape}')
         # print(f'combined_labels: {combined_labels}')
-        # TODO: also returns the labels
+
         return _out, (combined_labels, combined_methods), _out_h
 
     # def graph_node_pooling(self, graph_node_het_embedding):
@@ -243,6 +283,11 @@ class HetGCN_11(nn.Module):
                 hypersphere_center = torch.mean(_batch_out_resahpe, 0)
 
         dist = torch.square(_batch_out_resahpe - hypersphere_center)
+
+        if self.main_loss == "semi-svdd":
+            # TODO: Adding semi-target loss
+            pass
+
         loss_ = torch.mean(torch.sum(dist, 1))
 
         l2_norm = sum(p.pow(2.0).sum() for p in self.parameters()) / 2
@@ -270,7 +315,7 @@ class HetGCN_11(nn.Module):
         loss = svdd_loss + bce_loss * self.bce_loss_weight
         return loss
 
-    def deviation_loss(self, y_true, y_pred):  # TODO: apply this with svdd to replace bce
+    def deviation_loss(self, y_true, y_pred):
         """
         z-score-based deviation loss
         """
@@ -281,5 +326,7 @@ class HetGCN_11(nn.Module):
         )
         dev = (y_pred - torch.mean(ref)) / torch.std(ref)
         inlier_loss = torch.abs(dev)
-        outlier_loss = torch.abs(torch.maximum(confidence_margin - dev, torch.tensor(0.0)))
+        outlier_loss = torch.abs(
+            torch.maximum(confidence_margin - dev, torch.tensor(0.0))
+        )
         return torch.mean((1 - y_true) * inlier_loss + y_true * outlier_loss)
