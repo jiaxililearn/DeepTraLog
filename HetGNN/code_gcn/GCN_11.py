@@ -289,6 +289,7 @@ class HetGCN_11(nn.Module):
         dist = torch.sum(torch.square(_batch_out_resahpe - hypersphere_center), 1)
 
         if self.main_loss == "semi-svdd":
+            print('calc semi-svdd ..')
             dist = torch.where(labels == 0, dist, self.eta * ((dist + self.eps) ** labels.float()))
 
         loss_ = torch.mean(dist)
@@ -301,6 +302,7 @@ class HetGCN_11(nn.Module):
         weighted_loss = 0.0
         if self.main_loss == 'semi-svdd':
             supervised_labels = torch.where(labels > 0, 0, 1)
+            print('convert semi-svdd labels..')
         else:
             supervised_labels = labels
         for ga_method in ga_methods.unique():

@@ -281,7 +281,7 @@ class Train2(object):
                 # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
                 # print(f'Model Output: {_out}')
                 self.optim.zero_grad()
-                batch_loss.backward(retain_graph=True)
+                batch_loss.backward(retain_graph=False)
                 self.optim.step()
                 self.scheduler.step()
                 print(
