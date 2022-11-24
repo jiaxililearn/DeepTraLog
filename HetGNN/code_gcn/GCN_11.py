@@ -127,7 +127,8 @@ class HetGCN_11(nn.Module):
                     self.dataset.known_attack_gid_list,
                     self.batch_n_known_abnormal,
                     False,
-                )  # TODO: get a small set of known abnormal graphs. Start from here
+                )
+                abnormal_data = [self.dataset[i] for i in abnormal_data]
             else:  # ie. svdd
                 abnormal_data = []
 
