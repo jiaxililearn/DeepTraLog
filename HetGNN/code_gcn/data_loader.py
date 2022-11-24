@@ -88,6 +88,7 @@ class HetGCNEventGraphDataset(Dataset):
         
         # Load trace info for known abnormal graphs
         if n_known_abnormal > 0:
+            print('reading trace info for known abnormal graphs ..')
             trace_info_df = pd.read_csv(trace_info_csv, index_col=None)
             self.known_attack_gid_list = trace_info_df[trace_info_df["trace_bool"] == False][
                 "trace_id"
