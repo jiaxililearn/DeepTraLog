@@ -36,10 +36,10 @@ python main.py \
 --main_loss semi-svdd \
 --known_abnormal_ratio 0.1 \
 --weighted_loss deviation \
---bce_loss_weight 0 \
+--loss_weight 0 \
 --eval_method both \
 --model_path ../model_save_tralog_gcn11_all \
---data_path ../ProcessedData_HetGCN
+--data_path ../ProcessedData_HetGCN \
 --job_prefix semi_svdd
 
 sudo update-alternatives --config gcc

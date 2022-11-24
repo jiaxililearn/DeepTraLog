@@ -43,7 +43,7 @@ import click
 @click.option('--main_loss', default='svdd', type=str, help='the main unsupervised loss used. svdd | semi-svdd')
 @click.option('--known_abnormal_ratio', default=0.1, type=float, help='ratio of known abnormal graphs to add during semi-svdd training')
 @click.option('--weighted_loss', default='deviation', type=str, help='supervise loss used for training. bce | deviation')
-@click.option('--bce_loss_weight', default=0.5, type=float, help='weight of the bce weight')
+@click.option('--loss_weight', default=0.5, type=float, help='weight of the bce weight')
 @click.option('--eval_method', default='svdd', type=str, help='method used to do the eval for the model. svdd | bce | both')
 @click.option('--job_prefix', default='any', type=str, help='job prefix when uploading checkpoint to S3')
 @click.option('--dataset_id', default=0, help='choose dataset used for training')

@@ -27,7 +27,7 @@ class HetGCN_11(nn.Module):
         main_loss=None,
         batch_n_known_abnormal=None,
         weighted_loss=None,
-        bce_loss_weight=0.5,
+        loss_weight=0.5,
         eval_method="both",
         # edge_perturbation_p=0.002,
         **kwargs,
@@ -64,9 +64,12 @@ class HetGCN_11(nn.Module):
 
         self.weighted_loss = weighted_loss
         self.main_loss = main_loss
-        self.bce_loss_weight = bce_loss_weight
+        self.loss_weight = loss_weight
         self.eval_method = eval_method
         self.batch_n_known_abnormal = batch_n_known_abnormal
+
+        self.eps = 1e-6
+        self.eta = 1.0 # TODO: hyperparameter
 
         # node feature content encoder
         if model_sub_version == 0:
@@ -283,37 +286,40 @@ class HetGCN_11(nn.Module):
                 print("compute batch center ..")
                 hypersphere_center = torch.mean(_batch_out_resahpe, 0)
 
-        dist = torch.square(_batch_out_resahpe - hypersphere_center)
+        dist = torch.sum(torch.square(_batch_out_resahpe - hypersphere_center), 1)
 
         if self.main_loss == "semi-svdd":
-            # TODO: Adding semi-target loss
-            pass
+            dist = torch.where(labels == 0, dist, self.eta * ((dist + self.eps) ** labels.float()))
 
-        loss_ = torch.mean(torch.sum(dist, 1))
+        loss_ = torch.mean(dist)
 
         l2_norm = sum(p.pow(2.0).sum() for p in self.parameters()) / 2
 
         svdd_loss = loss_ + l2_lambda * l2_norm
 
         ga_losses = {}
-        bce_loss = 0.0
+        weighted_loss = 0.0
+        if self.main_loss == 'semi-svdd':
+            supervised_labels = torch.where(labels > 0, 0, 1)
+        else:
+            supervised_labels = labels
         for ga_method in ga_methods.unique():
             if ga_method == 0:  # 0 if input batch data
                 continue
             ga_mask = ga_methods == ga_method
             ga_outputs = outputs[ga_mask]
-            ga_labels = labels[ga_mask]
-            ga_bce_loss = self.loss(ga_outputs, ga_labels)
-            ga_losses[ga_method.item()] = ga_bce_loss.item()
-            bce_loss += ga_bce_loss
+            ga_labels = supervised_labels[ga_mask]
+            ga_weighted_loss = self.loss(ga_outputs, ga_labels)
+            ga_losses[ga_method.item()] = ga_weighted_loss.item()
+            weighted_loss += ga_weighted_loss
 
         # TODO: individual loss weights for different GA methods
-        # bce_loss = torch.tensor(list(ga_losses.values()), dtype=torch.float).flatten().to(self.device).sum()
+        # weighted_loss = torch.tensor(list(ga_losses.values()), dtype=torch.float).flatten().to(self.device).sum()
 
         print(f"\t\t GA Method Loss: {ga_losses}")
-        print(f"\t Batch SVDD Loss: {svdd_loss}; Batch BCE Loss: {bce_loss};")
+        print(f"\t Batch SVDD Loss: {svdd_loss}; Batch Weighted Loss: {weighted_loss};")
 
-        loss = svdd_loss + bce_loss * self.bce_loss_weight
+        loss = svdd_loss + weighted_loss * self.loss_weight
         return loss
 
     def deviation_loss(self, y_true, y_pred):
