@@ -34,7 +34,6 @@ python main.py \
 --swap_node_pct 0.1 \
 --swap_edge_pct 0.1 \
 --main_loss semi-svdd \
---known_abnormal_ratio 0.1 \
 --weighted_loss deviation \
 --loss_weight 0 \
 --eval_method both \

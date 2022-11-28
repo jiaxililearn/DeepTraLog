@@ -25,7 +25,7 @@ class HetGCN_11(nn.Module):
         num_edge_types=1,
         augment_func=None,
         main_loss=None,
-        batch_n_known_abnormal=None,
+        # batch_n_known_abnormal=None,
         weighted_loss=None,
         loss_weight=0.5,
         eval_method="both",
@@ -66,10 +66,10 @@ class HetGCN_11(nn.Module):
         self.main_loss = main_loss
         self.loss_weight = loss_weight
         self.eval_method = eval_method
-        self.batch_n_known_abnormal = batch_n_known_abnormal
+        # self.batch_n_known_abnormal = batch_n_known_abnormal
 
         self.eps = 1e-6
-        self.eta = 1.0 # TODO: hyperparameter
+        self.eta = 1.0  # TODO: hyperparameter
 
         # node feature content encoder
         if model_sub_version == 0:
@@ -88,9 +88,7 @@ class HetGCN_11(nn.Module):
 
         print(f"num_hidden_conv_layers: {num_hidden_conv_layers}")
 
-        self.final_logistic = nn.Sequential(
-            nn.Linear(self.out_embed_d, 1, bias=True), nn.Sigmoid()
-        )
+        self.final_fc = nn.Sequential(nn.Linear(self.out_embed_d, 1, bias=True))
 
         # Others
         self.relu = nn.LeakyReLU()
@@ -125,25 +123,21 @@ class HetGCN_11(nn.Module):
             # het_edge_perturbation(args)
             synthetic_data, synthetic_method = self.augment_func(batch_data)
 
-            if self.main_loss == "semi-svdd":
-                abnormal_data = np.random.choice(
-                    self.dataset.known_attack_gid_list,
-                    self.batch_n_known_abnormal,
-                    False,
-                )
-                abnormal_data = [self.dataset[i] for i in abnormal_data]
-            else:  # ie. svdd
-                abnormal_data = []
+            # if self.main_loss == "semi-svdd":
+            #     abnormal_data = np.random.choice(
+            #         self.dataset.known_attack_gid_list,
+            #         # self.batch_n_known_abnormal,
+            #         False,
+            #     )
+            #     abnormal_data = [self.dataset[i] for i in abnormal_data]
+            # else:  # ie. svdd
+            #     abnormal_data = []
 
-            combined_data = batch_data + synthetic_data + abnormal_data
+            combined_data = batch_data + synthetic_data  # + abnormal_data
 
             if self.main_loss == "semi-svdd":
                 combined_labels = (
-                    torch.tensor(
-                        [1 for _ in batch_data]
-                        + [0 for _ in synthetic_data]
-                        + [-1 for _ in abnormal_data]
-                    )
+                    torch.tensor([1 for _ in batch_data] + [-1 for _ in synthetic_data])
                     .to(self.device)
                     .view(-1, 1)
                 )
@@ -156,11 +150,7 @@ class HetGCN_11(nn.Module):
 
             # ga_methods. 0 - known normal graph, -1 - known abnormal graph, others - ga
             combined_methods = (
-                torch.tensor(
-                    [0 for _ in batch_data]
-                    + synthetic_method
-                    + [-1 for _ in abnormal_data]
-                )
+                torch.tensor([0 for _ in batch_data] + synthetic_method)
                 .to(self.device)
                 .view(-1, 1)
             )
@@ -193,7 +183,7 @@ class HetGCN_11(nn.Module):
                 if g_label == 0:
                     _out_h[i] = h
 
-            h = self.final_logistic(h)
+            h = self.final_fc(h)
             _out[i] = h
         # print(f'combined_labels: {combined_labels.shape}')
         # print(f'_out: {_out.shape}')
@@ -290,7 +280,9 @@ class HetGCN_11(nn.Module):
 
         if self.main_loss == "semi-svdd":
             # print('calc semi-svdd ..')
-            dist = torch.where(labels == 0, dist, self.eta * ((dist + self.eps) ** labels.float()))
+            dist = torch.where(
+                labels == 0, dist, self.eta * ((dist + self.eps) ** labels.float())
+            )
 
         loss_ = torch.mean(dist)
 
@@ -300,7 +292,7 @@ class HetGCN_11(nn.Module):
 
         ga_losses = {}
         weighted_loss = 0.0
-        if self.main_loss == 'semi-svdd':
+        if self.main_loss == "semi-svdd":
             # print('convert semi-svdd labels..')
             supervised_labels = torch.where(labels > 0, 0, 1)
         else:

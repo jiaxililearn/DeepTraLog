@@ -56,7 +56,7 @@ class Train2(object):
         split_data=True,
         edge_ratio_percentile=0.95,
         main_loss=None,
-        known_abnormal_ratio=None,
+        # known_abnormal_ratio=None,
         job_prefix=None,
         **kwargs,
     ):
@@ -78,8 +78,8 @@ class Train2(object):
 
         self.source_types = None
         self.main_loss = main_loss
-        self.n_known_abnormal = max(int(sampling_size * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
-        self.batch_n_known_abnormal = max(int(batch_s * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
+        # self.n_known_abnormal = max(int(sampling_size * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
+        # self.batch_n_known_abnormal = max(int(batch_s * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
 
         if source_types is not None:
             self.source_types = [int(i) for i in source_types.split(",")]
@@ -101,7 +101,7 @@ class Train2(object):
                     ignore_weight=ignore_weight,
                     include_edge_type=True if kwargs["num_edge_types"] > 1 else False,
                     edge_ratio_percentile=edge_ratio_percentile,
-                    n_known_abnormal=self.n_known_abnormal,
+                    # n_known_abnormal=self.n_known_abnormal,
                     trace_info_csv=f'{self.data_root_dir}/trace_info.csv',
                 )
 
@@ -145,7 +145,7 @@ class Train2(object):
             source_types=self.source_types,
             augment_func=self.augment_func,
             main_loss=main_loss,
-            batch_n_known_abnormal=self.batch_n_known_abnormal,
+            # batch_n_known_abnormal=self.batch_n_known_abnormal,
             **kwargs,
         ).to(self.device)
 
@@ -210,22 +210,22 @@ class Train2(object):
                 if self.main_loss == "semi-svdd":
                     _out = torch.zeros(
                         int(self.batch_s / self.mini_batch_s),
-                        self.mini_batch_s * 2 + self.batch_n_known_abnormal,
+                        self.mini_batch_s * 2,
                         1,
                     ).to(self.device)
                     _out_labels = torch.zeros(
                         int(self.batch_s / self.mini_batch_s),
-                        self.mini_batch_s * 2 + self.batch_n_known_abnormal,
+                        self.mini_batch_s * 2,
                         1,
                     ).to(self.device)
                     _out_ga_methods = torch.zeros(
                         int(self.batch_s / self.mini_batch_s),
-                        self.mini_batch_s * 2 + self.batch_n_known_abnormal,
+                        self.mini_batch_s * 2,
                         1,
                     ).to(self.device)
                     _out_h = torch.zeros(
                         int(self.batch_s / self.mini_batch_s),
-                        self.mini_batch_s * 2 + self.batch_n_known_abnormal,
+                        self.mini_batch_s * 2,
                         self.out_embed_d,
                     ).to(self.device)
                 else:
