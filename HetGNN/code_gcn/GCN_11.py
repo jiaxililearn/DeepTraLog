@@ -228,7 +228,7 @@ class HetGCN_11(nn.Module):
         """
         calc dist given graph features
         """
-        # TODO: using svdd score for eval. Will test with combined
+
         with torch.no_grad():
             bce_scores, _, embed = self(g_data, train=False)
             svdd_score = torch.mean(torch.square(embed - self.svdd_center), 1)
@@ -249,7 +249,7 @@ class HetGCN_11(nn.Module):
     ):
         """
         Compute combination of SVDD Loss and cross entropy loss on batch
-        TODO: Add weight average
+
         """
 
         _batch_out = embed_batch
@@ -330,4 +330,8 @@ class HetGCN_11(nn.Module):
         outlier_loss = torch.abs(
             torch.maximum(confidence_margin - dev, torch.tensor(0.0))
         )
+        print(f'dev: {dev}')
+        print(f'inlier_loss: {inlier_loss}')
+        print(f'outlier_loss: {outlier_loss}')
+        print(f'y_true: {y_true}')
         return torch.mean((1 - y_true) * inlier_loss + y_true * outlier_loss)
