@@ -316,7 +316,7 @@ class HetGCN_11(nn.Module):
         loss = svdd_loss + weighted_loss * self.loss_weight
         return loss
 
-    def deviation_loss(self, y_true, y_pred):
+    def deviation_loss(self, y_pred, y_true):
         """
         z-score-based deviation loss
         """
