@@ -232,7 +232,7 @@ class HetGCN_11(nn.Module):
         with torch.no_grad():
             bce_scores, _, embed = self(g_data, train=False)
             svdd_score = torch.mean(torch.square(embed - self.svdd_center), 1)
-            if self.eval_method == "svdd":
+            if self.eval_method == "svdd" or self.loss_weight == 0:
                 scores = svdd_score
             elif self.eval_method == "bce":
                 scores = bce_scores
@@ -316,7 +316,7 @@ class HetGCN_11(nn.Module):
         loss = svdd_loss + weighted_loss * self.loss_weight
         return loss
 
-    def deviation_loss(self, y_true, y_pred):
+    def deviation_loss(self, y_pred, y_true):
         """
         z-score-based deviation loss
         """
@@ -330,8 +330,8 @@ class HetGCN_11(nn.Module):
         outlier_loss = torch.abs(
             torch.maximum(confidence_margin - dev, torch.tensor(0.0))
         )
-        print(f'dev: {dev}')
-        print(f'inlier_loss: {inlier_loss}')
-        print(f'outlier_loss: {outlier_loss}')
-        print(f'y_true: {y_true}')
+        # print(f'dev: {dev}')
+        # print(f'inlier_loss: {inlier_loss}')
+        # print(f'outlier_loss: {outlier_loss}')
+        # print(f'y_true: {y_true}')
         return torch.mean((1 - y_true) * inlier_loss + y_true * outlier_loss)
