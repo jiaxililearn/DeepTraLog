@@ -160,7 +160,7 @@ class Train2(object):
         self.loss = self.model.svdd_cross_entropy_loss
         print(self.model)
 
-        self.early_stopping = EarlyStopping(tolerance=3)
+        self.early_stopping = EarlyStopping(tolerance=2)
 
     def train(self):
         """
@@ -539,7 +539,7 @@ class EarlyStopping:
         self.early_stop = False
 
     def __call__(self, eval_score):
-        if eval_score < self.previous_score:
+        if eval_score <= self.previous_score:
             self.counter += 1
             if self.counter >= self.tolerance:
                 self.early_stop = True
