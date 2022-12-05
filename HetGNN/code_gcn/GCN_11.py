@@ -232,7 +232,7 @@ class HetGCN_11(nn.Module):
         with torch.no_grad():
             bce_scores, _, embed = self(g_data, train=False)
             svdd_score = torch.mean(torch.square(embed - self.svdd_center), 1)
-            if self.eval_method == "svdd":
+            if self.eval_method == "svdd" or self.loss_weight == 0:
                 scores = svdd_score
             elif self.eval_method == "bce":
                 scores = bce_scores
