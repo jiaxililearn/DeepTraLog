@@ -48,9 +48,13 @@ class GraphAugmentator:
         self.func_list = [
             self.create_edge_addition,
             self.create_het_edge_perturbation,
-            self.create_node_type_swap,
-            self.create_edge_type_swap,
+            self.create_node_type_swap
         ]
+
+        # skip edge swap if only 1 edge type
+        if num_edge_types > 1:
+            self.func_list.append(self.create_edge_type_swap)
+
 
         self.ga_dict = {
             self.create_het_edge_perturbation.__name__: 1,

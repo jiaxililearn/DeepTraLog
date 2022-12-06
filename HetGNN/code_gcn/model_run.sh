@@ -9,7 +9,7 @@ python main.py \
 --mini_batch_s 8 \
 --eval_size 10 \
 --unzip False \
---s3_stage False \
+--s3_stage True \
 --split_data False \
 --ignore_weight True \
 --test_set True \
@@ -39,7 +39,7 @@ python main.py \
 --eval_method both \
 --model_path ../model_save_tralog_gcn11_all \
 --data_path ../ProcessedData_HetGCN \
---job_prefix semi_svdd
+--job_prefix test
 
 sudo update-alternatives --config gcc
 sudo ln -sfT /usr/local/cuda-10.2/ /usr/local/cuda
@@ -64,7 +64,7 @@ python main.py \
 --test_set True \
 --save_model_freq 2 \
 --lr 0.0001 \
---train_iter_n 500 \
+--train_iter_n 100 \
 --trainer_version 2 \
 --model_version 11 \
 --model_sub_version 0 \
@@ -74,8 +74,21 @@ python main.py \
 --out_embed_s 32 \
 --hidden_channels 32 \
 --num_hidden_conv_layers 1 \
+--augmentation_method all \
+--edge_ratio_percentile 0.95 \
+--edge_mutate_prob 0.1 \
+--add_method rare \
+--edge_addition_pct 0.1 \
+--replace_edges True \
+--swap_node_pct 0.1 \
+--swap_edge_pct 0.1 \
+--main_loss semi-svdd \
+--weighted_loss deviation \
+--loss_weight 0 \
+--eval_method both \
 --model_path ../model_save_streamspot_gcn11 \
---data_path ../ProcessedData_streamspot
+--data_path ../ProcessedData_streamspot \
+--job_prefix test_streamspot
 
 
 # DeepTraLog Baseline

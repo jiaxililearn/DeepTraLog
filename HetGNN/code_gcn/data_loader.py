@@ -181,7 +181,7 @@ class HetGCNEventGraphDataset(Dataset):
             return (
                 graph_node_feature,
                 edge_index,
-                (edge_weight, None),
+                (edge_weight, torch.zeros(edge_index.shape[1],)),
                 self.node_types[gid],
             )
 
