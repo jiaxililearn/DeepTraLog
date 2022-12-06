@@ -53,10 +53,10 @@ python main.py \
 --num_node_types 8 \
 --num_train 375 \
 --source_types 0,1 \
---sampling_size 160 \
---batch_s 32 \
---mini_batch_s 32 \
---eval_size 20 \
+--sampling_size 375 \
+--batch_s 25 \
+--mini_batch_s 25 \
+--eval_size 375 \
 --unzip False \
 --s3_stage False \
 --split_data False \
@@ -73,7 +73,7 @@ python main.py \
 --feature_size 26 \
 --out_embed_s 32 \
 --hidden_channels 32 \
---num_hidden_conv_layers 1 \
+--num_hidden_conv_layers 3 \
 --augmentation_method all \
 --add_method rare \
 --edge_addition_pct 0.1 \

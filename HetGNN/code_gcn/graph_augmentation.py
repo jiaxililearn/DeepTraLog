@@ -559,11 +559,13 @@ class GraphAugmentator:
         # print(f'new_edge_type: {new_edge_type.shape}')
         # print(f'new_edge_weights: {new_edge_weights.shape}')
         # print(f'new_edge_index: {new_edge_index.shape}')
+        if new_edge_weights is not None:
+            new_edge_weights = new_edge_weights.to(edge_index.device)
 
         return (
             node_features,
             new_edge_index.to(edge_index.device),
-            (new_edge_weights.to(edge_index.device), new_edge_type.to(edge_index.device)),
+            (new_edge_weights, new_edge_type.to(edge_index.device)),
             node_types,
         )
 
