@@ -295,6 +295,7 @@ class HetGCN_11(nn.Module):
 
         ga_losses = {}
         weighted_loss = 0.0
+        print(f'labels: {labels}')
         if self.main_loss == "semi-svdd":
             # print('convert semi-svdd labels..')
             supervised_labels = torch.where(labels > 0, 0, 1)
@@ -312,7 +313,7 @@ class HetGCN_11(nn.Module):
 
             ga_weighted_loss = self.loss(ga_outputs, ga_labels)
 
-            print(f'ga_weighted_loss: {ga_weighted_loss}')
+            # print(f'ga_weighted_loss: {ga_weighted_loss}')
 
             ga_losses[ga_method.item()] = ga_weighted_loss.item()
             weighted_loss += ga_weighted_loss
@@ -340,9 +341,9 @@ class HetGCN_11(nn.Module):
         outlier_loss = torch.abs(
             torch.maximum(confidence_margin - dev, torch.tensor(0.0))
         )
-        print(f'dev: {dev}')
-        print(f'inlier_loss: {inlier_loss}')
-        print(f'outlier_loss: {outlier_loss}')
-        print(f'y_true: {y_true}')
-        print(f'y_true: {y_pred}')
+        # print(f'dev: {dev}')
+        # print(f'inlier_loss: {inlier_loss}')
+        # print(f'outlier_loss: {outlier_loss}')
+        # print(f'y_true: {y_true}')
+        # print(f'y_true: {y_pred}')
         return torch.mean((1 - y_true) * inlier_loss + y_true * outlier_loss)
