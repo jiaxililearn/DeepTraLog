@@ -448,6 +448,7 @@ class GraphAugmentator:
 
         row, col = edge_index
         edge_prob = {}
+        new_edge_weights = None
 
         # count number of edges for every type
         for etype in range(self.num_edge_types):
@@ -490,6 +491,7 @@ class GraphAugmentator:
         if edge_weight is not None:
             add_edge_weights = []
 
+        # create potential edges as well as necessary edge weights and edge types
         for etype, src_type, dst_type in sample_edge_list:
             src_id = random.choice(node_types[src_type])
             dst_id = random.choice(node_types[dst_type])
@@ -550,6 +552,10 @@ class GraphAugmentator:
 
         new_edge_index, new_edge_type = dense_to_sparse(new_adj_matrix)
         new_edge_type -= 1
+
+        print(f'new_edge_type: {new_edge_type.shape}')
+        print(f'new_edge_weights: {new_edge_weights.shape}')
+        print(f'new_edge_index: {new_edge_index.shape}')
 
         return (
             node_features,
