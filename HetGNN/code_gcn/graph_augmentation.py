@@ -191,8 +191,8 @@ class GraphAugmentator:
             torch.tensor([self.edge_mutate_prob])
         )
         edge_mutate_mask = m.sample((size, size))
-        print(f'generated_adj_matrix: {generated_adj_matrix.shape}')
-        print(f'edge_mutate_mask: {edge_mutate_mask.shape}')
+        # print(f'generated_adj_matrix: {generated_adj_matrix.shape}')
+        # print(f'edge_mutate_mask: {edge_mutate_mask.shape}')
         masked_generated_adj_matrix = generated_adj_matrix * edge_mutate_mask
         # masked_generated_adj_matrix = masked_generated_adj_matrix.to(device)
 
