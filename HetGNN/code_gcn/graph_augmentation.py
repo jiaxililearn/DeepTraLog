@@ -556,9 +556,9 @@ class GraphAugmentator:
         new_edge_index, new_edge_type = dense_to_sparse(new_adj_matrix)
         new_edge_type -= 1
 
-        print(f'new_edge_type: {new_edge_type.shape}')
-        print(f'new_edge_weights: {new_edge_weights.shape}')
-        print(f'new_edge_index: {new_edge_index.shape}')
+        # print(f'new_edge_type: {new_edge_type.shape}')
+        # print(f'new_edge_weights: {new_edge_weights.shape}')
+        # print(f'new_edge_index: {new_edge_index.shape}')
 
         return (
             node_features,
