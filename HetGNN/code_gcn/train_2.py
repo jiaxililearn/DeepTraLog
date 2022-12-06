@@ -57,6 +57,7 @@ class Train2(object):
         split_data=True,
         edge_ratio_percentile=0.95,
         main_loss=None,
+        tolerance=None,
         # known_abnormal_ratio=None,
         job_prefix=None,
         **kwargs,
@@ -162,7 +163,7 @@ class Train2(object):
         self.loss = self.model.svdd_cross_entropy_loss
         print(self.model)
 
-        self.early_stopping = EarlyStopping(tolerance=2)
+        self.early_stopping = EarlyStopping(tolerance=tolerance)
 
     def train(self):
         """

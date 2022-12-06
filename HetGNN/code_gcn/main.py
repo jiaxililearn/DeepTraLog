@@ -53,6 +53,7 @@ import click
 @click.option('--split_data', default=True, type=bool, help='if random split data on train or read from existings')
 @click.option('--sagemaker', default=True, type=bool, help='is it running in SageMaker')
 @click.option('--unzip', default=True, type=bool, help='if unzip feature lists first')
+@click.option('--tolerance', default=3, type=int, help='early stopping criteria tolerance')
 @click.option('--s3_stage', default=True, type=bool, help='if stage results to s3')
 @click.option('--s3_bucket', default='prod-tpgt-knowledge-lake-sandpit-v1',
               help='S3 bucket to upload intermediate artifacts')
