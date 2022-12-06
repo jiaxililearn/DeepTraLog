@@ -75,7 +75,6 @@ python main.py \
 --hidden_channels 32 \
 --num_hidden_conv_layers 1 \
 --augmentation_method all \
---edge_ratio_percentile 0.95 \
 --add_method rare \
 --edge_addition_pct 0.1 \
 --replace_edges True \

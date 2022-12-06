@@ -440,7 +440,7 @@ class GraphAugmentator:
         ).view(size, -1)
 
         # define weight matrix
-        if edge_weight:
+        if edge_weight is not None:
             origin_weight_matrix = to_dense_adj(
                 edge_index.cpu(), edge_attr=edge_weight.cpu(), max_num_nodes=size
             ).view(size, -1)
@@ -469,7 +469,7 @@ class GraphAugmentator:
                         1 / _num_edges if _num_edges > 0 else 0.0
                     )
                     # get a list of existing weights in this type
-                    if edge_weight:
+                    if edge_weight is not None:
                         _unique_edge_weights, _unique_edge_weight_cnt = torch.unique(edge_weight[cmask], return_counts=True)
                         _, idx = _unique_edge_weight_cnt.sort(descending=True)
                         val, _ = _unique_edge_weight_cnt.sort(descending=False)
@@ -487,7 +487,7 @@ class GraphAugmentator:
         src_id_list = []
         dst_id_list = []
         add_edge_types = []
-        if edge_weight:
+        if edge_weight is not None:
             add_edge_weights = []
 
         for etype, src_type, dst_type in sample_edge_list:
@@ -498,7 +498,7 @@ class GraphAugmentator:
             src_id_list.append(src_id)
             dst_id_list.append(dst_id)
 
-            if edge_weight:
+            if edge_weight is not None:
                 weights_, weight_probs_ = edge_weight_dict[(etype, src_type, dst_type)]
                 weight_ = random.choices(weights_, weights=weight_probs_, k=1)[0]
                 add_edge_weights.append(weight_)
@@ -506,7 +506,7 @@ class GraphAugmentator:
         add_edge_index = torch.tensor([src_id_list, dst_id_list])
         add_edge_types = torch.tensor(add_edge_types)
 
-        if edge_weight:
+        if edge_weight is not None:
             add_edge_weights = torch.tensor(add_edge_weights)
 
         add_adj_matrix = (
@@ -517,7 +517,7 @@ class GraphAugmentator:
             .to(device)
         )
 
-        if edge_weight:
+        if edge_weight is not None:
             add_weights_matrix = (
                 to_dense_adj(
                     add_edge_index, edge_attr=add_edge_weights, max_num_nodes=size
@@ -544,7 +544,7 @@ class GraphAugmentator:
         xor_mask = torch.logical_xor(origin_adj_matrix, add_adj_matrix)
 
         new_adj_matrix = add_adj_matrix.masked_fill(~xor_mask, 0) + origin_adj_matrix
-        if edge_weight:
+        if edge_weight is not None:
             new_weights_matrix = add_weights_matrix.masked_fill(~xor_mask, 0) + origin_weight_matrix
             _, new_edge_weights = dense_to_sparse(new_weights_matrix)
 
