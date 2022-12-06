@@ -304,9 +304,11 @@ class HetGCN_11(nn.Module):
         for ga_method in ga_methods.unique():
             if ga_method == 0:  # 0 if input batch data
                 continue
-            ga_mask = torch.logical_or(ga_methods == ga_method, ga_methods == 0)  # include batch data as well
-            ga_outputs = outputs[ga_mask]
-            ga_labels = supervised_labels[ga_mask]
+            ga_mask = ga_methods == ga_method
+            ga_batch_mask = ga_methods == 0
+            n_ = ga_mask.sum()
+            ga_outputs = torch.concat(outputs[ga_mask], outputs[ga_batch_mask][:n_])
+            ga_labels = torch.concat(supervised_labels[ga_mask], supervised_labels[ga_batch_mask][:n_])
 
             print(f'ga_outputs: {ga_outputs}')
             print(f'ga_labels: {ga_labels}')
