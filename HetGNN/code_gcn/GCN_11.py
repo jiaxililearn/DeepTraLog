@@ -298,7 +298,7 @@ class HetGCN_11(nn.Module):
         # print(f'labels: {labels}')
         if self.main_loss == "semi-svdd":
             # print('convert semi-svdd labels..')
-            supervised_labels = torch.where(labels > 0, 0, 1)
+            supervised_labels = torch.where(labels > 0, 0.0, 1.0)
         else:
             supervised_labels = labels
         for ga_method in ga_methods.unique():
