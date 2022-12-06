@@ -21,7 +21,7 @@ class GraphAugmentator:
         node_insertion_method="target_to_source",
         swap_edge_pct=0.05,
         swap_node_pct=0.05,
-        edge_mutate_prob=0.1,
+        edge_mutate_prob=None,
         add_method='rare',
         edge_addition_pct=0.1,
         replace_edges=False,
@@ -47,13 +47,15 @@ class GraphAugmentator:
 
         self.func_list = [
             self.create_edge_addition,
-            self.create_het_edge_perturbation,
             self.create_node_type_swap
         ]
+        if edge_mutate_prob is not None:
+            self.func_list.append(self.create_het_edge_perturbation)
 
         # skip edge swap if only 1 edge type
         if num_edge_types > 1:
             self.func_list.append(self.create_edge_type_swap)
+        
 
 
         self.ga_dict = {
@@ -191,8 +193,8 @@ class GraphAugmentator:
             torch.tensor([self.edge_mutate_prob])
         )
         edge_mutate_mask = m.sample((size, size))
-        print(f'edge_type: {generated_adj_matrix.shape}')
-        print(f'edge_type: {edge_mutate_mask.shape}')
+        print(f'generated_adj_matrix: {generated_adj_matrix.shape}')
+        print(f'edge_mutate_mask: {edge_mutate_mask.shape}')
         masked_generated_adj_matrix = generated_adj_matrix * edge_mutate_mask
         # masked_generated_adj_matrix = masked_generated_adj_matrix.to(device)
 

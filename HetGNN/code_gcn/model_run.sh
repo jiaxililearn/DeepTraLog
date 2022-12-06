@@ -53,9 +53,9 @@ python main.py \
 --num_node_types 8 \
 --num_train 375 \
 --source_types 0,1 \
---sampling_size 375 \
---batch_s 25 \
---mini_batch_s 25 \
+--sampling_size 160 \
+--batch_s 8 \
+--mini_batch_s 8 \
 --eval_size 25 \
 --unzip False \
 --s3_stage False \
@@ -76,12 +76,10 @@ python main.py \
 --num_hidden_conv_layers 1 \
 --augmentation_method all \
 --edge_ratio_percentile 0.95 \
---edge_mutate_prob 0.1 \
 --add_method rare \
 --edge_addition_pct 0.1 \
 --replace_edges True \
 --swap_node_pct 0.1 \
---swap_edge_pct 0.1 \
 --main_loss semi-svdd \
 --weighted_loss deviation \
 --loss_weight 0 \
