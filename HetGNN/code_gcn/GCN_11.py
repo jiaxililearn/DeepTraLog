@@ -307,8 +307,8 @@ class HetGCN_11(nn.Module):
             ga_mask = ga_methods == ga_method
             ga_batch_mask = ga_methods == 0
             n_ = ga_mask.sum()
-            ga_outputs = torch.cat(outputs[ga_mask], outputs[ga_batch_mask][:n_])
-            ga_labels = torch.cat(supervised_labels[ga_mask], supervised_labels[ga_batch_mask][:n_])
+            ga_outputs = torch.cat([outputs[ga_mask], outputs[ga_batch_mask][:n_]])
+            ga_labels = torch.cat([supervised_labels[ga_mask], supervised_labels[ga_batch_mask][:n_]])
 
             print(f'ga_outputs: {ga_outputs}')
             print(f'ga_labels: {ga_labels}')
