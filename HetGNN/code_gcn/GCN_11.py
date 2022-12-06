@@ -303,7 +303,14 @@ class HetGCN_11(nn.Module):
             ga_mask = ga_methods == ga_method
             ga_outputs = outputs[ga_mask]
             ga_labels = supervised_labels[ga_mask]
+
+            print(f'ga_outputs: {ga_outputs}')
+            print(f'ga_labels: {ga_labels}')
+
             ga_weighted_loss = self.loss(ga_outputs, ga_labels)
+
+            print(f'ga_weighted_loss: {ga_weighted_loss}')
+
             ga_losses[ga_method.item()] = ga_weighted_loss.item()
             weighted_loss += ga_weighted_loss
 
@@ -330,8 +337,9 @@ class HetGCN_11(nn.Module):
         outlier_loss = torch.abs(
             torch.maximum(confidence_margin - dev, torch.tensor(0.0))
         )
-        # print(f'dev: {dev}')
-        # print(f'inlier_loss: {inlier_loss}')
-        # print(f'outlier_loss: {outlier_loss}')
-        # print(f'y_true: {y_true}')
+        print(f'dev: {dev}')
+        print(f'inlier_loss: {inlier_loss}')
+        print(f'outlier_loss: {outlier_loss}')
+        print(f'y_true: {y_true}')
+        print(f'y_true: {y_pred}')
         return torch.mean((1 - y_true) * inlier_loss + y_true * outlier_loss)

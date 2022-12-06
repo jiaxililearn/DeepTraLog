@@ -54,9 +54,9 @@ python main.py \
 --num_train 375 \
 --source_types 0,1 \
 --sampling_size 160 \
---batch_s 8 \
---mini_batch_s 8 \
---eval_size 25 \
+--batch_s 32 \
+--mini_batch_s 32 \
+--eval_size 20 \
 --unzip False \
 --s3_stage False \
 --split_data False \

@@ -55,8 +55,6 @@ class GraphAugmentator:
         # skip edge swap if only 1 edge type
         if num_edge_types > 1:
             self.func_list.append(self.create_edge_type_swap)
-        
-
 
         self.ga_dict = {
             self.create_het_edge_perturbation.__name__: 1,
@@ -211,7 +209,7 @@ class GraphAugmentator:
             new_edge_index.to(edge_index.device),
             (None, new_edge_type.to(edge_index.device)),
             node_types,
-        )  # ignores edge weight for now. TODO: need to add support for CMU data
+        )  # ignores edge weight for now. TODO: need to add support for CMU data. CMU data skips edge perturbation
 
     def create_het_node_insertion(self, batch_data):
         """
@@ -310,7 +308,7 @@ class GraphAugmentator:
             new_edge_index,
             (None, new_edge_types),
             new_node_types,
-        )  # default edge weight to None. TODO: update for CMU dataset
+        )  # default edge weight to None. TODO: update for CMU dataset. Skips node insertion
 
     def create_edge_addition(self, batch_data):
         """
