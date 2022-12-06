@@ -181,7 +181,7 @@ class GraphAugmentator:
             new_edge_index, edge_attr=new_edge_type + 1, max_num_nodes=size
         ).view(size, -1)
 
-        print(f'edge_type: {edge_type.shape}')
+        
         origin_adj_matrix = to_dense_adj(
             edge_index.cpu(), edge_attr=edge_type.cpu() + 1, max_num_nodes=size
         ).view(size, -1)
@@ -191,7 +191,8 @@ class GraphAugmentator:
             torch.tensor([self.edge_mutate_prob])
         )
         edge_mutate_mask = m.sample((size, size))
-
+        print(f'edge_type: {generated_adj_matrix.shape}')
+        print(f'edge_type: {edge_mutate_mask.shape}')
         masked_generated_adj_matrix = generated_adj_matrix * edge_mutate_mask
         # masked_generated_adj_matrix = masked_generated_adj_matrix.to(device)
 
