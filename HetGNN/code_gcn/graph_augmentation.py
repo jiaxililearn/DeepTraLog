@@ -538,9 +538,12 @@ class GraphAugmentator:
                 if _dst_node_ids.shape[0] == 0:
                     continue
 
-                # remove a random edge from this neighbourhood
+                # remove a random edge from this neighbourhood, as well as edge weight
                 offset_dst_idx = random.choice(_dst_node_ids)
                 _src_node_neigh[offset_dst_idx] = 0
+                
+                if edge_weight is not None:
+                    origin_weight_matrix[_src_id][offset_dst_idx] = 0
 
         # resolve duplicated edges
         xor_mask = torch.logical_xor(origin_adj_matrix, add_adj_matrix)
