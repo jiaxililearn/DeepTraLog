@@ -563,7 +563,7 @@ class GraphAugmentator:
         return (
             node_features,
             new_edge_index.to(edge_index.device),
-            (new_edge_weights, new_edge_type.to(edge_index.device)),
+            (new_edge_weights.to(edge_index.device), new_edge_type.to(edge_index.device)),
             node_types,
         )
 
