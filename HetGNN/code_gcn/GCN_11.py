@@ -88,7 +88,10 @@ class HetGCN_11(nn.Module):
 
         print(f"num_hidden_conv_layers: {num_hidden_conv_layers}")
 
-        self.final_fc = nn.Sequential(nn.Linear(self.out_embed_d, 1, bias=True))
+        self.final_fc = nn.Sequential(
+            nn.Linear(self.out_embed_d, 1, bias=True),
+            nn.Sigmoid()
+        )
 
         # Others
         self.relu = nn.LeakyReLU()
