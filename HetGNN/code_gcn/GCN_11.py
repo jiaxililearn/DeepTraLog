@@ -310,8 +310,8 @@ class HetGCN_11(nn.Module):
             ga_outputs = torch.cat([outputs[ga_mask], outputs[ga_batch_mask][:n_]])
             ga_labels = torch.cat([supervised_labels[ga_mask], supervised_labels[ga_batch_mask][:n_]])
 
-            print(f'ga_outputs: {ga_outputs}')
-            print(f'ga_labels: {ga_labels}')
+            # print(f'ga_outputs: {ga_outputs}')
+            # print(f'ga_labels: {ga_labels}')
 
             ga_weighted_loss = self.loss(ga_outputs, ga_labels)
 
