@@ -29,6 +29,7 @@ import click
 @click.option('--model_sub_version', default=0, help='train with sub model version')
 @click.option('--checkpoint', default=None, type=int, help='model checkpoint to load')
 @click.option('--checkpoint_path', default=None, type=str, help='model checkpoint path')
+@click.option('--embed_activation', default='relu', type=str, help='activation func for embeddings. relu | sigmoid')
 @click.option('--edge_perturbation_p', default=0.001, type=float, help='probability of edge perturbation')
 @click.option('--augmentation_method', default='edge_perturbation', type=str, help='subgraph size to sample when node insertion')
 @click.option('--edge_ratio_percentile', default=0.95, type=float, help='percentile used for edge perturbation')
