@@ -241,7 +241,7 @@ class HetGCN_11(nn.Module):
         with torch.no_grad():
             bce_scores, _, embed = self(g_data, train=False)
             svdd_score = torch.mean(torch.square(embed - self.svdd_center), 1)
-            if self.eval_method == "svdd" or self.loss_weight == 0:
+            if self.eval_method == "svdd" or self.loss_weight == 0.0:
                 scores = svdd_score
             elif self.eval_method == "bce":
                 scores = bce_scores
@@ -308,7 +308,7 @@ class HetGCN_11(nn.Module):
         else:
             supervised_labels = labels
 
-        if self.wloss is not  None:
+        if self.wloss is not None:
             for ga_method in ga_methods.unique():
                 if ga_method == 0:  # 0 if input batch data
                     continue
