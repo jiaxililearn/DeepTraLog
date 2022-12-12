@@ -25,6 +25,7 @@ class HetGCN_11(nn.Module):
         num_edge_types=1,
         augment_func=None,
         main_loss=None,
+        embed_activation='relu',
         # batch_n_known_abnormal=None,
         weighted_loss=None,
         loss_weight=0.5,
@@ -68,6 +69,8 @@ class HetGCN_11(nn.Module):
         self.eval_method = eval_method
         # self.batch_n_known_abnormal = batch_n_known_abnormal
 
+        
+
         self.eps = 1e-6
         self.eta = 1.0  # TODO: hyperparameter
 
@@ -94,8 +97,11 @@ class HetGCN_11(nn.Module):
         )
 
         # Others
-        self.relu = nn.LeakyReLU()
-        self.sigmoid = nn.Sigmoid()
+        if embed_activation == 'relu':
+            self.embed_act = nn.LeakyReLU()
+        elif embed_activation == 'sigmoid':
+            self.embed_act = nn.Sigmoid()
+
         # loss
         if self.weighted_loss == "bce":
             print("using bce loss")
@@ -184,7 +190,7 @@ class HetGCN_11(nn.Module):
 
         for i, (g_data, g_label) in enumerate(zip(combined_data, combined_labels)):
             h = self.het_node_conv(g_data, source_types=self.source_types)
-            h = self.relu(h)
+            h = self.embed_act(h)
 
             if self.main_loss == "semi-svdd":
                 _out_h[i] = h
@@ -241,7 +247,7 @@ class HetGCN_11(nn.Module):
         with torch.no_grad():
             bce_scores, _, embed = self(g_data, train=False)
             svdd_score = torch.mean(torch.square(embed - self.svdd_center), 1)
-            if self.eval_method == "svdd" or self.loss_weight == 0:
+            if self.eval_method == "svdd" or self.loss_weight == 0.0:
                 scores = svdd_score
             elif self.eval_method == "bce":
                 scores = bce_scores
@@ -308,7 +314,7 @@ class HetGCN_11(nn.Module):
         else:
             supervised_labels = labels
 
-        if self.wloss is not  None:
+        if self.wloss is not None:
             for ga_method in ga_methods.unique():
                 if ga_method == 0:  # 0 if input batch data
                     continue
