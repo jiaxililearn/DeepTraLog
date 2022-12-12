@@ -79,8 +79,8 @@ python main.py \
 --edge_addition_pct 0.1 \
 --replace_edges True \
 --swap_node_pct 0.1 \
---main_loss semi-svdd \
---weighted_loss deviation \
+--main_loss svdd \
+--weighted_loss ignore \
 --loss_weight 0 \
 --eval_method both \
 --model_path ../model_save_streamspot_gcn11 \

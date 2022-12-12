@@ -83,6 +83,8 @@ class Train2(object):
         # self.n_known_abnormal = max(int(sampling_size * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
         # self.batch_n_known_abnormal = max(int(batch_s * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
 
+        self.augmented = False if kwargs['weighted_loss'] == 'ignore' else True
+
         if source_types is not None:
             self.source_types = [int(i) for i in source_types.split(",")]
 
@@ -232,14 +234,18 @@ class Train2(object):
                         self.out_embed_d,
                     ).to(self.device)
                 else:
+                    if self.augmented: # determine where there are outputs including augmented results or not
+                        _factor = 2
+                    else:
+                        _factor = 1
                     _out = torch.zeros(
-                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
+                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * _factor, 1
                     ).to(self.device)
                     _out_labels = torch.zeros(
-                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
+                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * _factor, 1
                     ).to(self.device)
                     _out_ga_methods = torch.zeros(
-                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * 2, 1
+                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * _factor, 1
                     ).to(self.device)
                     _out_h = torch.zeros(
                         int(self.batch_s / self.mini_batch_s),
