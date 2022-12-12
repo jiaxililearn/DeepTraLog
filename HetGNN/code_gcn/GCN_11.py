@@ -99,10 +99,13 @@ class HetGCN_11(nn.Module):
         # loss
         if self.weighted_loss == "bce":
             print("using bce loss")
-            self.loss = torch.nn.BCELoss()
+            self.wloss = torch.nn.BCELoss()
         elif self.weighted_loss == "deviation":
             print("using deviation loss")
-            self.loss = self.deviation_loss
+            self.wloss = self.deviation_loss
+        elif self.weighted_loss == "ignore":
+            print("using no weighted loss")
+            self.wloss = None
 
     def init_weights(self):
         """
@@ -124,7 +127,10 @@ class HetGCN_11(nn.Module):
         if train:
             # print(f"{self.augment_func.__name__} for the batch ..")
             # het_edge_perturbation(args)
-            synthetic_data, synthetic_method = self.augment_func(batch_data)
+            if self.wloss is not None:
+                synthetic_data, synthetic_method = self.augment_func(batch_data)
+            else:
+                synthetic_data, synthetic_method = [], []
 
             # if self.main_loss == "semi-svdd":
             #     abnormal_data = np.random.choice(
@@ -281,7 +287,7 @@ class HetGCN_11(nn.Module):
 
         dist = torch.sum(torch.square(_batch_out_resahpe - hypersphere_center), 1)
 
-        if self.main_loss == "semi-svdd":
+        if self.main_loss == "semi-svdd" and self.wloss is not None:
             # print('calc semi-svdd ..')
             dist = torch.where(
                 labels == 0, dist, self.eta * ((dist + self.eps) ** labels.float())
@@ -301,32 +307,36 @@ class HetGCN_11(nn.Module):
             supervised_labels = torch.where(labels > 0, 0.0, 1.0)
         else:
             supervised_labels = labels
-        for ga_method in ga_methods.unique():
-            if ga_method == 0:  # 0 if input batch data
-                continue
-            ga_mask = ga_methods == ga_method
-            ga_batch_mask = ga_methods == 0
-            n_ = ga_mask.sum()
-            ga_outputs = torch.cat([outputs[ga_mask], outputs[ga_batch_mask][:n_]])
-            ga_labels = torch.cat([supervised_labels[ga_mask], supervised_labels[ga_batch_mask][:n_]])
 
-            # print(f'ga_outputs: {ga_outputs}')
-            # print(f'ga_labels: {ga_labels}')
+        if self.wloss is not  None:
+            for ga_method in ga_methods.unique():
+                if ga_method == 0:  # 0 if input batch data
+                    continue
+                ga_mask = ga_methods == ga_method
+                ga_batch_mask = ga_methods == 0
+                n_ = ga_mask.sum()
+                ga_outputs = torch.cat([outputs[ga_mask], outputs[ga_batch_mask][:n_]])
+                ga_labels = torch.cat([supervised_labels[ga_mask], supervised_labels[ga_batch_mask][:n_]])
 
-            ga_weighted_loss = self.loss(ga_outputs, ga_labels)
+                # print(f'ga_outputs: {ga_outputs}')
+                # print(f'ga_labels: {ga_labels}')
 
-            # print(f'ga_weighted_loss: {ga_weighted_loss}')
+                ga_weighted_loss = self.wloss(ga_outputs, ga_labels)
 
-            ga_losses[ga_method.item()] = ga_weighted_loss.item()
-            weighted_loss += ga_weighted_loss
+                # print(f'ga_weighted_loss: {ga_weighted_loss}')
 
-        # TODO: individual loss weights for different GA methods
-        # weighted_loss = torch.tensor(list(ga_losses.values()), dtype=torch.float).flatten().to(self.device).sum()
+                ga_losses[ga_method.item()] = ga_weighted_loss.item()
+                weighted_loss += ga_weighted_loss
+
+            # TODO: individual loss weights for different GA methods
+            # weighted_loss = torch.tensor(list(ga_losses.values()), dtype=torch.float).flatten().to(self.device).sum()
 
         print(f"\t\t GA Method Loss: {ga_losses}")
         print(f"\t Batch SVDD Loss: {svdd_loss}; Batch Weighted Loss: {weighted_loss};")
-
-        loss = svdd_loss + weighted_loss * self.loss_weight
+        if self.wloss is None:
+            loss = svdd_loss
+        else:
+            loss = svdd_loss + weighted_loss * self.loss_weight
         return loss
 
     def deviation_loss(self, y_pred, y_true):
