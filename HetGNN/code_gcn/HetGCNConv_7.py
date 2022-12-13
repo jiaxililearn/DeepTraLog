@@ -68,7 +68,7 @@ class HetGCNConv_7(MessagePassing):
         """
         forward method
         """
-        node_feature, edge_index, edge_weight, node_types = graph_data
+        node_feature, edge_index, (edge_weight, _), node_types = graph_data
         if edge_weight is None:
             edge_weight = torch.ones((edge_index.size(1),), device=edge_index.device)
 
