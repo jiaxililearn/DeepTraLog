@@ -305,7 +305,7 @@ class Train2(object):
             if iter_i % self.save_model_freq == 0:
                 # Evaluate the model
                 print("Evaluating Model ..")
-                roc_auc, ap = self.eval_model(eval_gid_list)
+                roc_auc, ap, fc_roc_auc, fc_ap = self.eval_model(eval_gid_list)
                 eval_list.append([roc_auc, ap])
 
                 # Save Model
@@ -325,7 +325,7 @@ class Train2(object):
 
                 with open(f"{self.model_path}/eval_metrics.txt", "w") as fout:
                     for roc_auc, ap in eval_list:
-                        fout.write(f"{roc_auc} {ap}\n")
+                        fout.write(f"{roc_auc} {ap} {fc_roc_auc} {fc_ap}\n")
 
                 # sync to s3 for intermediate save
                 if self.s3_stage:
@@ -524,15 +524,15 @@ class Train2(object):
 
             # bce eval metrics
             bce_fpr, bce_tpr, _ = roc_curve(labels, bce_scores)
-            bce_roc_auc = auc(bce_fpr, bce_tpr)
+            fc_roc_auc = auc(bce_fpr, bce_tpr)
 
             bce_precision, bce_recall, _ = precision_recall_curve(labels, bce_scores)
-            bce_ap = auc(bce_recall, bce_precision)
+            fc_ap = auc(bce_recall, bce_precision)
 
             print(f"\tAUC:{roc_auc}; Avg Precision:{ap};")
-            print(f"\tAUC Weighted:{bce_roc_auc}; Avg Precision Weighted:{bce_ap};")
+            print(f"\tAUC Weighted:{fc_roc_auc}; Avg Precision Weighted:{fc_ap};")
 
-        return roc_auc, ap
+        return roc_auc, ap, fc_roc_auc, fc_ap
 
 
 class EarlyStopping:
