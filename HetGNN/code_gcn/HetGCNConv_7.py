@@ -150,7 +150,7 @@ class HetGCNConv_7(MessagePassing):
                 raise Exception(e)
             print(f'row[cmask]: {row[cmask]}')
             print(f'col[cmask]: {col[cmask]}')
-            print(f'edge_weight[cmask]: {edge_weight[cmask]')
+            print(f'edge_weight[cmask]: {edge_weight[cmask]}')
             return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
         else:
 
