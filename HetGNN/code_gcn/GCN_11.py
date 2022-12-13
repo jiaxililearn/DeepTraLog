@@ -305,6 +305,10 @@ class HetGCN_11(nn.Module):
 
         svdd_loss = loss_ + l2_lambda * l2_norm
 
+        if self.wloss is None:
+            print(f"\t Batch SVDD Loss: {svdd_loss};")
+            return svdd_loss
+
         ga_losses = {}
         weighted_loss = 0.0
         # print(f'labels: {labels}')
@@ -339,10 +343,8 @@ class HetGCN_11(nn.Module):
 
         print(f"\t\t GA Method Loss: {ga_losses}")
         print(f"\t Batch SVDD Loss: {svdd_loss}; Batch Weighted Loss: {weighted_loss};")
-        if self.wloss is None:
-            loss = svdd_loss
-        else:
-            loss = svdd_loss + weighted_loss * self.loss_weight
+
+        loss = svdd_loss + weighted_loss * self.loss_weight
         return loss
 
     def deviation_loss(self, y_pred, y_true):

@@ -185,7 +185,7 @@ python main.py \
 --main_loss svdd \
 --weighted_loss ignore \
 --loss_weight 0 \
---eval_method both \
+--eval_method svdd \
 --model_path ../model_save_streamspot_gcn11 \
 --data_path ../ProcessedData_streamspot \
 --job_prefix test_streamspotv11
