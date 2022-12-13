@@ -294,7 +294,7 @@ class HetGCN_11(nn.Module):
         dist = torch.sum(torch.square(_batch_out_resahpe - hypersphere_center), 1)
 
         if self.main_loss == "semi-svdd" and self.wloss is not None:
-            # print('calc semi-svdd ..')
+            print('calc semi-svdd ..')
             dist = torch.where(
                 labels == 0, dist, self.eta * ((dist + self.eps) ** labels.float())
             )

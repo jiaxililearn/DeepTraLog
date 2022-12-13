@@ -339,7 +339,7 @@ class Train2(object):
                     break
 
             print("iteration " + str(iter_i) + " finish.")
-            torch.cuda.empty_cache()
+            # torch.cuda.empty_cache()
 
     def train_eval_test_split(self, test_set=True):
         """
