@@ -204,15 +204,12 @@ class HetGCN_13(nn.Module):
         # print(f'combined_labels: {combined_labels}')
         # print(f'h_node_batch[:2]: {h_node_batch[:2]}')
         print(f'len(h_node_batch): {len(h_node_batch)}')
-        h_node_batch = torch.stack(h_node_batch, dim=0)
-        print(f'h_node_batch: {h_node_batch}')
-        print(f'h_node_batch shape: {h_node_batch.shape}')
-        
+
         return (
             _out,
             (combined_labels, combined_methods),
             _out_h,
-            h_node_batch.to(self.device),
+            h_node_batch,
         )
 
     # def graph_node_pooling(self, graph_node_het_embedding):
