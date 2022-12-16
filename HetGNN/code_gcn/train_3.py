@@ -300,18 +300,19 @@ class Train3(object):
                             _out[mini_n],
                             (_out_labels[mini_n], _out_ga_methods[mini_n]),
                             _out_h[mini_n],
-                            _out_h_n,
+                            _out_h_n
                         ) = self.model(mini_k)
 
                         (
                             _,
                             _,
                             _out_h_random_target[mini_n],
-                            _out_h_n_random_target,
+                            _out_h_n_random_target
                         ) = self.random_target(mini_k)
 
                         _out_h_node.append(_out_h_n)
-                        _out_h_node_random_target.append(_out_h_n_random_target)
+                        _out_h_node_random_target.append(
+                            [x.detach() for x in _out_h_n_random_target])
 
                 # detach to skip backward
                 _out_h_random_target = _out_h_random_target.detach()
@@ -326,7 +327,7 @@ class Train3(object):
                             F.mse_loss(
                                 node_embedd, random_tar_node_embedd, reduction="none"
                             ),
-                            dim=2,
+                            dim=1,
                         )
                         .mean(dim=1)
                         .mean(dim=0)
