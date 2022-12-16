@@ -344,9 +344,7 @@ class Train3(object):
                     .mean(dim=1)
                     .mean(dim=0)
                 )
-                print(f"=>loss: {loss}")
                 batch_loss = loss + loss_node
-                print(f"=>batch_loss: {batch_loss}")
 
                 batch_loss_list.append(batch_loss)
                 avg_loss_list.append(batch_loss.tolist())
