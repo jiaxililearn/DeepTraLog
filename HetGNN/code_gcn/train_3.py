@@ -366,7 +366,7 @@ class Train3(object):
             if iter_i % self.save_model_freq == 0:
                 # Evaluate the model
                 print("Evaluating Model ..")
-                roc_auc, ap, fc_roc_auc, fc_ap = self.eval_model(eval_gid_list)
+                roc_auc, ap = self.eval_model(eval_gid_list)
                 eval_list.append([roc_auc, ap])
 
                 # Save Model
@@ -386,7 +386,7 @@ class Train3(object):
 
                 with open(f"{self.model_path}/eval_metrics.txt", "w") as fout:
                     for roc_auc, ap in eval_list:
-                        fout.write(f"{roc_auc} {ap} {fc_roc_auc} {fc_ap}\n")
+                        fout.write(f"{roc_auc} {ap}\n")
 
                 # sync to s3 for intermediate save
                 if self.s3_stage:
@@ -544,22 +544,27 @@ class Train3(object):
             if self.input_type == "single":
                 # single mode deprecated
                 pass
-                # pred_scores = []
-                # for gid in eval_list_tmp:
-                #     _score = (
-                #         self.model.predict_score(self.dataset[gid])
-                #         .cpu()
-                #         .detach()
-                #         .numpy()
-                #     )
-                #     pred_scores.append(_score)
-            # else if 'batch' input type
             else:
-                pred_scores, bce_scores = self.model.predict_score(eval_list_tmp)
-                pred_scores, bce_scores = (
-                    pred_scores.cpu().detach().numpy(),
-                    bce_scores.cpu().detach().numpy(),
-                )
+                _, _, _out_h, _out_h_n = self.model(eval_list_tmp)
+                _, _, _out_h_rt, _out_h_n_rt = self.random_target(eval_list_tmp)
+                node_loss = torch.zeros(len(eval_list_tmp), 1)
+                for n, embedd, embedd_rt in enumerate(zip(_out_h_n, _out_h_n_rt)):
+                    node_loss[n] = torch.mean(
+                        F.mse_loss(
+                            embedd, embedd_rt, reduction="none"
+                        ),
+                        dim=1,
+                    ).mean(dim=0)
+                graph_loss = F.mse_loss(
+                    _out_h.view(-1, self.out_embed_d),
+                    _out_h_rt.view(-1, self.out_embed_d),
+                    reduction="none",
+                ).mean(dim=1)
+                print(f'shape node_loss: {node_loss.shape}')
+                print(f'shape graph_loss: {graph_loss.shape}')
+                loss = graph_loss + node_loss
+            
+            pred_scores = loss.tolist()
 
             labels = []
             for gid in eval_list_tmp:
@@ -583,17 +588,9 @@ class Train3(object):
             )
             ap = auc(recall, precision)
 
-            # bce eval metrics
-            bce_fpr, bce_tpr, _ = roc_curve(labels, bce_scores)
-            fc_roc_auc = auc(bce_fpr, bce_tpr)
-
-            bce_precision, bce_recall, _ = precision_recall_curve(labels, bce_scores)
-            fc_ap = auc(bce_recall, bce_precision)
-
             print(f"\tAUC:{roc_auc}; Avg Precision:{ap};")
-            print(f"\tAUC Weighted:{fc_roc_auc}; Avg Precision Weighted:{fc_ap};")
 
-        return roc_auc, ap, fc_roc_auc, fc_ap
+        return roc_auc, ap
 
 
 class EarlyStopping:
