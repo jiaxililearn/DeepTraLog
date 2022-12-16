@@ -343,7 +343,7 @@ class Train3(object):
                 )
                 batch_loss = loss + loss_node
 
-                batch_loss_list.append(batch_loss.item())
+                batch_loss_list.append(batch_loss)
                 avg_loss_list.append(batch_loss.tolist())
                 # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
                 # print(f'Model Output: {_out}')
