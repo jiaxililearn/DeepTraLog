@@ -84,7 +84,7 @@ class Train3(object):
         # self.n_known_abnormal = max(int(sampling_size * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
         # self.batch_n_known_abnormal = max(int(batch_s * known_abnormal_ratio), 1) if known_abnormal_ratio > 0 else 0
 
-        self.augmented = False if kwargs['weighted_loss'] == 'ignore' else True
+        self.augmented = False if kwargs["weighted_loss"] == "ignore" else True
 
         if source_types is not None:
             self.source_types = [int(i) for i in source_types.split(",")]
@@ -107,7 +107,7 @@ class Train3(object):
                     include_edge_type=True if kwargs["num_edge_types"] > 1 else False,
                     edge_ratio_percentile=edge_ratio_percentile,
                     # n_known_abnormal=self.n_known_abnormal,
-                    trace_info_csv=f'{self.data_root_dir}/trace_info.csv',
+                    trace_info_csv=f"{self.data_root_dir}/trace_info.csv",
                 )
 
         self.num_train_benign = num_train
@@ -247,18 +247,26 @@ class Train3(object):
                         self.out_embed_d,
                     ).to(self.device)
                 else:
-                    if self.augmented: # determine where there are outputs including augmented results or not
+                    if (
+                        self.augmented
+                    ):  # determine where there are outputs including augmented results or not
                         _factor = 2
                     else:
                         _factor = 1
                     _out = torch.zeros(
-                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * _factor, 1
+                        int(self.batch_s / self.mini_batch_s),
+                        self.mini_batch_s * _factor,
+                        1,
                     ).to(self.device)
                     _out_labels = torch.zeros(
-                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * _factor, 1
+                        int(self.batch_s / self.mini_batch_s),
+                        self.mini_batch_s * _factor,
+                        1,
                     ).to(self.device)
                     _out_ga_methods = torch.zeros(
-                        int(self.batch_s / self.mini_batch_s), self.mini_batch_s * _factor, 1
+                        int(self.batch_s / self.mini_batch_s),
+                        self.mini_batch_s * _factor,
+                        1,
                     ).to(self.device)
                     _out_h = torch.zeros(
                         int(self.batch_s / self.mini_batch_s),
@@ -291,30 +299,44 @@ class Train3(object):
                         (
                             _out[mini_n],
                             (_out_labels[mini_n], _out_ga_methods[mini_n]),
-                            _out_h[mini_n], _out_h_n
+                            _out_h[mini_n],
+                            _out_h_n,
                         ) = self.model(mini_k)
 
                         (
                             _,
                             _,
-                            _out_h_random_target[mini_n], _out_h_n_random_target
+                            _out_h_random_target[mini_n],
+                            _out_h_n_random_target,
                         ) = self.random_target(mini_k)
 
                         _out_h_node.append(_out_h_n)
                         _out_h_node_random_target.append(_out_h_n_random_target)
-
 
                 # detach to skip backward
                 _out_h_random_target = _out_h_random_target.detach()
 
                 # Glocal KD Loss
                 loss_node = torch.tensor(0.0).to(self.device)
-                for node_embedd, random_tar_node_embedd in zip(_out_h_node, _out_h_node_random_target):
-                    loss_node_ = torch.mean(
-                        F.mse_loss(node_embedd, random_tar_node_embedd, reduction='none'), dim=2
-                    ).mean(dim=1).mean(dim=0)
+                for node_embedd, random_tar_node_embedd in zip(
+                    _out_h_node[0], _out_h_node_random_target[0]
+                ):  # TODO: There is no mini-batch atm. If specify more than 1 mini batch, for loop needs to be modify to accomendate node embed
+                    loss_node_ = (
+                        torch.mean(
+                            F.mse_loss(
+                                node_embedd, random_tar_node_embedd, reduction="none"
+                            ),
+                            dim=2,
+                        )
+                        .mean(dim=1)
+                        .mean(dim=0)
+                    )
                     loss_node = loss_node_
-                loss = F.mse_loss(_out_h, _out_h_random_target, reduction='none').mean(dim=1).mean(dim=0)
+                loss = (
+                    F.mse_loss(_out_h, _out_h_random_target, reduction="none")
+                    .mean(dim=1)
+                    .mean(dim=0)
+                )
                 batch_loss = loss + loss_node
 
                 batch_loss_list.append(batch_loss.item())
