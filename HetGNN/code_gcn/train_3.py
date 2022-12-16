@@ -548,7 +548,7 @@ class Train3(object):
                 _, _, _out_h, _out_h_n = self.model(eval_list_tmp)
                 _, _, _out_h_rt, _out_h_n_rt = self.random_target(eval_list_tmp)
                 node_loss = torch.zeros(len(eval_list_tmp), 1)
-                for n, embedd, embedd_rt in enumerate(zip(_out_h_n, _out_h_n_rt)):
+                for n, (embedd, embedd_rt) in enumerate(zip(_out_h_n, _out_h_n_rt)):
                     node_loss[n] = torch.mean(
                         F.mse_loss(
                             embedd, embedd_rt, reduction="none"
@@ -563,7 +563,7 @@ class Train3(object):
                 print(f'shape node_loss: {node_loss.shape}')
                 print(f'shape graph_loss: {graph_loss.shape}')
                 loss = graph_loss + node_loss
-            
+
             pred_scores = loss.tolist()
 
             labels = []
