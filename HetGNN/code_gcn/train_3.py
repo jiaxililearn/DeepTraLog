@@ -318,7 +318,7 @@ class Train3(object):
                 _out_h_random_target = _out_h_random_target.detach()
 
                 # Glocal KD Loss
-                loss_node = torch.tensor(0.0).to(self.device)
+                loss_node = []
                 for node_embedd, random_tar_node_embedd in zip(
                     _out_h_node[0], _out_h_node_random_target[0]
                 ):  # TODO: There is no mini-batch atm. If specify more than 1 mini batch, for loop needs to be modify to accomendate node embed
@@ -333,7 +333,10 @@ class Train3(object):
                             dim=1,
                         ).mean(dim=0)
                     )
-                    loss_node += loss_node_
+                    loss_node.append(loss_node_)
+                    
+                loss_node = torch.mean(loss_node)
+                print(f'loss_node: {loss_node}')
                 loss = (
                     F.mse_loss(_out_h, _out_h_random_target, reduction="none")
                     .mean(dim=1)
