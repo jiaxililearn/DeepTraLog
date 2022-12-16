@@ -189,7 +189,7 @@ class HetGCN_13(nn.Module):
         for i, (g_data, g_label) in enumerate(zip(combined_data, combined_labels)):
             h, h_node = self.het_node_conv(g_data, source_types=self.source_types)
             h = self.embed_act(h)
-            h_node_batch.append(h)
+            h_node_batch.append(h_node)
 
             if self.main_loss == "semi-svdd":
                 _out_h[i] = h
@@ -202,12 +202,16 @@ class HetGCN_13(nn.Module):
         # print(f'combined_labels: {combined_labels.shape}')
         # print(f'_out: {_out.shape}')
         # print(f'combined_labels: {combined_labels}')
-
+        print(f'h_node_batch[:2]: {h_node_batch[:2]}')
+        print(f'len(h_node_batch): {len(h_node_batch)}')
+        h_node_batch = torch.tensor(h_node_batch)
+        print(f'h_node_batch: {h_node_batch}')
+        
         return (
             _out,
             (combined_labels, combined_methods),
             _out_h,
-            torch.tensor(h_node_batch).to(self.device),
+            h_node_batch.to(self.device),
         )
 
     # def graph_node_pooling(self, graph_node_het_embedding):
