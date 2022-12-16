@@ -334,8 +334,7 @@ class Train3(object):
                         ).mean(dim=0)
                     )
                     loss_node += loss_node_
-                    print(f'\t+loss_node: {loss_node}')
-                loss_node = loss_node / _out_h_node[0].shapep[0]  # TODO: Same as above
+                loss_node = loss_node / len(_out_h_node[0])  # TODO: Same as above
                 print(f'=>loss_node: {loss_node}')
                 loss = (
                     F.mse_loss(_out_h, _out_h_random_target, reduction="none")
