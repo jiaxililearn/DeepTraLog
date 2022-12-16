@@ -203,7 +203,7 @@ class HetGCN_13(nn.Module):
         # print(f'_out: {_out.shape}')
         # print(f'combined_labels: {combined_labels}')
         # print(f'h_node_batch[:2]: {h_node_batch[:2]}')
-        print(f'len(h_node_batch): {len(h_node_batch)}')
+        # print(f'len(h_node_batch): {len(h_node_batch)}')
 
         return (
             _out,
