@@ -334,9 +334,9 @@ class Train3(object):
                         ).mean(dim=0)
                     )
                     loss_node.append(loss_node_)
-                    
+                    print(f'\t+loss_node: {loss_node}')
                 loss_node = torch.mean(loss_node)
-                print(f'loss_node: {loss_node}')
+                print(f'=>loss_node: {loss_node}')
                 loss = (
                     F.mse_loss(_out_h, _out_h_random_target, reduction="none")
                     .mean(dim=1)
