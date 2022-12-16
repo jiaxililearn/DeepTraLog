@@ -303,16 +303,17 @@ class Train3(object):
                         _out_h_node.append(_out_h_n)
                         _out_h_node_random_target.append(_out_h_n_random_target)
 
-                _out_h_node = torch.stack(_out_h_node, dim=0).to(self.device)
 
                 # detach to skip backward
                 _out_h_random_target = _out_h_random_target.detach()
-                _out_h_node_random_target = torch.stack(_out_h_node_random_target, dim=0).to(self.device).detach()
 
                 # Glocal KD Loss
-                loss_node = torch.mean(
-                    F.mse_loss(_out_h_node, _out_h_node_random_target, reduction='none'), dim=2
-                ).mean(dim=1).mean(dim=0)
+                loss_node = torch.tensor(0.0).to(self.device)
+                for node_embedd, random_tar_node_embedd in zip(_out_h_node, _out_h_node_random_target):
+                    loss_node_ = torch.mean(
+                        F.mse_loss(node_embedd, random_tar_node_embedd, reduction='none'), dim=2
+                    ).mean(dim=1).mean(dim=0)
+                    loss_node = loss_node_
                 loss = F.mse_loss(_out_h, _out_h_random_target, reduction='none').mean(dim=1).mean(dim=0)
                 batch_loss = loss + loss_node
 
