@@ -204,7 +204,7 @@ class HetGCN_13(nn.Module):
         # print(f'combined_labels: {combined_labels}')
         # print(f'h_node_batch[:2]: {h_node_batch[:2]}')
         print(f'len(h_node_batch): {len(h_node_batch)}')
-        h_node_batch = torch.stack(h_node_batch)
+        h_node_batch = torch.stack(h_node_batch, dim=0)
         print(f'h_node_batch: {h_node_batch}')
         print(f'h_node_batch shape: {h_node_batch.shape}')
         

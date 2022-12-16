@@ -303,11 +303,11 @@ class Train3(object):
                         _out_h_node.append(_out_h_n)
                         _out_h_node_random_target.append(_out_h_n_random_target)
 
-                _out_h_node = torch.stack(_out_h_node).to(self.device)
+                _out_h_node = torch.stack(_out_h_node, dim=0).to(self.device)
 
                 # detach to skip backward
                 _out_h_random_target = _out_h_random_target.detach()
-                _out_h_node_random_target = torch.stack(_out_h_node_random_target).to(self.device).detach()
+                _out_h_node_random_target = torch.stack(_out_h_node_random_target, dim=0).to(self.device).detach()
 
                 # Glocal KD Loss
                 loss_node = torch.mean(
