@@ -335,13 +335,15 @@ class Train3(object):
                     )
                     loss_node += loss_node_
                 loss_node = loss_node / len(_out_h_node[0])  # TODO: Same as above
-                print(f'=>loss_node: {loss_node}')
+
                 loss = (
                     F.mse_loss(_out_h, _out_h_random_target, reduction="none")
                     .mean(dim=1)
                     .mean(dim=0)
                 )
+                print(f'=>loss: {loss}')
                 batch_loss = loss + loss_node
+                print(f'=>batch_loss: {batch_loss}')
 
                 batch_loss_list.append(batch_loss)
                 avg_loss_list.append(batch_loss.tolist())
