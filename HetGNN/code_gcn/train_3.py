@@ -322,6 +322,8 @@ class Train3(object):
                 for node_embedd, random_tar_node_embedd in zip(
                     _out_h_node[0], _out_h_node_random_target[0]
                 ):  # TODO: There is no mini-batch atm. If specify more than 1 mini batch, for loop needs to be modify to accomendate node embed
+
+                    print(f'loss shape: {F.mse_loss(node_embedd, random_tar_node_embedd, reduction="none").shape}')
                     loss_node_ = (
                         torch.mean(
                             F.mse_loss(
@@ -332,7 +334,7 @@ class Train3(object):
                         .mean(dim=1)
                         .mean(dim=0)
                     )
-                    loss_node = loss_node_
+                    loss_node += loss_node_
                 loss = (
                     F.mse_loss(_out_h, _out_h_random_target, reduction="none")
                     .mean(dim=1)
