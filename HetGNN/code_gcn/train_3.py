@@ -331,9 +331,7 @@ class Train3(object):
                                 node_embedd, random_tar_node_embedd, reduction="none"
                             ),
                             dim=1,
-                        )
-                        .mean(dim=1)
-                        .mean(dim=0)
+                        ).mean(dim=0)
                     )
                     loss_node += loss_node_
                 loss = (
