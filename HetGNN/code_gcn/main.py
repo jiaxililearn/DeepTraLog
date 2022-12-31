@@ -45,7 +45,7 @@ import click
 # @click.option('--known_abnormal_ratio', default=0.1, type=float, help='ratio of known abnormal graphs to add during semi-svdd training')
 @click.option('--weighted_loss', default='deviation', type=str, help='supervise loss used for training. bce | deviation')
 @click.option('--loss_weight', default=0.5, type=float, help='weight of the bce weight')
-@click.option('--ablation', default=None, type=str, help='ablation setup for exp, requires the num_node_types/num_edge_types to be 1. no-edge-relation | no-node-relation')
+@click.option('--ablation', default=None, type=str, help='ablation setup for exp, requires the num_node_types/num_edge_types to be 1. no-edge-relation | no-node-relation | no-edge-node-relation')
 @click.option('--eval_method', default='svdd', type=str, help='method used to do the eval for the model. svdd | bce | both')
 @click.option('--job_prefix', default='any', type=str, help='job prefix when uploading checkpoint to S3')
 @click.option('--dataset_id', default=0, help='choose dataset used for training')
