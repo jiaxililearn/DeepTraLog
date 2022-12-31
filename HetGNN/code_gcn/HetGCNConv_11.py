@@ -89,21 +89,25 @@ class HetGCNConv_11(MessagePassing):
                 
                 ## A3 - study when edge/node relation is removed
                 if self.ablation == 'no-edge-relation':
-                    print(f'[INFO] Setting edge_type to be None')
+                    print('[INFO] Setting edge_type to be None')
                     edge_type = None
                 elif self.ablation == 'no-node-relation':
-                    print(f'[INFO] Setting node_type to be None')
+                    print('[INFO] Setting node_type to be None')
                     source_types = None
-
-                _, het_edge_index, het_edge_weight = self.get_het_edge_index(
-                    edge_index,
-                    edge_weight,
-                    node_types,
-                    ntype,
-                    source_types=source_types,
-                    edge_type_list=edge_type,
-                    edge_type=etype,
-                )
+                
+                if self.ablation == 'no-edge-node-relation':
+                    print('[INFO] Use no edge or node relation')
+                    het_edge_index, het_edge_weight = edge_index, edge_weight
+                else:
+                    _, het_edge_index, het_edge_weight = self.get_het_edge_index(
+                        edge_index,
+                        edge_weight,
+                        node_types,
+                        ntype,
+                        source_types=source_types,
+                        edge_type_list=edge_type,
+                        edge_type=etype,
+                    )
 
                 if het_edge_index is None:
                     content_h = torch.zeros(
