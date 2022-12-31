@@ -88,6 +88,7 @@ class HetGCNConv_11(MessagePassing):
             for etype in range(self.num_edge_types):
                 
                 ## A3 - study when edge relation is ignored
+                print(f'self.ablation: {self.ablation}')
                 if self.ablation == 'no-edge-relation':
                     print(f'[INFO] Setting edge_type to be None')
                     edge_type = None
