@@ -30,6 +30,7 @@ class HetGCN_11(nn.Module):
         weighted_loss=None,
         loss_weight=0.5,
         eval_method="both",
+        ablation=None,
         # edge_perturbation_p=0.002,
         **kwargs,
     ):
@@ -69,8 +70,6 @@ class HetGCN_11(nn.Module):
         self.eval_method = eval_method
         # self.batch_n_known_abnormal = batch_n_known_abnormal
 
-        
-
         self.eps = 1e-6
         self.eta = 1.0  # TODO: hyperparameter
 
@@ -84,6 +83,7 @@ class HetGCN_11(nn.Module):
                 num_hidden_conv_layers=num_hidden_conv_layers,
                 num_src_types=len(source_types),
                 num_edge_types=num_edge_types,
+                ablation=ablation
             )
 
         else:
