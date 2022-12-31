@@ -87,10 +87,13 @@ class HetGCNConv_11(MessagePassing):
         for ntype in range(self.num_node_types * self.num_src_types):
             for etype in range(self.num_edge_types):
                 
-                ## A3 - study when edge relation is ignored
+                ## A3 - study when edge/node relation is removed
                 if self.ablation == 'no-edge-relation':
                     print(f'[INFO] Setting edge_type to be None')
                     edge_type = None
+                elif self.ablation == 'no-node-relation':
+                    print(f'[INFO] Setting node_type to be None')
+                    source_types = None
 
                 _, het_edge_index, het_edge_weight = self.get_het_edge_index(
                     edge_index,
@@ -190,6 +193,13 @@ class HetGCNConv_11(MessagePassing):
                 print(f"node_types[src_type]: {node_types[src_type]}")
                 raise Exception(e)
             return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
+
+        elif source_types is None and edge_type_list is not None:
+            edge_mask = edge_type_list == edge_type
+            cmask = edge_mask
+            print('[INFO] ignore node mask')
+            return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
+
         else:
 
             if len(node_types[ntype]) == 0:
