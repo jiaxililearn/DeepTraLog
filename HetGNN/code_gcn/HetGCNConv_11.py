@@ -21,6 +21,7 @@ class HetGCNConv_11(MessagePassing):
         num_hidden_conv_layers=1,
         num_src_types=2,
         num_edge_types=1,
+        ablation=None,
     ):
         super().__init__()
         self.in_channels = in_channels
@@ -30,6 +31,7 @@ class HetGCNConv_11(MessagePassing):
         self.num_src_types = num_src_types
         self.num_hidden_conv_layers = num_hidden_conv_layers
         self.num_edge_types = num_edge_types
+        self.ablation = ablation
 
         # self.k = 12
         # first het node hidden layer
@@ -84,6 +86,11 @@ class HetGCNConv_11(MessagePassing):
         het_h_embeddings = []
         for ntype in range(self.num_node_types * self.num_src_types):
             for etype in range(self.num_edge_types):
+                
+                ## A3 - study when edge relation is ignored
+                if self.ablation == 'no-edge-relation':
+                    print(f'[INFO] Setting edge_type to be None')
+                    edge_type = None
 
                 _, het_edge_index, het_edge_weight = self.get_het_edge_index(
                     edge_index,
@@ -175,6 +182,7 @@ class HetGCNConv_11(MessagePassing):
                     edge_mask = edge_type_list == edge_type
                     cmask = src_het_mask & dst_het_mask & edge_mask
                 else:
+                    print(f'[INFO] ignore edge mask')
                     cmask = src_het_mask & dst_het_mask
             except Exception as e:
                 print(f"{src_type_idx} - {dst_type}")
