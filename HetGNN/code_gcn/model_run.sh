@@ -172,8 +172,8 @@ python main.py \
 --dataset_id 0 \
 --input_type batch \
 --feature_size 26 \
---out_embed_s 64 \
---hidden_channels 64 \
+--out_embed_s 32 \
+--hidden_channels 32 \
 --num_hidden_conv_layers 3 \
 --embed_activation sigmoid \
 --tolerance 5 \
@@ -272,3 +272,42 @@ python main.py \
 --model_path ../test_save_streamspot_gcn7 \
 --data_path ../ProcessedData_streamspot \
 --job_prefix test_streamspotv7
+
+
+# A3 - TraLog
+python main.py \
+--sagemaker False \
+--num_node_types 8 \
+--num_edge_types 4 \
+--source_types 0,1,2,3,4,5,6,7 \
+--num_train 65000 \
+--sampling_size 160 \
+--batch_s 32 \
+--mini_batch_s 8 \
+--eval_size 10 \
+--unzip False \
+--s3_stage True \
+--split_data False \
+--ignore_weight True \
+--test_set True \
+--save_model_freq 2 \
+--lr 0.0001 \
+--train_iter_n 200 \
+--trainer_version 2 \
+--model_version 11 \
+--model_sub_version 0 \
+--dataset_id 0 \
+--input_type batch \
+--feature_size 7 \
+--out_embed_s 300 \
+--hidden_channels 300 \
+--num_hidden_conv_layers 1 \
+--augmentation_method all \
+--main_loss svdd \
+--weighted_loss ignore \
+--loss_weight 0 \
+--ablation no-edge-node-relation \
+--eval_method svdd \
+--model_path ../model_save_tralog_gcn11_all \
+--data_path ../ProcessedData_HetGCN \
+--job_prefix test

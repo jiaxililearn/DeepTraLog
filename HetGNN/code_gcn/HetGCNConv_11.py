@@ -33,6 +33,16 @@ class HetGCNConv_11(MessagePassing):
         self.num_edge_types = num_edge_types
         self.ablation = ablation
 
+        if self.ablation == 'no-edge-relation':
+            self.num_edge_types = 1
+        elif self.ablation == 'no-node-relation':
+            self.num_src_types = 1
+            self.num_node_types = 1
+        elif self.ablation == 'no-edge-node-relation':
+            self.num_edge_types = 1
+            self.num_src_types = 1
+            self.num_node_types = 1
+
         # self.k = 12
         # first het node hidden layer
         hidden_conv_layers = []
@@ -89,14 +99,11 @@ class HetGCNConv_11(MessagePassing):
                 
                 ## A3 - study when edge/node relation is removed
                 if self.ablation == 'no-edge-relation':
-                    print('[INFO] Setting edge_type to be None')
                     edge_type = None
                 elif self.ablation == 'no-node-relation':
-                    print('[INFO] Setting node_type to be None')
                     source_types = None
                 
                 if self.ablation == 'no-edge-node-relation':
-                    print('[INFO] Use no edge or node relation')
                     het_edge_index, het_edge_weight = edge_index, edge_weight
                 else:
                     _, het_edge_index, het_edge_weight = self.get_het_edge_index(
@@ -189,7 +196,6 @@ class HetGCNConv_11(MessagePassing):
                     edge_mask = edge_type_list == edge_type
                     cmask = src_het_mask & dst_het_mask & edge_mask
                 else:
-                    print(f'[INFO] ignore edge mask')
                     cmask = src_het_mask & dst_het_mask
             except Exception as e:
                 print(f"{src_type_idx} - {dst_type}")
@@ -201,7 +207,6 @@ class HetGCNConv_11(MessagePassing):
         elif source_types is None and edge_type_list is not None:
             edge_mask = edge_type_list == edge_type
             cmask = edge_mask
-            print('[INFO] ignore node mask')
             return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
 
         else:
