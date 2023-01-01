@@ -66,7 +66,7 @@ class HetGCNConv_11(MessagePassing):
         # hidden_conv_layers[n_hidden][etype][ntype]
 
         self.fc_het_layer = torch.nn.Linear(
-            hidden_channels * num_node_types * num_src_types * num_edge_types,
+            hidden_channels * self.num_node_types * self.num_src_types * self.num_edge_types,
             out_channels,
             bias=True,
         )
