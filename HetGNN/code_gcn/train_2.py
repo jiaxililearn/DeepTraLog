@@ -123,7 +123,7 @@ class Train2(object):
 
         self.save_model_freq = save_model_freq
         self.s3_bucket = s3_bucket
-        self.s3_prefix = f"application/anomaly_detection/deeptralog/HetGNN/experiments/model{model_version}_{job_prefix}_{main_loss}_{kwargs['weighted_loss']}_lossweight{kwargs['loss_weight']}_emp{edge_mutate_prob}_eap{edge_addition_pct}_snpct{swap_node_pct}_sepct{swap_edge_pct}_re{replace_edges}/"
+        self.s3_prefix = f"application/anomaly_detection/deeptralog/HetGNN/experiments/model{model_version}_{job_prefix}_{main_loss}_{kwargs['weighted_loss']}_lossweight{kwargs['loss_weight']}_emp{edge_mutate_prob}_eap{edge_addition_pct}_snpct{swap_node_pct}_sepct{swap_edge_pct}_re{replace_edges}_{kwargs['hidden_channels']}_{kwargs['num_hidden_conv_layers']}_/"
         self.s3_stage = s3_stage
 
         augmentor = GraphAugmentator(
