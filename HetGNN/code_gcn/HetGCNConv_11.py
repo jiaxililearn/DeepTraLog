@@ -102,19 +102,19 @@ class HetGCNConv_11(MessagePassing):
                     edge_type = None
                 elif self.ablation == 'no-node-relation':
                     source_types = None
-                
-                if self.ablation == 'no-edge-node-relation':
-                    het_edge_index, het_edge_weight = edge_index, edge_weight
-                else:
-                    _, het_edge_index, het_edge_weight = self.get_het_edge_index(
-                        edge_index,
-                        edge_weight,
-                        node_types,
-                        ntype,
-                        source_types=source_types,
-                        edge_type_list=edge_type,
-                        edge_type=etype,
-                    )
+                elif self.ablation == 'no-edge-node-relation':
+                    source_types = None
+                    edge_type = None
+
+                _, het_edge_index, het_edge_weight = self.get_het_edge_index(
+                    edge_index,
+                    edge_weight,
+                    node_types,
+                    ntype,
+                    source_types=source_types,
+                    edge_type_list=edge_type,
+                    edge_type=etype,
+                )
 
                 if het_edge_index is None:
                     content_h = torch.zeros(
@@ -188,7 +188,6 @@ class HetGCNConv_11(MessagePassing):
                     return ntype, None, None
 
                 # TODO: handle edge type
-
                 src_het_mask = sum(row == i for i in node_types[src_type]).bool()
                 dst_het_mask = sum(col == i for i in node_types[dst_type]).bool()
 
@@ -206,7 +205,13 @@ class HetGCNConv_11(MessagePassing):
 
         elif source_types is None and edge_type_list is not None:
             edge_mask = edge_type_list == edge_type
-            cmask = edge_mask
+            dst_het_mask = sum(col == i for i in node_types[ntype]).bool()
+            cmask = dst_het_mask & edge_mask
+            return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
+
+        elif source_types is None and edge_type_list is None:
+            dst_het_mask = sum(col == i for i in node_types[ntype]).bool()
+            cmask = dst_het_mask
             return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
 
         else:
