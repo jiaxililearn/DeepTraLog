@@ -4,7 +4,7 @@ ENV PATH="/opt/ml/code:${PATH}"
 
 RUN pip install torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geometric -f https://data.pyg.org/whl/torch-1.11.0+cu113.html
 
-RUN pip install cytoolz
+RUN pip install cytoolz pytdc community
 # /opt/ml and all subdirectories are utilized by SageMaker, we use the /code subdirectory to store our user code.
 # COPY HetGNN/code_gcn/ /opt/ml/code
 
