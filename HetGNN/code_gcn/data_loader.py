@@ -137,7 +137,7 @@ class HetGCNEventGraphDataset(Dataset):
             torch.from_numpy(
                 self.edge_inedx_df[self.edge_inedx_df.trace_id == gid][
                     ["src_id", "dst_id"]
-                ].values.reshape(2, -1)
+                ].values.T  # reshape(2, -1)
             )
             .type(torch.LongTensor)
             .to(self.device)
