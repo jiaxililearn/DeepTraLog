@@ -266,7 +266,6 @@ class Train2(object):
                         #     _out[mini_n][i] = self.model(self.dataset[gid])
                     # else if 'batch' input type
                     else:
-                        print(f'mini_k: {mini_k}')
                         (
                             _out[mini_n],
                             (_out_labels[mini_n], _out_ga_methods[mini_n]),
