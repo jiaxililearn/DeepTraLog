@@ -129,7 +129,7 @@ class HetGCN_11(nn.Module):
         forward propagate based on gid batch
         """
         batch_data = [self.dataset[i] for i in gid_batch]
-        print(f'batch_data: {batch_data}')
+        # print(f'batch_data: {batch_data}')
         if train:
             # print(f"{self.augment_func.__name__} for the batch ..")
             # het_edge_perturbation(args)
@@ -187,8 +187,9 @@ class HetGCN_11(nn.Module):
             )
         else:
             _out_h = torch.zeros(len(gid_batch), self.out_embed_d, device=self.device)
-
+        print(f'size: {len(combined_data)}')
         for i, (g_data, g_label) in enumerate(zip(combined_data, combined_labels)):
+            print(f'trace_id: {gid_batch[i]}')
             h = self.het_node_conv(g_data, source_types=self.source_types)
             h = self.embed_act(h)
 
