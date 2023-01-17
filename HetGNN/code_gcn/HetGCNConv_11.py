@@ -94,12 +94,16 @@ class HetGCNConv_11(MessagePassing):
         node_feature, edge_index, (edge_weight, edge_type), node_types = graph_data
         if edge_weight is None:
             edge_weight = torch.ones((edge_index.size(1),), device=edge_index.device)
-        
+
+        edge_index, edge_weight = add_remaining_self_loops(
+            edge_index, edge_attr=edge_weight, num_nodes=node_feature.shape[0]
+        )
+
         het_h_embeddings = []
         for ntype in range(self.num_node_types * self.num_src_types):
             for etype in range(self.num_edge_types):
                 print(f'neighbour type: {ntype} - {etype}')
-                
+
                 ## A3 - study when edge/node relation is removed
                 if self.ablation == 'no-edge-relation':
                     edge_type = None
