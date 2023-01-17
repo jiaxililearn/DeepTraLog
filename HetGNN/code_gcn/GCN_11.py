@@ -193,6 +193,7 @@ class HetGCN_11(nn.Module):
             h = self.het_node_conv(g_data, source_types=self.source_types)
             h = self.embed_act(h)
 
+            print(f'h: {h}')
             if self.main_loss == "semi-svdd":
                 _out_h[i] = h
             else:
