@@ -191,7 +191,7 @@ class HetGCN_11(nn.Module):
         for i, (g_data, g_label) in enumerate(zip(combined_data, combined_labels)):
             print(f'trace_id: {gid_batch[i]}')
             print(f'g_data: {g_data}')
-            print(f'self.dataset[i]: {self.dataset[gid_batch[806]]}')
+            print(f'self.dataset[i]: {self.dataset[806]}')
 
             h = self.het_node_conv(g_data, source_types=self.source_types)
             h = self.embed_act(h)
