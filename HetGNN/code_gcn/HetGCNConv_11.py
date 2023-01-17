@@ -89,10 +89,13 @@ class HetGCNConv_11(MessagePassing):
         """
         forward method
         """
+        print(f'graph_data: {graph_data}')
+        print(f'source_types: {source_types}')
+
         node_feature, edge_index, (edge_weight, edge_type), node_types = graph_data
         if edge_weight is None:
             edge_weight = torch.ones((edge_index.size(1),), device=edge_index.device)
-
+        
         het_h_embeddings = []
         for ntype in range(self.num_node_types * self.num_src_types):
             for etype in range(self.num_edge_types):
@@ -115,6 +118,8 @@ class HetGCNConv_11(MessagePassing):
                     edge_type_list=edge_type,
                     edge_type=etype,
                 )
+                print(f'het_edge_index: {het_edge_index}')
+                print(f'het_edge_weight: {het_edge_weight}')
 
                 if het_edge_index is None:
                     content_h = torch.zeros(

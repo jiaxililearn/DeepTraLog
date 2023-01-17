@@ -129,7 +129,7 @@ class HetGCN_11(nn.Module):
         forward propagate based on gid batch
         """
         batch_data = [self.dataset[i] for i in gid_batch]
-
+        print(f'batch_data: {batch_data}')
         if train:
             # print(f"{self.augment_func.__name__} for the batch ..")
             # het_edge_perturbation(args)

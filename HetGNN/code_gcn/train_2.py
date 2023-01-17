@@ -266,6 +266,7 @@ class Train2(object):
                         #     _out[mini_n][i] = self.model(self.dataset[gid])
                     # else if 'batch' input type
                     else:
+                        print(f'mini_k: {mini_k}')
                         (
                             _out[mini_n],
                             (_out_labels[mini_n], _out_ga_methods[mini_n]),
@@ -287,9 +288,6 @@ class Train2(object):
                 )
 
                 print(f'_out_h: {_out_h}')
-                print(f'_out: {_out}')
-                print(f'_out_labels: {_out_labels}')
-                print(f'_out_ga_methods: {_out_ga_methods}')
 
                 batch_loss_list.append(batch_loss.item())
                 avg_loss_list.append(batch_loss.tolist())
