@@ -246,7 +246,7 @@ class HetGCNConv_11(MessagePassing):
                 het_mask
             ]
 
-    def _norm(self, edge_index, size, edge_weight=None, flow="target_to_source"):
+    def _norm(self, edge_index, size, edge_weight=None, flow="source_to_target"):
         assert flow in ["source_to_target", "target_to_source"]
 
         if edge_weight is None:
