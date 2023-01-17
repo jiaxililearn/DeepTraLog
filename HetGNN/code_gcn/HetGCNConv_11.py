@@ -90,7 +90,6 @@ class HetGCNConv_11(MessagePassing):
         forward method
         """
         print(f'graph_data: {graph_data}')
-        print(f'source_types: {source_types}')
 
         node_feature, edge_index, (edge_weight, edge_type), node_types = graph_data
         if edge_weight is None:
@@ -99,6 +98,7 @@ class HetGCNConv_11(MessagePassing):
         het_h_embeddings = []
         for ntype in range(self.num_node_types * self.num_src_types):
             for etype in range(self.num_edge_types):
+                print(f'neighbour type: {ntype} - {etype}')
                 
                 ## A3 - study when edge/node relation is removed
                 if self.ablation == 'no-edge-relation':
@@ -119,7 +119,6 @@ class HetGCNConv_11(MessagePassing):
                     edge_type=etype,
                 )
                 print(f'het_edge_index: {het_edge_index}')
-                print(f'het_edge_weight: {het_edge_weight}')
 
                 if het_edge_index is None:
                     content_h = torch.zeros(
@@ -150,6 +149,7 @@ class HetGCNConv_11(MessagePassing):
 
                 het_h_embeddings.append(content_h)
 
+        print(f'het_h_embeddings: {het_h_embeddings}')
         combined_het_embedding = torch.cat(het_h_embeddings, 1).view(
             node_feature.shape[0],
             self.hidden_channels
