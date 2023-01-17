@@ -95,10 +95,6 @@ class HetGCNConv_11(MessagePassing):
         if edge_weight is None:
             edge_weight = torch.ones((edge_index.size(1),), device=edge_index.device)
 
-        edge_index, edge_weight = add_remaining_self_loops(
-            edge_index, edge_attr=edge_weight, num_nodes=node_feature.shape[0]
-        )
-
         het_h_embeddings = []
         for ntype in range(self.num_node_types * self.num_src_types):
             for etype in range(self.num_edge_types):
