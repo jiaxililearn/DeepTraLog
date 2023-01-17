@@ -285,6 +285,12 @@ class Train2(object):
                     ),
                     _out_ga_methods.view(-1),
                 )
+
+                print(f'_out_h: {_out_h}')
+                print(f'_out: {_out}')
+                print(f'_out_labels: {_out_labels}')
+                print(f'_out_ga_methods: {_out_ga_methods}')
+
                 batch_loss_list.append(batch_loss.item())
                 avg_loss_list.append(batch_loss.tolist())
                 # print(f'\t Batch Size: {len(k)}; Mini Batch Size: {mini_batch_list.shape}')
