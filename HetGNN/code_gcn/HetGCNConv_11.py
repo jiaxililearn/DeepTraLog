@@ -215,6 +215,7 @@ class HetGCNConv_11(MessagePassing):
             return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
 
         elif source_types is None and edge_type_list is None:
+            print(f'node_types[ntype]: {node_types[ntype]}')
             dst_het_mask = sum(col == i for i in node_types[ntype]).bool()
             cmask = dst_het_mask
             return ntype, torch.stack([row[cmask], col[cmask]]), edge_weight[cmask]
