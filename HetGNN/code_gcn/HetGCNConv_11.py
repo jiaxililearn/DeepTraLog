@@ -41,7 +41,7 @@ class HetGCNConv_11(MessagePassing):
         elif self.ablation == 'no-edge-node-relation':
             self.num_edge_types = 1
             self.num_src_types = 1
-            # self.num_node_types = 1
+            self.num_node_types = 1
 
         # self.k = 12
         # first het node hidden layer
