@@ -340,7 +340,7 @@ python main.py \
 --feature_size 26 \
 --out_embed_s 32 \
 --hidden_channels 32 \
---num_hidden_conv_layers 3 \
+--num_hidden_conv_layers 2 \
 --embed_activation sigmoid \
 --tolerance 5 \
 --augmentation_method all \
@@ -381,7 +381,7 @@ python main.py \
 --feature_size 26 \
 --out_embed_s 32 \
 --hidden_channels 32 \
---num_hidden_conv_layers 3 \
+--num_hidden_conv_layers 2 \
 --embed_activation sigmoid \
 --tolerance 5 \
 --augmentation_method all \
